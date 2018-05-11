@@ -35,14 +35,14 @@ info:
    name: "@artifactId@"
 mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
-  type-aliases-package: com.qqlei.cloud.product.domain
+  type-aliases-package: com.reliable.message.client.server.domain
 
 #reliable.message.reliableMessageProducer
 #reliable.message.producerGroup
-reliable:
-  message:
-    reliableMessageProducer: true
-    producerGroup: ${spring.application.name}
+#reliable:
+#  message:
+#    reliableMessageProducer: true
+#    producerGroup: ${spring.application.name}
 
 
 

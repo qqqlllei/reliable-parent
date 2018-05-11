@@ -1,6 +1,6 @@
-package com.reliable.message.client.server.dao;
+package com.reliable.message.server.dao;
 
-import com.reliable.message.client.server.domain.TpcMqMessage;
+import com.reliable.message.server.domain.TpcMqMessage;
 
 /**
  * Created by 李雷 on 2018/5/11.
@@ -8,4 +8,8 @@ import com.reliable.message.client.server.domain.TpcMqMessage;
 public interface MqMessageMapper {
 
     int insert(TpcMqMessage message);
+
+    TpcMqMessage getByMessageKey(String messageKey);
+
+    int updateByMessageKey(TpcMqMessage update);
 }

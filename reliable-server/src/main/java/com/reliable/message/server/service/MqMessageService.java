@@ -1,4 +1,4 @@
-package com.reliable.message.client.server.service;
+package com.reliable.message.server.service;
 
 import com.reliable.message.model.dto.TpcMqMessageDto;
 
@@ -7,4 +7,6 @@ import com.reliable.message.model.dto.TpcMqMessageDto;
  */
 public interface MqMessageService {
     void saveMessageWaitingConfirm(TpcMqMessageDto tpcMqMessageDto);
+
+    void confirmAndSendMessage(String messageKey);
 }

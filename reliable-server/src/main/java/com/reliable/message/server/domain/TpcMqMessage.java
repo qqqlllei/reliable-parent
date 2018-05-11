@@ -1,4 +1,4 @@
-package com.reliable.message.client.server.domain;
+package com.reliable.message.server.domain;
 
 import lombok.Data;
 

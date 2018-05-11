@@ -1,4 +1,4 @@
-package com.reliable.message.client.server.enums;
+package com.reliable.message.server.enums;
 
 public enum MqSendStatusEnum {
 	/**

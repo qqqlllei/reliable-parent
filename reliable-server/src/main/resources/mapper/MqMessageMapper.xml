@@ -1,5 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.reliable.message.client.server.dao.MqMessageMapper">
+<mapper namespace="com.reliable.message.server.dao.MqMessageMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+	        INSERT INTO mq_message (
+	        	id ,
+	        	version ,
+	        	message_key ,
+	        	message_topic ,
+	        	message_tag ,
+	        	message_body ,
+	        	message_type ,
+	        	producer_group ,
+	        	delay_level ,
+	        	order_type ,
+	        	status ,
+	        	task_status ,
+	        	update_time ,
+	        	resend_times ,
+	        	dead ,
+	        	next_exe_time ,
+	        	yn ,
+	        	creator ,
+	        	creator_id ,
+	        	created_time ,
+	        	last_operator ,
+	        	last_operator_id
+	        ) VALUES (
+	        	#{id} ,
+	        	#{version} ,
+	        	#{messageKey} ,
+	        	#{messageTopic} ,
+	        	#{messageTag} ,
+	        	#{messageBody} ,
+	        	#{messageType} ,
+	        	#{producerGroup} ,
+	        	#{delayLevel} ,
+	        	#{orderType} ,
+	        	#{status} ,
+	        	#{taskStatus} ,
+	        	#{updateTime} ,
+	        	#{resendTimes} ,
+	        	#{dead} ,
+	        	#{nextExeTime} ,
+	        	#{yn} ,
+	        	#{creator} ,
+	        	#{creatorId} ,
+	        	#{createdTime} ,
+	        	#{lastOperator} ,
+	        	#{lastOperatorId}
+	        )
+	    ]]>
+    </insert>
 
 </mapper>
