@@ -8,6 +8,7 @@ import com.reliable.message.server.enums.MqSendStatusEnum;
 import com.reliable.message.server.service.MqConfirmService;
 import com.reliable.message.server.service.MqConsumerService;
 import com.reliable.message.server.service.MqMessageService;
+import com.reliable.message.server.util.UniqueId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,11 @@ public class MqMessageServiceImpl implements MqMessageService {
 
     @Autowired
     private MqConfirmService mqConfirmService;
+
+    @Autowired
+    private UniqueId uniqueId;
+
+    private static final String MQ_CONFIRM_TABLE ="MQ_CONFIRM_TABLE";
 
     @Override
     public void saveMessageWaitingConfirm(TpcMqMessageDto tpcMqMessageDto) {
@@ -76,7 +82,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 //            throw new TpcBizException(ErrorCodeEnum.TPC100500010, topic);
         }
         for (final String consumerCode : consumerGroupList) {
-            tpcMqConfirm = new TpcMqConfirm(UniqueIdGenerator.generateId(), messageId, messageKey, consumerCode);
+            tpcMqConfirm = new TpcMqConfirm(uniqueId.getNextIdByApplicationName(MQ_CONFIRM_TABLE), messageId, messageKey, consumerCode);
             list.add(tpcMqConfirm);
         }
 
