@@ -1,7 +1,9 @@
 package com.reliable.message.server.service.impl;
 
+import com.reliable.message.server.dao.MqConfirmMapper;
 import com.reliable.message.server.domain.TpcMqConfirm;
 import com.reliable.message.server.service.MqConfirmService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,8 +13,12 @@ import java.util.List;
  */
 @Service
 public class MqConfirmServiceImpl implements MqConfirmService{
+
+    @Autowired
+    private MqConfirmMapper mqConfirmMapper;
+
     @Override
     public void batchCreateMqConfirm(List<TpcMqConfirm> list) {
-
+        mqConfirmMapper.batchCreateMqConfirm(list);
     }
 }

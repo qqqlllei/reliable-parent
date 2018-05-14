@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.reliable.message.server.dao.MqConfirmMapper">
+
+    <insert id="batchCreateMqConfirm">
+        insert into pc_tpc_mq_confirm
+        (
+        id,
+        message_id,
+        message_key,
+        consumer_code)
+        VALUES
+        <foreach collection="tpcMqConfirmList" item="item" index="index" separator=",">
+            (
+            #{item.id,jdbcType=BIGINT},
+            #{item.messageId,jdbcType=BIGINT},
+            #{item.messageKey,jdbcType=VARCHAR},
+            #{item.consumerCode,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+</mapper>
