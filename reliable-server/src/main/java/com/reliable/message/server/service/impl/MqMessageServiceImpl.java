@@ -48,7 +48,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 
         Date now = new Date();
         TpcMqMessage message = new ModelMapper().map(tpcMqMessageDto, TpcMqMessage.class);
-        message.setMessageStatus(MqSendStatusEnum.WAIT_SEND.sendStatus());
+        message.setStatus(MqSendStatusEnum.WAIT_SEND.sendStatus());
         message.setUpdateTime(now);
         message.setCreatedTime(now);
         mqMessageMapper.insert(message);
@@ -62,10 +62,10 @@ public class MqMessageServiceImpl implements MqMessageService {
         }
 
         TpcMqMessage update = new TpcMqMessage();
-        update.setMessageStatus(MqSendStatusEnum.SENDING.sendStatus());
+        update.setStatus(MqSendStatusEnum.SENDING.sendStatus());
         update.setId(message.getId());
         update.setUpdateTime(new Date());
-        mqMessageMapper.updateByMessageKey(update);
+        mqMessageMapper.updateById(update);
 
 
         // 创建消费待确认列表

@@ -12,4 +12,7 @@ public interface MqMessageMapper {
     TpcMqMessage getByMessageKey(String messageKey);
 
     int updateByMessageKey(TpcMqMessage update);
+
+
+    int updateById(TpcMqMessage update);
 }

@@ -1,0 +1,16 @@
+com\reliable\message\server\controller\MqMessageController.class
+com\reliable\message\server\dao\MqMessageMapper.class
+com\reliable\message\server\domain\TpcJobTask.class
+com\reliable\message\server\domain\TpcMqConfirm.class
+com\reliable\message\server\service\impl\MqConfirmServiceImpl.class
+com\reliable\message\server\service\MqMessageService.class
+com\reliable\message\server\Application.class
+com\reliable\message\server\service\impl\MqConsumerServiceImpl.class
+com\reliable\message\server\service\MqConfirmService.class
+com\reliable\message\server\dao\MqConsumerMapper.class
+com\reliable\message\server\dao\MqConfirmMapper.class
+com\reliable\message\server\service\impl\MqMessageServiceImpl.class
+com\reliable\message\server\service\MqConsumerService.class
+com\reliable\message\server\enums\MqSendStatusEnum.class
+com\reliable\message\server\util\UniqueId.class
+com\reliable\message\server\domain\TpcMqMessage.class

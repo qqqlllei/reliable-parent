@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.reliable.message.client.mapper.MqMessageDataMapper">
-  <resultMap id="BaseResultMap" type="com.reliable.message.client.model.domain.MqMessageData">
+  <resultMap id="BaseResultMap" type="com.reliable.message.model.domain.MqMessageData">
     <id column="id" property="id" jdbcType="VARCHAR"/>
     <result column="version" property="version" jdbcType="INTEGER"/>
     <result column="message_key" property="messageKey" jdbcType="VARCHAR"/>
@@ -19,7 +19,7 @@
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
     <result column="yn" property="yn" jdbcType="INTEGER"/>
   </resultMap>
-  <resultMap id="ResultMapWithBLOBs" type="com.reliable.message.client.model.domain.MqMessageData" extends="BaseResultMap">
+  <resultMap id="ResultMapWithBLOBs" type="com.reliable.message.model.domain.MqMessageData" extends="BaseResultMap">
     <result column="message_body" property="messageBody" jdbcType="LONGVARCHAR"/>
   </resultMap>
   <sql id="Base_Column_List">
@@ -44,7 +44,7 @@
     message_body
   </sql>
 
-  <insert id="insert" parameterType="com.reliable.message.client.model.domain.MqMessageData" >
+  <insert id="insert" parameterType="com.reliable.message.model.domain.MqMessageData" >
     INSERT INTO producer_message_data (
 	        	id ,
 	        	version ,

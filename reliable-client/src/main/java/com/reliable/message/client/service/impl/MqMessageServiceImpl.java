@@ -22,7 +22,7 @@ import java.util.UUID;
 public class MqMessageServiceImpl implements MqMessageService {
 	@Autowired
 	private MqMessageDataMapper mqMessageDataMapper;
-	@Resource
+	@Autowired
 	private MqMessageFeign mqMessageFeign;
 //	@Resource
 //	private TaskExecutor taskExecutor;

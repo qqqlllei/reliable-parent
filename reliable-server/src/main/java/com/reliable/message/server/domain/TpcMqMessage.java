@@ -53,7 +53,7 @@ public class TpcMqMessage implements Serializable {
 	/**
 	 * 消息状态
 	 */
-	private Integer messageStatus;
+	private Integer status;
 
 	/**
 	 * 消息内容
@@ -93,6 +93,12 @@ public class TpcMqMessage implements Serializable {
 	 * 更新时间
 	 */
 	private Date updateTime;
+
+	private String creator;
+	private int creatorId;
+	private String lastOperator;
+	private int lastOperatorId;
+
 
 	private List<Integer> preStatusList;
 }

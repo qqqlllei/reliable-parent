@@ -32,7 +32,7 @@ public class MqProducerStoreAspect {
 	/**
 	 * Add exe time annotation pointcut.
 	 */
-	@Pointcut("@annotation(com.reliable.message.MqProducerStore)")
+	@Pointcut("@annotation(com.reliable.message.client.annotation.MqProducerStore)")
 	public void mqProducerStoreAnnotationPointcut() {
 
 	}

@@ -140,4 +140,10 @@ public class Wrapper<T> implements Serializable {
 		return !success();
 	}
 
+	public static Wrapper ok(){
+		Wrapper wrapper = new Wrapper();
+		wrapper.setCode(Wrapper.SUCCESS_CODE);
+		return wrapper;
+	}
+
 }
