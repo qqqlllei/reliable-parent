@@ -3,6 +3,7 @@ package com.reliable.message.server.controller;
 import com.reliable.message.server.service.MqMessageService;
 import com.reliable.message.model.dto.TpcMqMessageDto;
 import com.reliable.message.model.wrapper.Wrapper;
+import com.reliable.message.server.stream.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,10 @@ public class MqMessageController {
     private MqMessageService messageService;
 
 
+    @Autowired
+    private SendService service;
+
+
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping("/saveMessageWaitingConfirm")
@@ -36,6 +41,12 @@ public class MqMessageController {
         logger.info("确认并发送消息. messageKey={}", messageKey);
         messageService.confirmAndSendMessage(messageKey);
         return Wrapper.ok();
+    }
+
+
+    @RequestMapping("/send")
+    public void send(){
+        service.sendMessage("stream 发送消息");
     }
 
 }

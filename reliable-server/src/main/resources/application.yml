@@ -20,6 +20,22 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/shop?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
     username: root
     password: 123456
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 10.33.80.114:9092
+          zk-nodes: 10.33.80.114:2181
+          minPartitionCount: 1
+          autoCreateTopics: true
+          autoAddPartitions: true
+      bindings:
+        input:
+          destination: topic
+          group: reliable-server
+          consumer:
+            concurrency: 1
+            partitioned: false
 
 feign:
   hystrix:
@@ -35,7 +51,7 @@ info:
    name: "@artifactId@"
 mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
-  type-aliases-package: com.reliable.message.client.server.domain
+  type-aliases-package: com.reliable.message.client.server.domain  #配置别名作用（如果在mapper 中不写简称，那么可以不配置这个，待确认）
 
 #reliable.message.reliableMessageProducer
 #reliable.message.producerGroup
