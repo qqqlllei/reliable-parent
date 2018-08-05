@@ -11,6 +11,7 @@ import com.reliable.message.server.service.MqMessageService;
 import com.reliable.message.server.util.UniqueId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -36,6 +37,9 @@ public class MqMessageServiceImpl implements MqMessageService {
 
     @Autowired
     private UniqueId uniqueId;
+
+    @Autowired
+    private KafkaTemplate kafkaTemplate;
 
     private static final String MQ_CONFIRM_TABLE ="MQ_CONFIRM_TABLE";
 
@@ -71,7 +75,12 @@ public class MqMessageServiceImpl implements MqMessageService {
         // 创建消费待确认列表
         this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), message.getMessageKey());
         // 直接发送消息
-//        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), message.getMessageTag(), message.getMessageKey(), message.getProducerGroup(), message.getDelayLevel());
+        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), message.getMessageKey(), message.getProducerGroup(), message.getDelayLevel());
+    }
+
+    @Override
+    public void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel) {
+
     }
 
     private void createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {
