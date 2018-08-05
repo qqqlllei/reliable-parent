@@ -11,4 +11,6 @@ public interface MqMessageService {
     void confirmAndSendMessage(String messageKey);
 
     void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel);
+
+    void confirmReceiveMessage(String consumerGroup, String messageKey);
 }

@@ -83,6 +83,13 @@ public class MqMessageServiceImpl implements MqMessageService {
 
     }
 
+    @Override
+    public void confirmReceiveMessage(String consumerGroup, String messageKey) {
+        Long confirmId = mqMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
+        // 3. 更新消费信息的状态
+        mqMessageMapper.confirmReceiveMessage(confirmId);
+    }
+
     private void createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {
         List<TpcMqConfirm> list = new ArrayList<TpcMqConfirm>();
         TpcMqConfirm tpcMqConfirm;

@@ -20,4 +20,18 @@
         </foreach>
     </insert>
 
+
+    <select id="getConfirmIdByGroupAndKey" >
+         SELECT id
+    FROM message_confirm
+    WHERE consumer_group = #{consumerGroup} AND message_key = #{messageKey}
+    </select>
+
+
+    <update id="confirmReceiveMessage">
+        UPDATE message_confirm
+        SET status = 20, consume_count = consume_count + 1
+        WHERE id = #{confirmId} AND status = 10
+    </update>
+
 </mapper>
