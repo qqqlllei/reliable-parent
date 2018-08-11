@@ -88,7 +88,14 @@ public class MqMessageServiceImpl implements MqMessageService {
 
 	@Override
 	public void saveAndConfirmFinishMessage(String consumerGroup, String messageKey) {
-
+		Wrapper wrapper = mqMessageFeign.confirmConsumedMessage(consumerGroup, messageKey);
+		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
+		if (wrapper == null) {
+//			throw new TpcBizException(ErrorCodeEnum.GL99990002);
+		}
+		if (wrapper.error()) {
+//			throw new TpcBizException(ErrorCodeEnum.TPC10050004, wrapper.getMessage(), messageKey);
+		}
 	}
 
 

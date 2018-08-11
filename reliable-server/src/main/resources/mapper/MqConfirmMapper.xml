@@ -34,4 +34,10 @@
         WHERE id = #{confirmId} AND status = 10
     </update>
 
+    <update id="confirmConsumedMessage">
+    UPDATE message_confirm
+    SET status = 30
+    WHERE id = #{confirmId} AND status in (10, 20)
+  </update>
+
 </mapper>

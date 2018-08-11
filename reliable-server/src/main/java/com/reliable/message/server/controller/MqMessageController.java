@@ -51,6 +51,13 @@ public class MqMessageController {
         return Wrapper.ok();
     }
 
+    @RequestMapping("/confirmConsumedMessage")
+    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("messageKey") final String messageKey){
+        logger.info("确认完成消费消息. consumerGroup={}, messageKey={}", consumerGroup, messageKey);
+        messageService.confirmConsumedMessage(consumerGroup, messageKey);
+        return Wrapper.ok();
+    }
+
     @RequestMapping("/send")
     public void send(){
         service.sendMessage("stream 发送消息");

@@ -13,4 +13,6 @@ public interface MqMessageService {
     void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel);
 
     void confirmReceiveMessage(String consumerGroup, String messageKey);
+
+    void confirmConsumedMessage(String consumerGroup, String messageKey);
 }

@@ -80,7 +80,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 
     @Override
     public void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel) {
-
+        // TODO kafka 直接发送topic 消息
     }
 
     @Override
@@ -88,6 +88,12 @@ public class MqMessageServiceImpl implements MqMessageService {
         Long confirmId = mqMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
         // 3. 更新消费信息的状态
         mqMessageMapper.confirmReceiveMessage(confirmId);
+    }
+
+    @Override
+    public void confirmConsumedMessage(String consumerGroup, String messageKey) {
+        Long confirmId = mqMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
+        mqConfirmService.confirmConsumedMessage(confirmId);
     }
 
     private void createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {

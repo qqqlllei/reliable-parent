@@ -25,4 +25,7 @@ public interface MqMessageFeign {
 
     @RequestMapping(value = "/message/confirmReceiveMessage",method = RequestMethod.POST)
     Wrapper confirmReceiveMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("messageKey") final String messageKey);
+
+    @RequestMapping(value = "/message/confirmConsumedMessage",method = RequestMethod.POST)
+    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") String consumerGroup,@RequestParam("messageKey") String messageKey);
 }
