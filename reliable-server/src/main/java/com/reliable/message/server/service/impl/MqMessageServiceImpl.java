@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by 李雷 on 2018/5/11.
@@ -53,8 +54,11 @@ public class MqMessageServiceImpl implements MqMessageService {
         Date now = new Date();
         TpcMqMessage message = new ModelMapper().map(tpcMqMessageDto, TpcMqMessage.class);
         message.setStatus(MqSendStatusEnum.WAIT_SEND.sendStatus());
+        int a = new Random().nextInt();
+        long b = a;
+        message.setId(b);
         message.setUpdateTime(now);
-        message.setCreatedTime(now);
+        message.setCreateTime(now);
         mqMessageMapper.insert(message);
     }
 
@@ -73,9 +77,9 @@ public class MqMessageServiceImpl implements MqMessageService {
 
 
         // 创建消费待确认列表
-        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), message.getMessageKey());
+        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), "messageKey");
         // 直接发送消息
-        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), message.getMessageKey(), message.getProducerGroup(), message.getDelayLevel());
+        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), "messageKey", message.getProducerGroup(), 1);
     }
 
     @Override

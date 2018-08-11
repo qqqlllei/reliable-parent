@@ -13,6 +13,7 @@ import com.reliable.message.model.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -55,6 +56,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 		mqMessageDataMapper.insert(mqMessageData);
 	}
 
+	@Async
 	@Override
 	public void confirmAndSendMessage(String messageKey) {
 		Wrapper wrapper = mqMessageFeign.confirmAndSendMessage(messageKey);

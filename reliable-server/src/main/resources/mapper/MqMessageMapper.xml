@@ -108,47 +108,25 @@
 	        INSERT INTO message (
 	        	id ,
 	        	version ,
-	        	message_key ,
 	        	message_topic ,
 	        	message_body ,
-	        	message_type ,
 	        	producer_group ,
-	        	delay_level ,
-	        	order_type ,
 	        	status ,
-	        	task_status ,
 	        	update_time ,
-	        	resend_times ,
+	        	send_times ,
 	        	dead ,
-	        	next_exe_time ,
-	        	yn ,
-	        	creator ,
-	        	creator_id ,
-	        	created_time ,
-	        	last_operator ,
-	        	last_operator_id
+	        	create_time
 	        ) VALUES (
 	        	#{id} ,
 	        	#{version} ,
-	        	#{messageKey} ,
 	        	#{messageTopic} ,
 	        	#{messageBody} ,
-	        	#{messageType} ,
 	        	#{producerGroup} ,
-	        	#{delayLevel} ,
-	        	#{orderType} ,
 	        	#{status} ,
-	        	#{taskStatus} ,
 	        	#{updateTime} ,
-	        	#{resendTimes} ,
+	        	#{sendTimes} ,
 	        	#{dead} ,
-	        	#{nextExeTime} ,
-	        	#{yn} ,
-	        	#{creator} ,
-	        	#{creatorId} ,
-	        	#{createdTime} ,
-	        	#{lastOperator} ,
-	        	#{lastOperatorId}
+	        	#{createTime}
 	        )
 	    ]]>
     </insert>
