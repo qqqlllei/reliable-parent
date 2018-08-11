@@ -30,4 +30,9 @@ public class MqMessageFeignHystrix implements MqMessageFeign {
     public Wrapper confirmReceiveMessage(@RequestParam("consumerGroup") String consumerGroup, @RequestParam("messageKey") String messageKey) {
         return null;
     }
+
+    @Override
+    public Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") String consumerGroup, @RequestParam("messageKey") String messageKey) {
+        return null;
+    }
 }

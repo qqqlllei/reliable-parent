@@ -105,7 +105,7 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         <![CDATA[
-	        INSERT INTO mq_message (
+	        INSERT INTO message (
 	        	id ,
 	        	version ,
 	        	message_key ,
@@ -155,11 +155,11 @@
 
 
     <select id="getByMessageKey" parameterType="java.lang.String" resultMap="RM_MqMessage" >
-            SELECT * FROM mq_message WHERE message_key = #{messageKey}
+            SELECT * FROM message WHERE message_key = #{messageKey}
     </select>
     
     <update id="updateById" parameterType="com.reliable.message.server.domain.TpcMqMessage"  >
-        UPDATE mq_message
+        UPDATE message
         <include refid="update_sql" />
         WHERE
         id = #{id}

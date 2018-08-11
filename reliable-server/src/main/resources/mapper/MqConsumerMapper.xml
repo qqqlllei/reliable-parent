@@ -3,7 +3,7 @@
 <mapper namespace="com.reliable.message.server.dao.MqConsumerMapper">
 
     <select id="listConsumerGroupByTopic" resultType="java.lang.String">
-        SELECT consumer_code from mq_subscribe WHERE topic_code = #{topic}
+        SELECT consumer_code from message_consumer WHERE topic_code = #{topic}
     </select>
 
 </mapper>

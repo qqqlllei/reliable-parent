@@ -3,19 +3,19 @@
 <mapper namespace="com.reliable.message.server.dao.MqConfirmMapper">
 
     <insert id="batchCreateMqConfirm">
-        insert into mq_confirm
+        insert into message_confirm
         (
         id,
         message_id,
         message_key,
-        consumer_code)
+        consumer_group)
         VALUES
         <foreach collection="tpcMqConfirmList" item="item" index="index" separator=",">
             (
             #{item.id,jdbcType=BIGINT},
             #{item.messageId,jdbcType=BIGINT},
             #{item.messageKey,jdbcType=VARCHAR},
-            #{item.consumerCode,jdbcType=VARCHAR}
+            #{item.consumer_group,jdbcType=VARCHAR}
             )
         </foreach>
     </insert>
