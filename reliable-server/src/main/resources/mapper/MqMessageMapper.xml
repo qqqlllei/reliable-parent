@@ -51,53 +51,27 @@
             <if test="messageBody != null and messageBody != ''">
                 message_body = #{messageBody} ,
             </if>
-            <if test="messageType != null">
-                message_type = #{messageType} ,
-            </if>
+
             <if test="producerGroup != null and producerGroup != ''">
                 producer_group = #{producerGroup} ,
             </if>
-            <if test="delayLevel != null">
-                delay_level = #{delayLevel} ,
-            </if>
-            <if test="orderType != null">
-                order_type = #{orderType} ,
-            </if>
+
             <if test="status != null">
                 status = #{status} ,
             </if>
-            <if test="taskStatus != null">
-                task_status = #{taskStatus} ,
-            </if>
+
             <if test="updateTime != null">
                 update_time = #{updateTime} ,
             </if>
-            <if test="resendTimes != null">
-                resend_times = #{resendTimes} ,
+            <if test="sendTimes != null">
+                send_times = #{sendTimes} ,
             </if>
             <if test="dead != null">
                 dead = #{dead} ,
             </if>
-            <if test="nextExeTime != null">
-                next_exe_time = #{nextExeTime} ,
-            </if>
-            <if test="yn != null">
-                yn = #{yn} ,
-            </if>
-            <if test="creator != null and creator != ''">
-                creator = #{creator} ,
-            </if>
-            <if test="creatorId != null">
-                creator_id = #{creatorId} ,
-            </if>
-            <if test="createdTime != null">
-                created_time = #{createdTime} ,
-            </if>
-            <if test="lastOperator != null and lastOperator != ''">
-                last_operator = #{lastOperator} ,
-            </if>
-            <if test="lastOperatorId != null">
-                last_operator_id = #{lastOperatorId}
+
+            <if test="createTime != null">
+                create_time = #{createTime}
             </if>
         </set>
     </sql>
@@ -110,6 +84,7 @@
 	        	version ,
 	        	message_topic ,
 	        	message_body ,
+	        	message_key,
 	        	producer_group ,
 	        	status ,
 	        	update_time ,
@@ -121,6 +96,7 @@
 	        	#{version} ,
 	        	#{messageTopic} ,
 	        	#{messageBody} ,
+	        	#{messageKey},
 	        	#{producerGroup} ,
 	        	#{status} ,
 	        	#{updateTime} ,

@@ -17,6 +17,7 @@ import org.springframework.core.task.TaskExecutor;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 
 /**
@@ -73,6 +74,8 @@ public class MqProducerStoreAspect {
 		}
 
 		domain.setOrderType(orderType);
+		domain.setId(UUID.randomUUID().toString());
+		domain.setMessageKey(domain.getId());
 		domain.setProducerGroup(producerGroup);
 		if (type == MqSendTypeEnum.WAIT_CONFIRM) {
 			if (delayLevelEnum != DelayLevelEnum.ZERO) {
@@ -88,8 +91,6 @@ public class MqProducerStoreAspect {
 //			mqMessageService.directSendMessage(domain);
 		} else {
 			mqMessageService.confirmAndSendMessage(domain.getMessageKey());
-//			final MqMessageData finalDomain = domain;
-//			taskExecutor.execute(() -> mqMessageService.confirmAndSendMessage(finalDomain.getMessageKey()));
 		}
 		return result;
 	}

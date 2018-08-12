@@ -15,7 +15,7 @@
             #{item.id,jdbcType=BIGINT},
             #{item.messageId,jdbcType=BIGINT},
             #{item.messageKey,jdbcType=VARCHAR},
-            #{item.consumer_group,jdbcType=VARCHAR}
+            #{item.consumerGroup,jdbcType=VARCHAR}
             )
         </foreach>
     </insert>

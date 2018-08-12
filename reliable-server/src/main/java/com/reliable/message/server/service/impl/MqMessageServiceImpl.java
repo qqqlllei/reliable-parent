@@ -15,10 +15,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by 李雷 on 2018/5/11.
@@ -77,9 +74,9 @@ public class MqMessageServiceImpl implements MqMessageService {
 
 
         // 创建消费待确认列表
-        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), "messageKey");
+        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), messageKey);
         // 直接发送消息
-        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), "messageKey", message.getProducerGroup(), 1);
+        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), messageKey, message.getProducerGroup(), 1);
     }
 
     @Override
@@ -108,7 +105,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 //            throw new TpcBizException(ErrorCodeEnum.TPC100500010, topic);
         }
         for (final String consumerCode : consumerGroupList) {
-            tpcMqConfirm = new TpcMqConfirm(uniqueId.getNextIdByApplicationName(MQ_CONFIRM_TABLE), messageId, messageKey, consumerCode);
+            tpcMqConfirm = new TpcMqConfirm(UUID.randomUUID().toString(), messageId, messageKey, consumerCode);
             list.add(tpcMqConfirm);
         }
 

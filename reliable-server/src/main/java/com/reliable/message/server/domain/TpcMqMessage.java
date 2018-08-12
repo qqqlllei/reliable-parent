@@ -30,6 +30,12 @@ public class TpcMqMessage implements Serializable {
 	 */
 	private String producerGroup;
 
+
+	/**
+	 *  目前是生产者messageId
+     */
+	private String messageKey;
+
 	/**
 	 * 消息状态
 	 */

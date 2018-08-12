@@ -52,21 +52,20 @@ public class MqMessageServiceImpl implements MqMessageService {
 		this.checkMessage(mqMessageData);
 		// 先保存消息
 		mqMessageData.setMessageType(MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
-		mqMessageData.setId(UUID.randomUUID().toString());
 		mqMessageDataMapper.insert(mqMessageData);
 	}
 
 	@Async
 	@Override
-	public void confirmAndSendMessage(String messageKey) {
-		Wrapper wrapper = mqMessageFeign.confirmAndSendMessage(messageKey);
+	public void confirmAndSendMessage(String messageId) {
+		Wrapper wrapper = mqMessageFeign.confirmAndSendMessage(messageId);
 		if (wrapper == null) {
 //			throw new TpcBizException(ErrorCodeEnum.GL99990002);
 		}
 		if (wrapper.error()) {
 //			throw new TpcBizException(ErrorCodeEnum.TPC10050004, wrapper.getMessage(), messageKey);
 		}
-		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. messageKey={}", messageKey);
+		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. messageId={}", messageId);
 	}
 
 	@Override

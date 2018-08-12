@@ -38,7 +38,7 @@ public class MqMessageController {
 
 
     @RequestMapping("/confirmAndSendMessage")
-    Wrapper confirmAndSendMessage(String messageKey){
+    Wrapper confirmAndSendMessage(@RequestParam("messageKey") String messageKey){
         logger.info("确认并发送消息. messageKey={}", messageKey);
         messageService.confirmAndSendMessage(messageKey);
         return Wrapper.ok();
