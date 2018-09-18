@@ -1,8 +1,0 @@
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\enums\MqMessageTypeEnum.java
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\enums\MqMessageStatusEnum.java
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\wrapper\Wrapper.java
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\enums\DelayLevelEnum.java
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\dto\TpcMqMessageDto.java
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\enums\MqOrderTypeEnum.java
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\enums\MqSendTypeEnum.java
-D:\work\reliable-parent\reliable-common\src\main\java\com\reliable\message\model\domain\MqMessageData.java

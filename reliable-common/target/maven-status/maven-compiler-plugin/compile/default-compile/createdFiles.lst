@@ -1,8 +1,0 @@
-com\reliable\message\model\enums\MqMessageStatusEnum.class
-com\reliable\message\model\domain\MqMessageData.class
-com\reliable\message\model\dto\TpcMqMessageDto.class
-com\reliable\message\model\enums\MqMessageTypeEnum.class
-com\reliable\message\model\enums\MqSendTypeEnum.class
-com\reliable\message\model\enums\MqOrderTypeEnum.class
-com\reliable\message\model\enums\DelayLevelEnum.class
-com\reliable\message\model\wrapper\Wrapper.class

@@ -1,19 +1,19 @@
 server:
   port: 8086
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://127.0.0.1:8761/eureka
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://127.0.0.1:8761/eureka
   instance:
     prefer-ip-address: true
 spring:
   application:
     name: reliable-server
-  zipkin:
-    base-url: http://localhost:8001
-  sleuth:
-      sampler:
-        percentage: 1.0
+#  zipkin:
+#    base-url: http://localhost:8001
+#  sleuth:
+#      sampler:
+#        percentage: 1.0
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.jdbc.Driver
@@ -24,8 +24,8 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 10.33.80.114:9092
-          zk-nodes: 10.33.80.114:2181
+          brokers: 10.33.80.101:9092
+          zk-nodes: 10.33.80.101:2181
           minPartitionCount: 1
           autoCreateTopics: true
           autoAddPartitions: true
@@ -34,8 +34,11 @@ spring:
           destination: topic
           group: reliable-server
           consumer:
+            startOffset:
             concurrency: 1
             partitioned: false
+
+
 
 feign:
   hystrix:
@@ -51,7 +54,7 @@ info:
    name: "@artifactId@"
 mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
-  type-aliases-package: com.reliable.message.client.server.domain  #配置别名作用（如果在mapper 中不写简称，那么可以不配置这个，待确认）
+  type-aliases-package: com.reliable.message.client.server.domain  #配置别名作用（如果在mapper 中不写简称，可以不配置这个）
 
 #reliable.message.reliableMessageProducer
 #reliable.message.producerGroup
