@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface MqConfirmService {
     void batchCreateMqConfirm(List<TpcMqConfirm> list);
+
+    void confirmConsumedMessage(Long confirmId);
 }

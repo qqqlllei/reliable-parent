@@ -1,7 +1,5 @@
 package com.reliable.message.client.feign;
 
-import com.reliable.message.client.hystrix.MqMessageFeignHystrix;
-
 import com.reliable.message.model.dto.TpcMqMessageDto;
 import com.reliable.message.model.wrapper.Wrapper;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -24,4 +22,10 @@ public interface MqMessageFeign {
 
     @RequestMapping(value = "/message/confirmAndSendMessage",method = RequestMethod.POST)
     Wrapper confirmAndSendMessage(@RequestParam("messageKey") String messageKey);
+
+    @RequestMapping(value = "/message/confirmReceiveMessage",method = RequestMethod.POST)
+    Wrapper confirmReceiveMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("messageKey") final String messageKey);
+
+    @RequestMapping(value = "/message/confirmConsumedMessage",method = RequestMethod.POST)
+    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") String consumerGroup,@RequestParam("messageKey") String messageKey);
 }

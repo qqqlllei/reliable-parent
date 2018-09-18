@@ -15,4 +15,8 @@ public interface MqMessageMapper {
 
 
     int updateById(TpcMqMessage update);
+
+    Long getConfirmIdByGroupAndKey(String consumerGroup, String messageKey);
+
+    void confirmReceiveMessage(Long confirmId);
 }

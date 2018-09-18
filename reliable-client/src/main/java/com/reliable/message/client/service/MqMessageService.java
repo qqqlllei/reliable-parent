@@ -18,5 +18,9 @@ public interface MqMessageService {
 	 */
 	void saveMqProducerMessage(MqMessageData mqMessageData);
 
-    void confirmAndSendMessage(String messageKey);
+    void confirmAndSendMessage(String messageId);
+
+    void confirmReceiveMessage(String consumerGroup, MqMessageData dto);
+
+	void saveAndConfirmFinishMessage(String consumerGroup, String messageKey);
 }

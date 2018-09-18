@@ -13,9 +13,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 
 /**
@@ -28,6 +30,9 @@ public class MqProducerStoreAspect {
 	private MqMessageService mqMessageService;
 	@Value("${reliable.message.producerGroup}")
 	private String producerGroup;
+
+//	@Resource
+//	private TaskExecutor taskExecutor;
 
 	/**
 	 * Add exe time annotation pointcut.
@@ -69,6 +74,8 @@ public class MqProducerStoreAspect {
 		}
 
 		domain.setOrderType(orderType);
+		domain.setId(UUID.randomUUID().toString());
+		domain.setMessageKey(domain.getId());
 		domain.setProducerGroup(producerGroup);
 		if (type == MqSendTypeEnum.WAIT_CONFIRM) {
 			if (delayLevelEnum != DelayLevelEnum.ZERO) {
@@ -83,7 +90,6 @@ public class MqProducerStoreAspect {
 		} else if (type == MqSendTypeEnum.DIRECT_SEND) {
 //			mqMessageService.directSendMessage(domain);
 		} else {
-			//TODO 这里应该是异步发送确认消息的通知
 			mqMessageService.confirmAndSendMessage(domain.getMessageKey());
 		}
 		return result;

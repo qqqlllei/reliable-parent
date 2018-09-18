@@ -21,4 +21,9 @@ public class MqConfirmServiceImpl implements MqConfirmService{
     public void batchCreateMqConfirm(List<TpcMqConfirm> list) {
         mqConfirmMapper.batchCreateMqConfirm(list);
     }
+
+    @Override
+    public void confirmConsumedMessage(Long confirmId) {
+
+    }
 }

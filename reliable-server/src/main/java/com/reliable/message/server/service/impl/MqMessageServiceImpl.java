@@ -11,12 +11,11 @@ import com.reliable.message.server.service.MqMessageService;
 import com.reliable.message.server.util.UniqueId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by 李雷 on 2018/5/11.
@@ -37,6 +36,9 @@ public class MqMessageServiceImpl implements MqMessageService {
     @Autowired
     private UniqueId uniqueId;
 
+    @Autowired
+    private KafkaTemplate kafkaTemplate;
+
     private static final String MQ_CONFIRM_TABLE ="MQ_CONFIRM_TABLE";
 
     @Override
@@ -49,8 +51,11 @@ public class MqMessageServiceImpl implements MqMessageService {
         Date now = new Date();
         TpcMqMessage message = new ModelMapper().map(tpcMqMessageDto, TpcMqMessage.class);
         message.setStatus(MqSendStatusEnum.WAIT_SEND.sendStatus());
+        int a = new Random().nextInt();
+        long b = a;
+        message.setId(b);
         message.setUpdateTime(now);
-        message.setCreatedTime(now);
+        message.setCreateTime(now);
         mqMessageMapper.insert(message);
     }
 
@@ -69,9 +74,27 @@ public class MqMessageServiceImpl implements MqMessageService {
 
 
         // 创建消费待确认列表
-        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), message.getMessageKey());
+        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), messageKey);
         // 直接发送消息
-//        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), message.getMessageTag(), message.getMessageKey(), message.getProducerGroup(), message.getDelayLevel());
+        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), messageKey, message.getProducerGroup(), 1);
+    }
+
+    @Override
+    public void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel) {
+        // TODO kafka 直接发送topic 消息
+    }
+
+    @Override
+    public void confirmReceiveMessage(String consumerGroup, String messageKey) {
+        Long confirmId = mqMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
+        // 3. 更新消费信息的状态
+        mqMessageMapper.confirmReceiveMessage(confirmId);
+    }
+
+    @Override
+    public void confirmConsumedMessage(String consumerGroup, String messageKey) {
+        Long confirmId = mqMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
+        mqConfirmService.confirmConsumedMessage(confirmId);
     }
 
     private void createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {
@@ -82,7 +105,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 //            throw new TpcBizException(ErrorCodeEnum.TPC100500010, topic);
         }
         for (final String consumerCode : consumerGroupList) {
-            tpcMqConfirm = new TpcMqConfirm(uniqueId.getNextIdByApplicationName(MQ_CONFIRM_TABLE), messageId, messageKey, consumerCode);
+            tpcMqConfirm = new TpcMqConfirm(UUID.randomUUID().toString(), messageId, messageKey, consumerCode);
             list.add(tpcMqConfirm);
         }
 

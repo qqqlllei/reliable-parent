@@ -6,11 +6,14 @@ import com.reliable.message.client.mapper.MqMessageDataMapper;
 import com.reliable.message.client.service.MqMessageService;
 import com.reliable.message.model.domain.MqMessageData;
 import com.reliable.message.model.dto.TpcMqMessageDto;
+import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MqMessageTypeEnum;
+import com.reliable.message.model.exception.BusinessException;
 import com.reliable.message.model.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,20 +52,51 @@ public class MqMessageServiceImpl implements MqMessageService {
 		this.checkMessage(mqMessageData);
 		// 先保存消息
 		mqMessageData.setMessageType(MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
-		mqMessageData.setId(UUID.randomUUID().toString());
 		mqMessageDataMapper.insert(mqMessageData);
 	}
 
+	@Async
 	@Override
-	public void confirmAndSendMessage(String messageKey) {
-		Wrapper wrapper = mqMessageFeign.confirmAndSendMessage(messageKey);
+	public void confirmAndSendMessage(String messageId) {
+		Wrapper wrapper = mqMessageFeign.confirmAndSendMessage(messageId);
 		if (wrapper == null) {
 //			throw new TpcBizException(ErrorCodeEnum.GL99990002);
 		}
 		if (wrapper.error()) {
 //			throw new TpcBizException(ErrorCodeEnum.TPC10050004, wrapper.getMessage(), messageKey);
 		}
-		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. messageKey={}", messageKey);
+		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. messageId={}", messageId);
+	}
+
+	@Override
+	public void confirmReceiveMessage(String consumerGroup, MqMessageData messageData) {
+		final String messageKey = messageData.getMessageKey();
+		log.info("confirmReceiveMessage - 消费者={}, 确认收到key={}的消息", consumerGroup, messageKey);
+		// 先保存消息
+		messageData.setMessageType(MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
+		messageData.setId(UUID.randomUUID().toString());
+		mqMessageDataMapper.insert(messageData);
+
+		Wrapper wrapper = mqMessageFeign.confirmReceiveMessage(consumerGroup, messageKey);
+		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
+		if (wrapper == null) {
+			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
+		}
+		if (wrapper.error()) {
+			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
+		}
+	}
+
+	@Override
+	public void saveAndConfirmFinishMessage(String consumerGroup, String messageKey) {
+		Wrapper wrapper = mqMessageFeign.confirmConsumedMessage(consumerGroup, messageKey);
+		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
+		if (wrapper == null) {
+//			throw new TpcBizException(ErrorCodeEnum.GL99990002);
+		}
+		if (wrapper.error()) {
+//			throw new TpcBizException(ErrorCodeEnum.TPC10050004, wrapper.getMessage(), messageKey);
+		}
 	}
 
 

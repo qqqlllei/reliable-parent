@@ -3,21 +3,41 @@
 <mapper namespace="com.reliable.message.server.dao.MqConfirmMapper">
 
     <insert id="batchCreateMqConfirm">
-        insert into mq_confirm
+        insert into message_confirm
         (
         id,
         message_id,
         message_key,
-        consumer_code)
+        consumer_group)
         VALUES
         <foreach collection="tpcMqConfirmList" item="item" index="index" separator=",">
             (
             #{item.id,jdbcType=BIGINT},
             #{item.messageId,jdbcType=BIGINT},
             #{item.messageKey,jdbcType=VARCHAR},
-            #{item.consumerCode,jdbcType=VARCHAR}
+            #{item.consumerGroup,jdbcType=VARCHAR}
             )
         </foreach>
     </insert>
+
+
+    <select id="getConfirmIdByGroupAndKey" >
+         SELECT id
+    FROM message_confirm
+    WHERE consumer_group = #{consumerGroup} AND message_key = #{messageKey}
+    </select>
+
+
+    <update id="confirmReceiveMessage">
+        UPDATE message_confirm
+        SET status = 20, consume_count = consume_count + 1
+        WHERE id = #{confirmId} AND status = 10
+    </update>
+
+    <update id="confirmConsumedMessage">
+    UPDATE message_confirm
+    SET status = 30
+    WHERE id = #{confirmId} AND status in (10, 20)
+  </update>
 
 </mapper>

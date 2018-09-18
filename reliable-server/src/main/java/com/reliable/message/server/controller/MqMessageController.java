@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -37,12 +38,25 @@ public class MqMessageController {
 
 
     @RequestMapping("/confirmAndSendMessage")
-    Wrapper confirmAndSendMessage(String messageKey){
+    Wrapper confirmAndSendMessage(@RequestParam("messageKey") String messageKey){
         logger.info("确认并发送消息. messageKey={}", messageKey);
         messageService.confirmAndSendMessage(messageKey);
         return Wrapper.ok();
     }
 
+    @RequestMapping("/confirmReceiveMessage")
+    Wrapper confirmReceiveMessage(@RequestParam("cid") final String consumerGroup, @RequestParam("messageKey") final String messageKey){
+        logger.info("确认收到消息. consumerGroup={}, messageKey={}", consumerGroup, messageKey);
+        messageService.confirmReceiveMessage(consumerGroup, messageKey);
+        return Wrapper.ok();
+    }
+
+    @RequestMapping("/confirmConsumedMessage")
+    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("messageKey") final String messageKey){
+        logger.info("确认完成消费消息. consumerGroup={}, messageKey={}", consumerGroup, messageKey);
+        messageService.confirmConsumedMessage(consumerGroup, messageKey);
+        return Wrapper.ok();
+    }
 
     @RequestMapping("/send")
     public void send(){

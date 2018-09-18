@@ -8,5 +8,11 @@ import com.reliable.message.model.dto.TpcMqMessageDto;
 public interface MqMessageService {
     void saveMessageWaitingConfirm(TpcMqMessageDto tpcMqMessageDto);
 
-    void confirmAndSendMessage(String messageKey);
+    void confirmAndSendMessage(String messageId);
+
+    void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel);
+
+    void confirmReceiveMessage(String consumerGroup, String messageKey);
+
+    void confirmConsumedMessage(String consumerGroup, String messageKey);
 }
