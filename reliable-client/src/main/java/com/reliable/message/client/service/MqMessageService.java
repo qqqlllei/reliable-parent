@@ -23,4 +23,6 @@ public interface MqMessageService {
     void confirmReceiveMessage(String consumerGroup, MqMessageData dto);
 
 	void saveAndConfirmFinishMessage(String consumerGroup, String messageKey);
+
+    boolean checkMessageStatus(MqMessageData dto);
 }

@@ -77,6 +77,15 @@ public class MqConsumerStoreAspect {
 
 		MqMessageData dto = this.getTpcMqMessageDto(messageExtList.get(0));
 		final String messageKey = dto.getMessageKey();
+
+
+
+		// 重复消费检查
+		boolean consumed = mqMessageService.checkMessageStatus(dto);
+		if(consumed) return null;
+
+
+
 		if (isStorePreStatus) {
 			mqMessageService.confirmReceiveMessage(consumerGroup, dto);
 		}

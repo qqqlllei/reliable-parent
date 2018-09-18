@@ -99,6 +99,11 @@ public class MqMessageServiceImpl implements MqMessageService {
 		}
 	}
 
+	@Override
+	public boolean checkMessageStatus(MqMessageData dto) {
+		return false;
+	}
+
 
 	private void checkMessage(MqMessageData mqMessageData) {
 		if (null == mqMessageData) {
