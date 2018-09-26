@@ -20,25 +20,14 @@ spring:
     url: jdbc:mysql://10.33.80.101:3306/reliable_message?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
     username: root
     password: 123456
-  cloud:
-    stream:
-      kafka:
-        binder:
-          brokers: 10.33.80.101:9092
-          zk-nodes: 10.33.80.101:2181
-          minPartitionCount: 1
-          autoCreateTopics: true
-          autoAddPartitions: true
-      bindings:
-        input:
-          destination: topic
-          group: reliable-server
-          consumer:
-            startOffset:
-            concurrency: 1
-            partitioned: false
 
-
+  kafka:
+    bootstrap-servers: 10.33.80.101:9092
+    consumer:
+      group-id: ${spring.application.name}
+      auto-offset-reset: latest
+      auto-commit-interval: 1000
+      enable-auto-commit: true
 
 feign:
   hystrix:
