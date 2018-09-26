@@ -12,6 +12,7 @@
         <result property="messageBody" column="message_body"/>
         <result property="messageType" column="message_type"/>
         <result property="producerGroup" column="producer_group"/>
+        <result property="producerMessageId" column="producer_message_id" />
         <result property="delayLevel" column="delay_level"/>
         <result property="orderType" column="order_type"/>
         <result property="status" column="status"/>
