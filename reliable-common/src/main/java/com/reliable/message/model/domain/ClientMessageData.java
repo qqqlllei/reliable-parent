@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class ClientMessageData {
 
-	private String id;
+	private Long id;
 
 	/**
 	 * 版本号
@@ -87,7 +87,8 @@ public class ClientMessageData {
 	public ClientMessageData(){
 
 	}
-	public ClientMessageData(final String msgBody, final String topic, final String key) {
+	public ClientMessageData(final Long id,final String msgBody, final String topic, final String key) {
+		this.id = id;
 		this.messageBody = msgBody;
 		this.messageTopic = topic;
 		this.messageKey = key;

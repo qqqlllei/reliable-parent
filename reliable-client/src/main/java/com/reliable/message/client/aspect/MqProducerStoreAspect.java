@@ -32,7 +32,8 @@ public class MqProducerStoreAspect {
 	private String appName;
 
 
-	@Value("${reliable.message.producerGroup:''}")
+
+	@Value("${reliable.message.producerGroup:}")
 	private String producerGroup;
 
 //	@Resource
@@ -78,8 +79,11 @@ public class MqProducerStoreAspect {
 //			throw new TpcBizException(ErrorCodeEnum.TPC10050005);
 		}
 
+		if(domain.getId() == null){
+//			throw new TpcBizException(ErrorCodeEnum.TPC10050005);
+		}
+
 		domain.setOrderType(orderType);
-		domain.setId(UUID.randomUUID().toString());
 		domain.setProducerGroup(producerGroup);
 
 		if (type == MqSendTypeEnum.WAIT_CONFIRM) {

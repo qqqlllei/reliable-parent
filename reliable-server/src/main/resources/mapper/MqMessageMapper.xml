@@ -4,7 +4,7 @@
 
 
 
-    <resultMap id="RM_MqMessage" type="com.reliable.message.server.domain.TpcMqMessage">
+    <resultMap id="RM_MqMessage" type="com.reliable.message.server.domain.ServerMessageData">
         <result property="id" column="id"/>
         <result property="version" column="version"/>
         <result property="messageKey" column="message_key"/>
@@ -114,7 +114,7 @@
             SELECT * FROM message WHERE producer_message_id = #{producerMessageId}
     </select>
     
-    <update id="updateById" parameterType="com.reliable.message.server.domain.TpcMqMessage"  >
+    <update id="updateById" parameterType="com.reliable.message.server.domain.ServerMessageData"  >
         UPDATE message
         <include refid="update_sql" />
         WHERE

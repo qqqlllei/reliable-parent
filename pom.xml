@@ -24,6 +24,7 @@
         <springboot.mybatis.version>1.1.1</springboot.mybatis.version>
         <fastjson.version>1.2.12</fastjson.version>
         <modelmapper.version>1.1.2</modelmapper.version>
+        <commons.lang3.version>3.4</commons.lang3.version>
     </properties>
 
 
@@ -49,6 +50,13 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang3.version}</version>
             </dependency>
 
 

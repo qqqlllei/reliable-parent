@@ -9,11 +9,12 @@ import com.reliable.message.server.service.MqConfirmService;
 import com.reliable.message.server.service.MqConsumerService;
 import com.reliable.message.server.service.MqMessageService;
 import com.reliable.message.server.util.UniqueId;
+
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -25,7 +26,6 @@ public class MqMessageServiceImpl implements MqMessageService {
 
     @Autowired
     private ServerMessageMapper serverMessageMapper;
-
 
     @Autowired
     private MqConsumerService mqConsumerService;
@@ -77,12 +77,16 @@ public class MqMessageServiceImpl implements MqMessageService {
         // 创建消费待确认列表
         this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), clientMessageId);
         // 直接发送消息
-        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), clientMessageId, message.getProducerGroup(), 1);
+        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), message.getMessageKey());
     }
 
     @Override
-    public void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel) {
-        // TODO kafka 直接发送topic 消息
+    public void directSendMessage(String body, String topic, String key) {
+        if(StringUtils.isBlank(key)){
+            kafkaTemplate.send(topic,body);
+        }else {
+            kafkaTemplate.send(topic,key,body);
+        }
     }
 
     @Override

@@ -10,7 +10,7 @@ public interface MqMessageService {
 
     void confirmAndSendMessage(String messageId);
 
-    void directSendMessage(String body, String topic, String key, String producerGroup, Integer delayLevel);
+    void directSendMessage(String body, String topic, String key);
 
     void confirmReceiveMessage(String consumerGroup, String messageKey);
 
