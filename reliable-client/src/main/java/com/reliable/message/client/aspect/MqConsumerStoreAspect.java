@@ -4,11 +4,12 @@ package com.reliable.message.client.aspect;
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.client.annotation.MqConsumerStore;
 import com.reliable.message.client.service.MqMessageService;
-import com.reliable.message.model.domain.MqMessageData;
+import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MqMessageTypeEnum;
 import com.reliable.message.model.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -28,7 +29,12 @@ public class MqConsumerStoreAspect {
 
 	@Resource
 	private MqMessageService mqMessageService;
-	@Value("${reliable.message.consumerGroup}")
+
+	@Value("${spring.application.name}")
+	private String appName;
+
+
+	@Value("${reliable.message.consumerGroup:''}")
 	private String consumerGroup;
 
 	private static final String CONSUME_SUCCESS = "CONSUME_SUCCESS";
@@ -54,6 +60,7 @@ public class MqConsumerStoreAspect {
 	public Object processMqConsumerStoreJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
 
 		log.info("processMqConsumerStoreJoinPoint - 线程id={}", Thread.currentThread().getId());
+		if(StringUtils.isBlank(consumerGroup)) consumerGroup = appName;
 		Object result;
 		long startTime = System.currentTimeMillis();
 		Object[] args = joinPoint.getArgs();
@@ -75,7 +82,7 @@ public class MqConsumerStoreAspect {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
 		}
 
-		MqMessageData dto = this.getTpcMqMessageDto(messageExtList.get(0));
+		ClientMessageData dto = this.getTpcMqMessageDto(messageExtList.get(0));
 		final String messageKey = dto.getMessageKey();
 
 
@@ -111,8 +118,8 @@ public class MqConsumerStoreAspect {
 		return method.getAnnotation(MqConsumerStore.class);
 	}
 
-	private MqMessageData getTpcMqMessageDto(JSONObject messageExt) {
-		MqMessageData data = new MqMessageData();
+	private ClientMessageData getTpcMqMessageDto(JSONObject messageExt) {
+		ClientMessageData data = new ClientMessageData();
 		data.setMessageBody(messageExt.getString("body"));
 		data.setMessageKey(messageExt.getString("key"));
 		data.setMessageTopic(messageExt.getString("topic"));

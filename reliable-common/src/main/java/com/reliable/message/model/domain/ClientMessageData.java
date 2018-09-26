@@ -1,12 +1,11 @@
 package com.reliable.message.model.domain;
 
-import com.reliable.message.model.dto.TpcMqMessageDto;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class MqMessageData {
+public class ClientMessageData {
 
 	private String id;
 
@@ -81,40 +80,17 @@ public class MqMessageData {
 	private Date updateTime;
 
 	/**
-	 * 是否删除 -0 未删除 -1 已删除
-	 */
-	private Integer yn;
-
-	/**
 	 * producer group name
 	 */
 	private String producerGroup;
 
-	public MqMessageData(){
+	public ClientMessageData(){
 
 	}
-	public MqMessageData(final String msgBody, final String topic, final String key) {
+	public ClientMessageData(final String msgBody, final String topic, final String key) {
 		this.messageBody = msgBody;
 		this.messageTopic = topic;
 		this.messageKey = key;
-	}
-
-	/**
-	 * Gets tpc mq message dto.
-	 *
-	 * @return the tpc mq message dto
-	 */
-	public TpcMqMessageDto getTpcMqMessageDto() {
-		TpcMqMessageDto tpcMqMessageDto = new TpcMqMessageDto();
-		tpcMqMessageDto.setMessageBody(this.messageBody);
-		tpcMqMessageDto.setMessageKey(this.messageKey);
-		tpcMqMessageDto.setMessageTopic(this.messageTopic);
-		tpcMqMessageDto.setMessageType(this.messageType);
-		tpcMqMessageDto.setRefNo(this.messageKey);
-		tpcMqMessageDto.setDelayLevel(this.delayLevel);
-		tpcMqMessageDto.setOrderType(this.orderType);
-		tpcMqMessageDto.setProducerGroup(this.producerGroup);
-		return tpcMqMessageDto;
 	}
 
 }

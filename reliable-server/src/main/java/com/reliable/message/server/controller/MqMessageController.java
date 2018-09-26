@@ -1,5 +1,7 @@
 package com.reliable.message.server.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.dto.TpcMqMessageDto;
 import com.reliable.message.model.wrapper.Wrapper;
 import com.reliable.message.server.service.MqMessageService;
@@ -30,9 +32,9 @@ public class MqMessageController {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping("/saveMessageWaitingConfirm")
-    Wrapper saveMessageWaitingConfirm(@RequestBody TpcMqMessageDto tpcMqMessageDto){
-        logger.info("预存储消息. mqMessageDto={}", tpcMqMessageDto);
-        messageService.saveMessageWaitingConfirm(tpcMqMessageDto);
+    Wrapper saveMessageWaitingConfirm(@RequestBody ClientMessageData clientMessageData){
+        logger.info("预存储消息. mqMessageDto={}", JSONObject.toJSONString(clientMessageData));
+        messageService.saveMessageWaitingConfirm(clientMessageData);
         return null;
     }
 

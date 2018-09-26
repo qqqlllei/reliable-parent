@@ -1,12 +1,12 @@
 package com.reliable.message.server.service;
 
-import com.reliable.message.model.dto.TpcMqMessageDto;
+import com.reliable.message.model.domain.ClientMessageData;
 
 /**
  * Created by 李雷 on 2018/5/11.
  */
 public interface MqMessageService {
-    void saveMessageWaitingConfirm(TpcMqMessageDto tpcMqMessageDto);
+    void saveMessageWaitingConfirm(ClientMessageData tpcMqMessageDto);
 
     void confirmAndSendMessage(String messageId);
 

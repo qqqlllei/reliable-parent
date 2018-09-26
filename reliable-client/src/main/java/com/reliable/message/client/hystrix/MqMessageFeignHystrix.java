@@ -2,6 +2,7 @@ package com.reliable.message.client.hystrix;
 
 import com.reliable.message.client.feign.MqMessageFeign;
 
+import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.dto.TpcMqMessageDto;
 import com.reliable.message.model.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MqMessageFeignHystrix implements MqMessageFeign {
 
     @Override
-    public Wrapper saveMessageWaitingConfirm(TpcMqMessageDto tpcMqMessageDto) {
+    public Wrapper saveMessageWaitingConfirm(ClientMessageData clientMessageData) {
 
         return null;
     }

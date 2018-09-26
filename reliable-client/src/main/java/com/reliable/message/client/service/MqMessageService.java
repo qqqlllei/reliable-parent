@@ -1,7 +1,7 @@
 package com.reliable.message.client.service;
 
 
-import com.reliable.message.model.domain.MqMessageData;
+import com.reliable.message.model.domain.ClientMessageData;
 
 public interface MqMessageService {
 	/**
@@ -9,20 +9,20 @@ public interface MqMessageService {
 	 * 该消息作用是来保证本地事物执行成功，但是没有成功投递消息，根据这个数据，来恢复待确认的消息
 	 * @param mqMessageData
 	 */
-	void saveWaitConfirmMessage(MqMessageData mqMessageData);
+	void saveWaitConfirmMessage(ClientMessageData mqMessageData);
 
 
 	/**
 	 * 保存消息到本地
 	 * @param mqMessageData
 	 */
-	void saveMqProducerMessage(MqMessageData mqMessageData);
+	void saveMqProducerMessage(ClientMessageData mqMessageData);
 
     void confirmAndSendMessage(String messageId);
 
-    void confirmReceiveMessage(String consumerGroup, MqMessageData dto);
+    void confirmReceiveMessage(String consumerGroup, ClientMessageData dto);
 
 	void saveAndConfirmFinishMessage(String consumerGroup, String messageKey);
 
-    boolean checkMessageStatus(MqMessageData dto);
+    boolean checkMessageStatus(ClientMessageData dto);
 }

@@ -1,10 +1,9 @@
 package com.reliable.message.client.service.impl;
 
+import com.reliable.message.client.dao.ClientMessageDataMapper;
 import com.reliable.message.client.feign.MqMessageFeign;
-import com.reliable.message.client.mapper.MqMessageDataMapper;
-
 import com.reliable.message.client.service.MqMessageService;
-import com.reliable.message.model.domain.MqMessageData;
+import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.dto.TpcMqMessageDto;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MqMessageTypeEnum;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.UUID;
 
 
@@ -24,7 +22,7 @@ import java.util.UUID;
 @Service
 public class MqMessageServiceImpl implements MqMessageService {
 	@Autowired
-	private MqMessageDataMapper mqMessageDataMapper;
+	private ClientMessageDataMapper mqMessageDataMapper;
 	@Autowired
 	private MqMessageFeign mqMessageFeign;
 //	@Resource
@@ -36,18 +34,16 @@ public class MqMessageServiceImpl implements MqMessageService {
 //	String applicationName;
 
 	@Override
-	public void saveWaitConfirmMessage(final MqMessageData mqMessageData) {
+	public void saveWaitConfirmMessage(final ClientMessageData mqMessageData) {
 		//当前应用的本地消息存储
 		this.saveMqProducerMessage(mqMessageData);
-		// 发送预发送状态的消息给消息中心
-		TpcMqMessageDto tpcMqMessageDto = mqMessageData.getTpcMqMessageDto();
 		//可靠消息服务远程接口
-		mqMessageFeign.saveMessageWaitingConfirm(tpcMqMessageDto);
+		mqMessageFeign.saveMessageWaitingConfirm(mqMessageData);
 		log.info("<== saveWaitConfirmMessage - 存储预发送消息成功. messageKey={}", mqMessageData.getMessageKey());
 	}
 
 	@Override
-	public void saveMqProducerMessage(MqMessageData mqMessageData) {
+	public void saveMqProducerMessage(ClientMessageData mqMessageData) {
 		// 校验消息数据
 		this.checkMessage(mqMessageData);
 		// 先保存消息
@@ -69,7 +65,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 	}
 
 	@Override
-	public void confirmReceiveMessage(String consumerGroup, MqMessageData messageData) {
+	public void confirmReceiveMessage(String consumerGroup, ClientMessageData messageData) {
 		final String messageKey = messageData.getMessageKey();
 		log.info("confirmReceiveMessage - 消费者={}, 确认收到key={}的消息", consumerGroup, messageKey);
 		// 先保存消息
@@ -100,12 +96,12 @@ public class MqMessageServiceImpl implements MqMessageService {
 	}
 
 	@Override
-	public boolean checkMessageStatus(MqMessageData dto) {
+	public boolean checkMessageStatus(ClientMessageData dto) {
 		return false;
 	}
 
 
-	private void checkMessage(MqMessageData mqMessageData) {
+	private void checkMessage(ClientMessageData mqMessageData) {
 		if (null == mqMessageData) {
 //			throw new TpcBizException(ErrorCodeEnum.TPC10050007);
 		}

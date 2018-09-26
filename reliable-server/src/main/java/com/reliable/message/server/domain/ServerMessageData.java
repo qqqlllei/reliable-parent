@@ -8,7 +8,7 @@ import java.util.List;
 
 
 @Data
-public class TpcMqMessage implements Serializable {
+public class ServerMessageData implements Serializable {
 	private static final long serialVersionUID = -5951754367474682967L;
 	/**
 	 * ID
@@ -29,6 +29,8 @@ public class TpcMqMessage implements Serializable {
 	 * 生产者PID
 	 */
 	private String producerGroup;
+
+	private String producerMessageId;
 
 
 	/**

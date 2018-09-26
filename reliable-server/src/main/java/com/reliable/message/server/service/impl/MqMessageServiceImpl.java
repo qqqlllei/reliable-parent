@@ -1,9 +1,9 @@
 package com.reliable.message.server.service.impl;
 
-import com.reliable.message.model.dto.TpcMqMessageDto;
-import com.reliable.message.server.dao.MqMessageMapper;
+import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.server.dao.ServerMessageMapper;
+import com.reliable.message.server.domain.ServerMessageData;
 import com.reliable.message.server.domain.TpcMqConfirm;
-import com.reliable.message.server.domain.TpcMqMessage;
 import com.reliable.message.server.enums.MqSendStatusEnum;
 import com.reliable.message.server.service.MqConfirmService;
 import com.reliable.message.server.service.MqConsumerService;
@@ -24,7 +24,7 @@ import java.util.*;
 public class MqMessageServiceImpl implements MqMessageService {
 
     @Autowired
-    private MqMessageMapper mqMessageMapper;
+    private ServerMessageMapper serverMessageMapper;
 
 
     @Autowired
@@ -42,41 +42,42 @@ public class MqMessageServiceImpl implements MqMessageService {
     private static final String MQ_CONFIRM_TABLE ="MQ_CONFIRM_TABLE";
 
     @Override
-    public void saveMessageWaitingConfirm(TpcMqMessageDto tpcMqMessageDto) {
+    public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) {
 
-        if (StringUtils.isEmpty(tpcMqMessageDto.getMessageTopic())) {
+        if (StringUtils.isEmpty(clientMessageData.getMessageTopic())) {
 //            throw new TpcBizException(ErrorCodeEnum.TPC10050001);
         }
 
         Date now = new Date();
-        TpcMqMessage message = new ModelMapper().map(tpcMqMessageDto, TpcMqMessage.class);
+        ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
         message.setStatus(MqSendStatusEnum.WAIT_SEND.sendStatus());
+        message.setProducerMessageId(clientMessageData.getProducerGroup()+"-"+clientMessageData.getId());
         int a = new Random().nextInt();
         long b = a;
         message.setId(b);
         message.setUpdateTime(now);
         message.setCreateTime(now);
-        mqMessageMapper.insert(message);
+        serverMessageMapper.insert(message);
     }
 
     @Override
-    public void confirmAndSendMessage(String messageKey) {
-        final TpcMqMessage message = mqMessageMapper.getByMessageKey(messageKey);
+    public void confirmAndSendMessage(String clientMessageId) {
+        final ServerMessageData message = serverMessageMapper.getByClientMessageId(clientMessageId);
         if (message == null) {
 //            throw new TpcBizException(ErrorCodeEnum.TPC10050002);
         }
 
-        TpcMqMessage update = new TpcMqMessage();
+        ServerMessageData update = new ServerMessageData();
         update.setStatus(MqSendStatusEnum.SENDING.sendStatus());
         update.setId(message.getId());
         update.setUpdateTime(new Date());
-        mqMessageMapper.updateById(update);
+        serverMessageMapper.updateById(update);
 
 
         // 创建消费待确认列表
-        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), messageKey);
+        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), clientMessageId);
         // 直接发送消息
-        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), messageKey, message.getProducerGroup(), 1);
+        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), clientMessageId, message.getProducerGroup(), 1);
     }
 
     @Override
@@ -86,14 +87,14 @@ public class MqMessageServiceImpl implements MqMessageService {
 
     @Override
     public void confirmReceiveMessage(String consumerGroup, String messageKey) {
-        Long confirmId = mqMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
+        Long confirmId = serverMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
         // 3. 更新消费信息的状态
-        mqMessageMapper.confirmReceiveMessage(confirmId);
+        serverMessageMapper.confirmReceiveMessage(confirmId);
     }
 
     @Override
     public void confirmConsumedMessage(String consumerGroup, String messageKey) {
-        Long confirmId = mqMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
+        Long confirmId = serverMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
         mqConfirmService.confirmConsumedMessage(confirmId);
     }
 

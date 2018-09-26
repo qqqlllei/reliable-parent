@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.reliable.message.server.dao.MqMessageMapper">
+<mapper namespace="com.reliable.message.server.dao.ServerMessageMapper">
 
 
 
@@ -85,6 +85,7 @@
 	        	message_topic ,
 	        	message_body ,
 	        	message_key,
+	        	producer_message_id,
 	        	producer_group ,
 	        	status ,
 	        	update_time ,
@@ -97,6 +98,7 @@
 	        	#{messageTopic} ,
 	        	#{messageBody} ,
 	        	#{messageKey},
+	        	#{producerMessageId} ,
 	        	#{producerGroup} ,
 	        	#{status} ,
 	        	#{updateTime} ,
@@ -108,8 +110,8 @@
     </insert>
 
 
-    <select id="getByMessageKey" parameterType="java.lang.String" resultMap="RM_MqMessage" >
-            SELECT * FROM message WHERE message_key = #{messageKey}
+    <select id="getByClientMessageId" parameterType="java.lang.String" resultMap="RM_MqMessage" >
+            SELECT * FROM message WHERE producer_message_id = #{producerMessageId}
     </select>
     
     <update id="updateById" parameterType="com.reliable.message.server.domain.TpcMqMessage"  >

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageBeanConfiguration {
 	@Bean
-	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:true}")
+	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
 	public MqProducerStoreAspect mqProducerStoreAspect() {
 		return new MqProducerStoreAspect();
 	}

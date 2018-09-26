@@ -1,6 +1,6 @@
 package com.reliable.message.client.feign;
 
-import com.reliable.message.model.dto.TpcMqMessageDto;
+import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.wrapper.Wrapper;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public interface MqMessageFeign {
 
 
     @RequestMapping(value = "/message/saveMessageWaitingConfirm",method = RequestMethod.POST)
-    Wrapper saveMessageWaitingConfirm(@RequestBody TpcMqMessageDto tpcMqMessageDto);
+    Wrapper saveMessageWaitingConfirm(@RequestBody ClientMessageData clientMessageData);
 
     @RequestMapping(value = "/message/confirmAndSendMessage",method = RequestMethod.POST)
     Wrapper confirmAndSendMessage(@RequestParam("messageKey") String messageKey);

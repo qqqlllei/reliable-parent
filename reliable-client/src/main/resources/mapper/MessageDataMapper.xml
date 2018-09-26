@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.reliable.message.client.dao.ClientMessageDataMapper">
+
+  <insert id="insert" parameterType="com.reliable.message.model.domain.ClientMessageData" >
+    INSERT INTO client_message_data (
+	        	id ,
+	        	version ,
+	        	message_key ,
+	        	message_topic ,
+	        	producer_message_id,
+	        	message_body ,
+	        	delay_level ,
+	        	status ,
+	        	creator ,
+	        	creator_id ,
+	        	created_time ,
+	        	last_operator ,
+	        	last_operator_id ,
+	        	update_time
+	        ) VALUES (
+	        	#{id} ,
+	        	#{version} ,
+	        	#{messageKey} ,
+	        	#{messageTopic} ,
+	        	#{producerMessageId} ,
+	        	#{messageBody} ,
+	        	#{delayLevel} ,
+	        	#{status} ,
+	        	#{creator} ,
+	        	#{creatorId} ,
+	        	#{createdTime} ,
+	        	#{lastOperator} ,
+	        	#{lastOperatorId} ,
+	        	#{updateTime}
+	        )
+  </insert>
+</mapper>
