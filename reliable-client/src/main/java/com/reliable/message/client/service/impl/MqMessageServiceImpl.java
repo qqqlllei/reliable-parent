@@ -25,13 +25,6 @@ public class MqMessageServiceImpl implements MqMessageService {
 	private ClientMessageDataMapper mqMessageDataMapper;
 	@Autowired
 	private MqMessageFeign mqMessageFeign;
-//	@Resource
-//	private TaskExecutor taskExecutor;
-
-//	@Value("${spring.profiles.active}")
-//	String profile;
-//	@Value("${spring.application.name}")
-//	String applicationName;
 
 	@Override
 	public void saveWaitConfirmMessage(final ClientMessageData mqMessageData) {
@@ -66,13 +59,13 @@ public class MqMessageServiceImpl implements MqMessageService {
 
 	@Override
 	public void confirmReceiveMessage(String consumerGroup, ClientMessageData messageData) {
-		final String messageKey = messageData.getMessageKey();
-		log.info("confirmReceiveMessage - 消费者={}, 确认收到key={}的消息", consumerGroup, messageKey);
+		final Long messageId = messageData.getId();
+		log.info("confirmReceiveMessage - 消费者={}, 确认收到messageId={}的消息", consumerGroup, messageId);
 		// 先保存消息
 		messageData.setMessageType(MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
 		mqMessageDataMapper.insert(messageData);
 
-		Wrapper wrapper = mqMessageFeign.confirmReceiveMessage(consumerGroup, messageKey);
+		Wrapper wrapper = mqMessageFeign.confirmReceiveMessage(consumerGroup, messageData.getProducerMessageId());
 		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
 		if (wrapper == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
@@ -95,7 +88,9 @@ public class MqMessageServiceImpl implements MqMessageService {
 	}
 
 	@Override
-	public boolean checkMessageStatus(ClientMessageData dto) {
+	public boolean checkMessageStatus(Long messageId) {
+		ClientMessageData clientMessageData = mqMessageDataMapper.getClientMessageByMessageId(messageId);
+		if(clientMessageData !=null ) return true;
 		return false;
 	}
 

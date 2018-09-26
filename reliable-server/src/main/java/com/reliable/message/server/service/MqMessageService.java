@@ -1,6 +1,7 @@
 package com.reliable.message.server.service;
 
 import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.server.domain.ServerMessageData;
 
 /**
  * Created by 李雷 on 2018/5/11.
@@ -10,7 +11,7 @@ public interface MqMessageService {
 
     void confirmAndSendMessage(String messageId);
 
-    void directSendMessage(String body, String topic, String key);
+    void directSendMessage(ServerMessageData messageData, String topic, String key);
 
     void confirmReceiveMessage(String consumerGroup, String messageKey);
 

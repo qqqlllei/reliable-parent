@@ -21,11 +21,11 @@ public interface MqMessageFeign {
     Wrapper saveMessageWaitingConfirm(@RequestBody ClientMessageData clientMessageData);
 
     @RequestMapping(value = "/message/confirmAndSendMessage",method = RequestMethod.POST)
-    Wrapper confirmAndSendMessage(@RequestParam("clientMessageId") String clientMessageId);
+    Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") String producerMessageId);
 
     @RequestMapping(value = "/message/confirmReceiveMessage",method = RequestMethod.POST)
-    Wrapper confirmReceiveMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("messageKey") final String messageKey);
+    Wrapper confirmReceiveMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("producerMessageId") final String producerMessageId);
 
     @RequestMapping(value = "/message/confirmConsumedMessage",method = RequestMethod.POST)
-    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") String consumerGroup,@RequestParam("messageKey") String messageKey);
+    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") String consumerGroup,@RequestParam("producerMessageId") String producerMessageId);
 }

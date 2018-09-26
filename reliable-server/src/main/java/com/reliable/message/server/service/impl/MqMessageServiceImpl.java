@@ -75,21 +75,21 @@ public class MqMessageServiceImpl implements MqMessageService {
         // 创建消费待确认列表
         this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), clientMessageId);
         // 直接发送消息
-        this.directSendMessage(message.getMessageBody(), message.getMessageTopic(), message.getMessageKey());
+        this.directSendMessage(message, message.getMessageTopic(), message.getMessageKey());
     }
 
     @Override
-    public void directSendMessage(String body, String topic, String key) {
+    public void directSendMessage(ServerMessageData messageData, String topic, String key) {
         if(StringUtils.isBlank(key)){
-            kafkaTemplate.send(topic,body);
+            kafkaTemplate.send(topic,messageData);
         }else {
-            kafkaTemplate.send(topic,key,body);
+            kafkaTemplate.send(topic,key,messageData);
         }
     }
 
     @Override
-    public void confirmReceiveMessage(String consumerGroup, String messageKey) {
-        Long confirmId = serverMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
+    public void confirmReceiveMessage(String consumerGroup, String producerMessageId) {
+        Long confirmId = serverMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, producerMessageId);
         // 3. 更新消费信息的状态
         serverMessageMapper.confirmReceiveMessage(confirmId);
     }

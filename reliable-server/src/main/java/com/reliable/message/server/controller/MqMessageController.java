@@ -33,23 +33,23 @@ public class MqMessageController {
 
 
     @RequestMapping("/confirmAndSendMessage")
-    Wrapper confirmAndSendMessage(@RequestParam("messageKey") String clientMessageId){
-        logger.info("确认并发送消息. messageKey={}", clientMessageId);
-        messageService.confirmAndSendMessage(clientMessageId);
+    Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") String producerMessageId){
+        logger.info("确认并发送消息. producerMessageId={}", producerMessageId);
+        messageService.confirmAndSendMessage(producerMessageId);
         return Wrapper.ok();
     }
 
     @RequestMapping("/confirmReceiveMessage")
-    Wrapper confirmReceiveMessage(@RequestParam("cid") final String consumerGroup, @RequestParam("messageKey") final String messageKey){
-        logger.info("确认收到消息. consumerGroup={}, messageKey={}", consumerGroup, messageKey);
-        messageService.confirmReceiveMessage(consumerGroup, messageKey);
+    Wrapper confirmReceiveMessage(@RequestParam("cid") final String consumerGroup, @RequestParam("producerMessageId") final String producerMessageId){
+        logger.info("确认收到消息. consumerGroup={}, producerMessageId={}", consumerGroup, producerMessageId);
+        messageService.confirmReceiveMessage(consumerGroup, producerMessageId);
         return Wrapper.ok();
     }
 
     @RequestMapping("/confirmConsumedMessage")
-    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("messageKey") final String messageKey){
-        logger.info("确认完成消费消息. consumerGroup={}, messageKey={}", consumerGroup, messageKey);
-        messageService.confirmConsumedMessage(consumerGroup, messageKey);
+    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("producerMessageId") final String producerMessageId){
+        logger.info("确认完成消费消息. consumerGroup={}, producerMessageId={}", consumerGroup, producerMessageId);
+        messageService.confirmConsumedMessage(consumerGroup, producerMessageId);
         return Wrapper.ok();
     }
 

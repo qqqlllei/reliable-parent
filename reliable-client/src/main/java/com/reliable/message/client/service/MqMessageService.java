@@ -24,5 +24,5 @@ public interface MqMessageService {
 
 	void saveAndConfirmFinishMessage(String consumerGroup, String messageKey);
 
-    boolean checkMessageStatus(ClientMessageData dto);
+    boolean checkMessageStatus(Long messageId);
 }

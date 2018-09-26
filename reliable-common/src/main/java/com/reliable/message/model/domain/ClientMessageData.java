@@ -24,6 +24,9 @@ public class ClientMessageData {
 	 */
 	private String messageTopic;
 
+
+	private String producerMessageId;
+
 	/**
 	 * 消息内容
 	 */
