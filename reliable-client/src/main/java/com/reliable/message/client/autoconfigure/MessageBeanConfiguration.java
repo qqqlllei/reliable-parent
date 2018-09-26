@@ -1,5 +1,6 @@
 package com.reliable.message.client.autoconfigure;
 
+import com.reliable.message.client.aspect.MqConsumerStoreAspect;
 import com.reliable.message.client.aspect.MqProducerStoreAspect;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -11,5 +12,12 @@ public class MessageBeanConfiguration {
 	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
 	public MqProducerStoreAspect mqProducerStoreAspect() {
 		return new MqProducerStoreAspect();
+	}
+
+
+	@Bean
+	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false}")
+	public MqConsumerStoreAspect mqConsumerStoreAspect() {
+		return new MqConsumerStoreAspect();
 	}
 }

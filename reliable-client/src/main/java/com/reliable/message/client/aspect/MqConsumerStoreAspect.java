@@ -71,7 +71,7 @@ public class MqConsumerStoreAspect {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_IS_NULL);
 		}
 
-		if (!(args[0] instanceof List)) {
+		if (!(args[0] instanceof ClientMessageData)) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_IS_NULL);
 		}
 
