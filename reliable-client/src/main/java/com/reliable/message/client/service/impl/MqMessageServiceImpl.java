@@ -46,15 +46,15 @@ public class MqMessageServiceImpl implements MqMessageService {
 
 	@Async
 	@Override
-	public void confirmAndSendMessage(String messageId) {
-		Wrapper wrapper = mqMessageFeign.confirmAndSendMessage(messageId);
+	public void confirmAndSendMessage(String producerMessageId) {
+		Wrapper wrapper = mqMessageFeign.confirmAndSendMessage(producerMessageId);
 		if (wrapper == null) {
 //			throw new TpcBizException(ErrorCodeEnum.GL99990002);
 		}
 		if (wrapper.error()) {
 //			throw new TpcBizException(ErrorCodeEnum.TPC10050004, wrapper.getMessage(), messageKey);
 		}
-		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. messageId={}", messageId);
+		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. producerMessageId={}", producerMessageId);
 	}
 
 	@Override
@@ -75,6 +75,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 //		}
 	}
 
+	@Async
 	@Override
 	public void confirmFinishMessage(String consumerGroup, String messageKey) {
 		Wrapper wrapper = mqMessageFeign.confirmFinishMessage(consumerGroup, messageKey);

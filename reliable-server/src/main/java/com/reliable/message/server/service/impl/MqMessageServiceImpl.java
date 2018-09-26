@@ -1,5 +1,6 @@
 package com.reliable.message.server.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.server.dao.ServerMessageMapper;
 import com.reliable.message.server.domain.ServerMessageData;
@@ -84,9 +85,9 @@ public class MqMessageServiceImpl implements MqMessageService {
     @Override
     public void directSendMessage(ServerMessageData messageData, String topic, String key) {
         if(StringUtils.isBlank(key)){
-            kafkaTemplate.send(topic,messageData);
+            kafkaTemplate.send(topic, JSONObject.toJSONString(messageData));
         }else {
-            kafkaTemplate.send(topic,key,messageData);
+            kafkaTemplate.send(topic,key,JSONObject.toJSONString(messageData));
         }
     }
 
