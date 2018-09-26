@@ -89,8 +89,8 @@ public class MqMessageServiceImpl implements MqMessageService {
 	}
 
 	@Override
-	public boolean checkMessageStatus(Long messageId) {
-		ClientMessageData clientMessageData = mqMessageDataMapper.getClientMessageByMessageId(messageId);
+	public boolean checkMessageStatus(Long messageId,int type) {
+		ClientMessageData clientMessageData = mqMessageDataMapper.getClientMessageByMessageIdAndType(messageId,type);
 		if(clientMessageData !=null ) return true;
 		return false;
 	}

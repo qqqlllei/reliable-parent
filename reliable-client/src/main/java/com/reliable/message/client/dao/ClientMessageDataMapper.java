@@ -7,5 +7,5 @@ public interface ClientMessageDataMapper {
 
     int insert(ClientMessageData mqMessageData);
 
-    ClientMessageData getClientMessageByMessageId(Long messageId);
+    ClientMessageData getClientMessageByMessageIdAndType(Long messageId, int type);
 }

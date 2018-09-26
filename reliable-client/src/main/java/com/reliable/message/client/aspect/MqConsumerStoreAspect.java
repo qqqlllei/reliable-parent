@@ -86,7 +86,7 @@ public class MqConsumerStoreAspect {
 
 
 		// 重复消费检查
-		boolean consumed = mqMessageService.checkMessageStatus(messageId);
+		boolean consumed = mqMessageService.checkMessageStatus(messageId,MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
 		if(consumed){
 			mqMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
 			return null;
