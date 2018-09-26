@@ -2,10 +2,8 @@ package com.reliable.message.server.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.dto.TpcMqMessageDto;
 import com.reliable.message.model.wrapper.Wrapper;
 import com.reliable.message.server.service.MqMessageService;
-import com.reliable.message.server.stream.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +22,6 @@ public class MqMessageController {
     @Autowired
     private MqMessageService messageService;
 
-
-    @Autowired
-    private SendService service;
-
-
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping("/saveMessageWaitingConfirm")
@@ -40,9 +33,9 @@ public class MqMessageController {
 
 
     @RequestMapping("/confirmAndSendMessage")
-    Wrapper confirmAndSendMessage(@RequestParam("messageKey") String messageKey){
-        logger.info("确认并发送消息. messageKey={}", messageKey);
-        messageService.confirmAndSendMessage(messageKey);
+    Wrapper confirmAndSendMessage(@RequestParam("messageKey") String clientMessageId){
+        logger.info("确认并发送消息. messageKey={}", clientMessageId);
+        messageService.confirmAndSendMessage(clientMessageId);
         return Wrapper.ok();
     }
 
@@ -58,11 +51,6 @@ public class MqMessageController {
         logger.info("确认完成消费消息. consumerGroup={}, messageKey={}", consumerGroup, messageKey);
         messageService.confirmConsumedMessage(consumerGroup, messageKey);
         return Wrapper.ok();
-    }
-
-    @RequestMapping("/send")
-    public void send(){
-        service.sendMessage("stream 发送消息");
     }
 
 }

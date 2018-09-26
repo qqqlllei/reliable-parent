@@ -52,9 +52,7 @@ public class MqMessageServiceImpl implements MqMessageService {
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
         message.setStatus(MqSendStatusEnum.WAIT_SEND.sendStatus());
         message.setProducerMessageId(clientMessageData.getProducerGroup()+"-"+clientMessageData.getId());
-        int a = new Random().nextInt();
-        long b = a;
-        message.setId(b);
+        message.setId(uniqueId.getNextIdByApplicationName(ServerMessageData.class.getSimpleName()));
         message.setUpdateTime(now);
         message.setCreateTime(now);
         serverMessageMapper.insert(message);
@@ -110,7 +108,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 //            throw new TpcBizException(ErrorCodeEnum.TPC100500010, topic);
         }
         for (final String consumerCode : consumerGroupList) {
-            tpcMqConfirm = new TpcMqConfirm(UUID.randomUUID().toString(), messageId, messageKey, consumerCode);
+            tpcMqConfirm = new TpcMqConfirm(uniqueId.getNextIdByApplicationName(TpcMqConfirm.class.getSimpleName()), messageId, messageKey, consumerCode);
             list.add(tpcMqConfirm);
         }
 

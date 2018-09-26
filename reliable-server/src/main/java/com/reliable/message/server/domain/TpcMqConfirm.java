@@ -10,7 +10,7 @@ public class TpcMqConfirm {
 	/**
 	 * ID
 	 */
-	private String id;
+	private Long id;
 
 	/**
 	 * 版本号
@@ -60,7 +60,7 @@ public class TpcMqConfirm {
 	 * @param messageKey   the message key
 	 * @param consumerGroup the consumer code
 	 */
-	public TpcMqConfirm(final String id, final Long messageId, final String messageKey, final String consumerGroup) {
+	public TpcMqConfirm(final Long id, final Long messageId, final String messageKey, final String consumerGroup) {
 		this.id = id;
 		this.messageId = messageId;
 		this.messageKey = messageKey;
