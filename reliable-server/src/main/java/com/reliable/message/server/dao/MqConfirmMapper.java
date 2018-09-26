@@ -11,4 +11,6 @@ import java.util.List;
 public interface MqConfirmMapper {
 
     void batchCreateMqConfirm(@Param("tpcMqConfirmList") List<TpcMqConfirm> list);
+
+    void confirmFinishMessage(@Param("consumerGroup") String consumerGroup,@Param("producerMessageId") String producerMessageId);
 }

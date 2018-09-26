@@ -22,7 +22,7 @@ public interface MqMessageService {
 
     void confirmReceiveMessage(String consumerGroup, ClientMessageData dto);
 
-	void saveAndConfirmFinishMessage(String consumerGroup, String messageKey);
+	void confirmFinishMessage(String consumerGroup, String producerMessageId);
 
     boolean checkMessageStatus(Long messageId);
 }

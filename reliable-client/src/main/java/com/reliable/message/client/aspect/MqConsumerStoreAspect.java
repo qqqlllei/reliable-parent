@@ -17,7 +17,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Value;
-import sun.util.resources.ga.LocaleNames_ga;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
@@ -88,7 +87,10 @@ public class MqConsumerStoreAspect {
 
 		// 重复消费检查
 		boolean consumed = mqMessageService.checkMessageStatus(messageId);
-		if(consumed) return null;
+		if(consumed){
+			mqMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
+			return null;
+		}
 
 
 
@@ -100,7 +102,7 @@ public class MqConsumerStoreAspect {
 			result = joinPoint.proceed();
 			log.info("result={}", result);
 			if (CONSUME_SUCCESS.equals(result.toString())) {
-				mqMessageService.saveAndConfirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
+				mqMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
 			}
 		} catch (Exception e) {
 			log.error("发送可靠消息, 目标方法[{}], 出现异常={}", methodName, e.getMessage(), e);

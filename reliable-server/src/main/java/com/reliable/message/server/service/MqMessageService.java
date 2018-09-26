@@ -15,5 +15,5 @@ public interface MqMessageService {
 
     void confirmReceiveMessage(String consumerGroup, String messageKey);
 
-    void confirmConsumedMessage(String consumerGroup, String messageKey);
+    void confirmFinishMessage(String consumerGroup, String messageKey);
 }

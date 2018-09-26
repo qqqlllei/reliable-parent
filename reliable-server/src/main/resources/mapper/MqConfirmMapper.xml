@@ -7,14 +7,14 @@
         (
         id,
         message_id,
-        message_key,
+        producer_message_id,
         consumer_group)
         VALUES
         <foreach collection="tpcMqConfirmList" item="item" index="index" separator=",">
             (
             #{item.id,jdbcType=BIGINT},
             #{item.messageId,jdbcType=BIGINT},
-            #{item.messageKey,jdbcType=VARCHAR},
+            #{item.producerMessageId,jdbcType=VARCHAR},
             #{item.consumerGroup,jdbcType=VARCHAR}
             )
         </foreach>
@@ -24,7 +24,7 @@
     <select id="getConfirmIdByGroupAndKey" >
          SELECT id
     FROM message_confirm
-    WHERE consumer_group = #{consumerGroup} AND message_key = #{messageKey}
+    WHERE consumer_group = #{consumerGroup} AND producer_message_id = #{producerMessageId}
     </select>
 
 
@@ -39,5 +39,9 @@
     SET status = 30
     WHERE id = #{confirmId} AND status in (10, 20)
   </update>
+
+    <delete id="confirmFinishMessage" >
+        DELETE FROM message_confirm WHERE consumer_group = #{consumerGroup} and producer_message_id = #{producerMessageId}
+    </delete>
 
 </mapper>

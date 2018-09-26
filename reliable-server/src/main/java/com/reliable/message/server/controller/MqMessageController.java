@@ -39,17 +39,10 @@ public class MqMessageController {
         return Wrapper.ok();
     }
 
-    @RequestMapping("/confirmReceiveMessage")
-    Wrapper confirmReceiveMessage(@RequestParam("cid") final String consumerGroup, @RequestParam("producerMessageId") final String producerMessageId){
-        logger.info("确认收到消息. consumerGroup={}, producerMessageId={}", consumerGroup, producerMessageId);
-        messageService.confirmReceiveMessage(consumerGroup, producerMessageId);
-        return Wrapper.ok();
-    }
-
-    @RequestMapping("/confirmConsumedMessage")
-    Wrapper confirmConsumedMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("producerMessageId") final String producerMessageId){
+    @RequestMapping("/confirmFinishMessage")
+    Wrapper confirmFinishMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("producerMessageId") final String producerMessageId){
         logger.info("确认完成消费消息. consumerGroup={}, producerMessageId={}", consumerGroup, producerMessageId);
-        messageService.confirmConsumedMessage(consumerGroup, producerMessageId);
+        messageService.confirmFinishMessage(consumerGroup, producerMessageId);
         return Wrapper.ok();
     }
 

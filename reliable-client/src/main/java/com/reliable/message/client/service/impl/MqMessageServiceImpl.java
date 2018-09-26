@@ -65,19 +65,19 @@ public class MqMessageServiceImpl implements MqMessageService {
 		messageData.setMessageType(MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
 		mqMessageDataMapper.insert(messageData);
 
-		Wrapper wrapper = mqMessageFeign.confirmReceiveMessage(consumerGroup, messageData.getProducerMessageId());
-		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
-		if (wrapper == null) {
-			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
-		}
-		if (wrapper.error()) {
-			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
-		}
+//		Wrapper wrapper = mqMessageFeign.confirmReceiveMessage(consumerGroup, messageData.getProducerMessageId());
+//		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
+//		if (wrapper == null) {
+//			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
+//		}
+//		if (wrapper.error()) {
+//			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
+//		}
 	}
 
 	@Override
-	public void saveAndConfirmFinishMessage(String consumerGroup, String messageKey) {
-		Wrapper wrapper = mqMessageFeign.confirmConsumedMessage(consumerGroup, messageKey);
+	public void confirmFinishMessage(String consumerGroup, String messageKey) {
+		Wrapper wrapper = mqMessageFeign.confirmFinishMessage(consumerGroup, messageKey);
 		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
 		if (wrapper == null) {
 //			throw new TpcBizException(ErrorCodeEnum.GL99990002);

@@ -23,7 +23,7 @@ public class MqConfirmServiceImpl implements MqConfirmService{
     }
 
     @Override
-    public void confirmConsumedMessage(Long confirmId) {
-
+    public void confirmFinishMessage(String consumerGroup ,String producerMessageId) {
+        mqConfirmMapper.confirmFinishMessage(consumerGroup,producerMessageId);
     }
 }

@@ -73,9 +73,12 @@ public class MqMessageServiceImpl implements MqMessageService {
 
 
         // 创建消费待确认列表
-        this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), clientMessageId);
-        // 直接发送消息
-        this.directSendMessage(message, message.getMessageTopic(), message.getMessageKey());
+        List<TpcMqConfirm> confirmList =  this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), clientMessageId);
+
+        for (TpcMqConfirm confirm: confirmList) {
+            this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
+        }
+
     }
 
     @Override
@@ -95,12 +98,11 @@ public class MqMessageServiceImpl implements MqMessageService {
     }
 
     @Override
-    public void confirmConsumedMessage(String consumerGroup, String messageKey) {
-        Long confirmId = serverMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, messageKey);
-        mqConfirmService.confirmConsumedMessage(confirmId);
+    public void confirmFinishMessage(String consumerGroup, String producerMessageId) {
+        mqConfirmService.confirmFinishMessage(consumerGroup,producerMessageId);
     }
 
-    private void createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {
+    private List<TpcMqConfirm> createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {
         List<TpcMqConfirm> list = new ArrayList<TpcMqConfirm>();
         TpcMqConfirm tpcMqConfirm;
         List<String> consumerGroupList = mqConsumerService.listConsumerGroupByTopic(messageTopic);
@@ -113,5 +115,6 @@ public class MqMessageServiceImpl implements MqMessageService {
         }
 
         mqConfirmService.batchCreateMqConfirm(list);
+        return list;
     }
 }

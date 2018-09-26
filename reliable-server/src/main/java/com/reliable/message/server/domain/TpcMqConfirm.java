@@ -23,11 +23,6 @@ public class TpcMqConfirm {
 	private Long messageId;
 
 	/**
-	 * 消息唯一标识
-	 */
-	private String messageKey;
-
-	/**
 	 * 消费者组编码
 	 */
 	private String consumerGroup;
@@ -36,6 +31,8 @@ public class TpcMqConfirm {
 	 * 消费的数次
 	 */
 	private Integer consumeCount;
+
+	private String producerMessageId;
 
 	/**
 	 * 状态, 10 - 未确认 ; 20 - 已确认; 30 已消费
@@ -56,14 +53,14 @@ public class TpcMqConfirm {
 	 * Instantiates a new Tpc mq confirm.
 	 *
 	 * @param id           the id
-	 * @param messageId    the message id
-	 * @param messageKey   the message key
+	 * @param messageId    the server message id
+	 * @param producerMessageId   the producerMessageId
 	 * @param consumerGroup the consumer code
 	 */
-	public TpcMqConfirm(final Long id, final Long messageId, final String messageKey, final String consumerGroup) {
+	public TpcMqConfirm(final Long id, final Long messageId, final String producerMessageId, final String consumerGroup) {
 		this.id = id;
 		this.messageId = messageId;
-		this.messageKey = messageKey;
+		this.producerMessageId = producerMessageId;
 		this.consumerGroup = consumerGroup;
 	}
 }
