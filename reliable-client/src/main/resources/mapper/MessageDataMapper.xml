@@ -61,4 +61,8 @@
 	<select id="getClientMessageByMessageIdAndType" resultMap="RM_ClientMessageData">
 		  SELECT * FROM client_message_data WHERE id = #{messageId} and message_type = #{messageType}
 	</select>
+
+	<delete id="deleteMessageByProducerMessageId" parameterType="java.lang.String" >
+		DELETE FROM client_message_data WHERE producer_message_id = #{producerMessageId}
+	</delete>
 </mapper>

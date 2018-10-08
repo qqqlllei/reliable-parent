@@ -76,6 +76,7 @@ public class MqMessageServiceImpl implements MqMessageService {
         // 创建消费待确认列表
         List<TpcMqConfirm> confirmList =  this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), clientMessageId);
 
+        //every consumer has one topic
         for (TpcMqConfirm confirm: confirmList) {
             this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
         }

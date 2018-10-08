@@ -9,4 +9,6 @@ public interface ClientMessageDataMapper {
     int insert(ClientMessageData mqMessageData);
 
     ClientMessageData getClientMessageByMessageIdAndType(@Param("messageId") Long messageId,@Param("messageType") int type);
+
+    void deleteMessageByProducerMessageId(String producerMessageId);
 }

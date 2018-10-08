@@ -25,4 +25,6 @@ public interface MqMessageService {
 	void confirmFinishMessage(String consumerGroup, String producerMessageId);
 
     boolean checkMessageStatus(Long messageId,int type);
+
+	void deleteMessageByProducerMessageId(String producerMessageId);
 }

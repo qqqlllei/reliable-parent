@@ -95,6 +95,11 @@ public class MqMessageServiceImpl implements MqMessageService {
 		return false;
 	}
 
+	@Override
+	public void deleteMessageByProducerMessageId(String producerMessageId) {
+		mqMessageDataMapper.deleteMessageByProducerMessageId(producerMessageId);
+	}
+
 
 	private void checkMessage(ClientMessageData mqMessageData) {
 		if (null == mqMessageData) {
