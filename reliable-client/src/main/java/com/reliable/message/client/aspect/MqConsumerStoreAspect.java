@@ -39,23 +39,13 @@ public class MqConsumerStoreAspect {
 
 	private static final String CONSUME_SUCCESS = "CONSUME_SUCCESS";
 
-	/**
-	 * Add exe time annotation pointcut.
-	 */
+
 	@Pointcut("@annotation(com.reliable.message.client.annotation.MqConsumerStore)")
 	public void mqConsumerStoreAnnotationPointcut() {
 
 	}
 
-	/**
-	 * Add exe time method object.
-	 *
-	 * @param joinPoint the join point
-	 *
-	 * @return the object
-	 *
-	 * @throws Throwable the throwable
-	 */
+
 	@Around(value = "mqConsumerStoreAnnotationPointcut()")
 	public Object processMqConsumerStoreJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
 
@@ -117,14 +107,5 @@ public class MqConsumerStoreAspect {
 		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 		Method method = methodSignature.getMethod();
 		return method.getAnnotation(MqConsumerStore.class);
-	}
-
-	private ClientMessageData getTpcMqMessageDto(JSONObject messageExt) {
-		ClientMessageData data = new ClientMessageData();
-		data.setMessageBody(messageExt.getString("body"));
-		data.setMessageKey(messageExt.getString("key"));
-		data.setMessageTopic(messageExt.getString("topic"));
-		data.setMessageType(MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
-		return data;
 	}
 }
