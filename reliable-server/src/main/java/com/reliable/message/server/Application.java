@@ -13,7 +13,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 @SpringBootApplication
 @EnableEurekaClient
 @MapperScan(basePackages = {"com.reliable.message.server.dao"})
-//@EnableKafka
+@EnableKafka
 public class Application {
 
     public static void main(String[] args) {
