@@ -1,7 +1,10 @@
 package com.reliable.message.client.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
+
+import java.util.List;
 
 public interface MqMessageService {
 	/**
@@ -27,4 +30,6 @@ public interface MqMessageService {
     boolean checkMessageStatus(Long messageId,int type);
 
 	void deleteMessageByProducerMessageId(String producerMessageId);
+
+	List<ClientMessageData> getProducerMessage(JSONObject jobTaskParameter);
 }

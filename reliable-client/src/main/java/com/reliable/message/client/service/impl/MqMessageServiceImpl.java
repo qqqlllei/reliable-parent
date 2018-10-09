@@ -1,5 +1,6 @@
 package com.reliable.message.client.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.client.dao.ClientMessageDataMapper;
 import com.reliable.message.client.feign.MqMessageFeign;
 import com.reliable.message.client.service.MqMessageService;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -98,6 +100,16 @@ public class MqMessageServiceImpl implements MqMessageService {
 	@Override
 	public void deleteMessageByProducerMessageId(String producerMessageId) {
 		mqMessageDataMapper.deleteMessageByProducerMessageId(producerMessageId);
+	}
+
+	@Override
+	public List<ClientMessageData> getProducerMessage(JSONObject jobTaskParameter) {
+		//设置消息类型
+		jobTaskParameter.put("message_type",MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
+
+		//检查清除时间
+
+		return mqMessageDataMapper.getClientMessageByParams(jobTaskParameter);
 	}
 
 
