@@ -3,8 +3,10 @@ package com.reliable.message.client.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
+import com.reliable.message.client.feign.MqMessageFeign;
 import com.reliable.message.client.service.MqMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.model.wrapper.Wrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class ClientMessageDataflow extends AbstractBaseDataflowJob<ClientMessage
     @Autowired
     private MqMessageService mqMessageService;
 
+    @Autowired
+    private MqMessageFeign mqMessageFeign;
+
 
     @Override
     protected List<ClientMessageData> fetchJobData(final JSONObject jobTaskParameter) {
@@ -28,12 +33,18 @@ public class ClientMessageDataflow extends AbstractBaseDataflowJob<ClientMessage
     }
 
     @Override
-    protected void processJobData(final List<ClientMessageData> taskList) {
-        logger.info("processJobData - taskList={}", taskList);
+    protected void processJobData(final List<ClientMessageData> clientMessageDatas) {
+        logger.info("processJobData - clientMessageDatas={}", clientMessageDatas);
 
         //查询服务端消息状态，该消息是否已经消费成功（从消息服务段查询不到该消息）
-
-        //主动清清除
-
+        for (ClientMessageData clientMessageData : clientMessageDatas) {
+            String producerMessageId = clientMessageData.getProducerMessageId();
+            Wrapper wrapper = mqMessageFeign.checkServerMessageIsExist(producerMessageId);
+            boolean deleteFlag = (boolean) wrapper.getResult();
+            if(deleteFlag){
+                //主动清清除
+                mqMessageService.deleteMessageByProducerMessageId(producerMessageId);
+            }
+        }
     }
 }

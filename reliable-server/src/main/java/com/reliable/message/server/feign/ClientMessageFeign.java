@@ -16,4 +16,8 @@ public interface ClientMessageFeign {
     @RequestLine("GET")
     List<ClientMessageData> getClientMessageData(URI baseUri,List<String> messageIds);
 
+
+    @RequestLine("POST")
+    void deleteClientMessageData(URI uri);
+
 }
