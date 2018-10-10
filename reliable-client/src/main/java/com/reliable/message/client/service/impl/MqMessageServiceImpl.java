@@ -40,7 +40,9 @@ public class MqMessageServiceImpl implements MqMessageService {
 		this.checkMessage(mqMessageData);
 		// 先保存消息
 		mqMessageData.setMessageType(MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
-		mqMessageData.setCreatedTime(new Date());
+		Date currentDate = new Date();
+		mqMessageData.setCreatedTime(currentDate);
+		mqMessageData.setUpdateTime(currentDate);
 		mqMessageData.setProducerMessageId(mqMessageData.getProducerGroup()+"-"+mqMessageData.getId());
 		mqMessageDataMapper.insert(mqMessageData);
 	}
