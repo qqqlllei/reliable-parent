@@ -26,4 +26,9 @@ public class MqConfirmServiceImpl implements MqConfirmService{
     public void confirmFinishMessage(String consumerGroup ,String producerMessageId) {
         mqConfirmMapper.confirmFinishMessage(consumerGroup,producerMessageId);
     }
+
+    @Override
+    public int getMessageConfirmCountByProducerMessageId(String producerMessageId) {
+        return mqConfirmMapper.getMessageConfirmCountByProducerMessageId(producerMessageId);
+    }
 }

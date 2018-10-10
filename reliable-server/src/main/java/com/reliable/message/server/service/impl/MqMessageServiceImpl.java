@@ -2,6 +2,8 @@ package com.reliable.message.server.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.model.enums.MqMessageTypeEnum;
+import com.reliable.message.model.util.TimeUtil;
 import com.reliable.message.server.dao.ServerMessageMapper;
 import com.reliable.message.server.domain.ServerMessageData;
 import com.reliable.message.server.domain.TpcMqConfirm;
@@ -16,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -66,20 +69,11 @@ public class MqMessageServiceImpl implements MqMessageService {
 //            throw new TpcBizException(ErrorCodeEnum.TPC10050002);
         }
 
-        ServerMessageData update = new ServerMessageData();
-        update.setStatus(MqSendStatusEnum.SENDING.sendStatus());
-        update.setId(message.getId());
-        update.setUpdateTime(new Date());
-        serverMessageMapper.updateById(update);
+        //save record
+        List<TpcMqConfirm> confirmList = confirmAndSendMessage(message);
 
-
-        // 创建消费待确认列表
-        List<TpcMqConfirm> confirmList =  this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), clientMessageId);
-
-        //every consumer has one topic
-        for (TpcMqConfirm confirm: confirmList) {
-            this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
-        }
+        //send message to mq
+        sendMessageToMessageQueue(confirmList,message);
 
     }
 
@@ -109,6 +103,31 @@ public class MqMessageServiceImpl implements MqMessageService {
         return serverMessageMapper.getByProducerMessageId(producerMessageId);
     }
 
+    @Override
+    public List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject) {
+        jsonObject.put("status",MqSendStatusEnum.SENDING.sendStatus());
+        jsonObject.put("clearTime", TimeUtil.getBeforeByHourTime(1));
+        return serverMessageMapper.getServerMessageDataByParams(jsonObject);
+    }
+
+    @Override
+    public void deleteServerMessageDataById(Long id) {
+        serverMessageMapper.deleteServerMessageDataById(id);
+    }
+
+    @Transactional
+    private List<TpcMqConfirm>  confirmAndSendMessage(ServerMessageData message){
+        ServerMessageData update = new ServerMessageData();
+        update.setStatus(MqSendStatusEnum.SENDING.sendStatus());
+        update.setId(message.getId());
+        update.setUpdateTime(new Date());
+        serverMessageMapper.updateById(update);
+
+        // 创建消费待确认列表
+        List<TpcMqConfirm> confirmList =  this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), message.getProducerMessageId());
+        return confirmList;
+    }
+
     private List<TpcMqConfirm> createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {
         List<TpcMqConfirm> list = new ArrayList<TpcMqConfirm>();
         TpcMqConfirm tpcMqConfirm;
@@ -123,5 +142,11 @@ public class MqMessageServiceImpl implements MqMessageService {
 
         mqConfirmService.batchCreateMqConfirm(list);
         return list;
+    }
+
+    private void sendMessageToMessageQueue(List<TpcMqConfirm> confirmList,final ServerMessageData message ){
+        for (TpcMqConfirm confirm: confirmList) {
+            this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
+        }
     }
 }
