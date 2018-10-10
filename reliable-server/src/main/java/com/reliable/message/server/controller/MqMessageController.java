@@ -3,6 +3,7 @@ package com.reliable.message.server.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.wrapper.Wrapper;
+import com.reliable.message.server.domain.ServerMessageData;
 import com.reliable.message.server.service.MqMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,5 +45,14 @@ public class MqMessageController {
         logger.info("确认完成消费消息. consumerGroup={}, producerMessageId={}", consumerGroup, producerMessageId);
         messageService.confirmFinishMessage(consumerGroup, producerMessageId);
         return Wrapper.ok();
+    }
+
+    @RequestMapping("/checkServerMessageIsExist")
+    Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") final String producerMessageId){
+        ServerMessageData serverMessageData = messageService.getServerMessageDataByProducerMessageId(producerMessageId);
+
+        if(serverMessageData!=null) return Wrapper.ok().result(true);
+
+        return Wrapper.ok().result(false);
     }
 }

@@ -61,7 +61,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 
     @Override
     public void confirmAndSendMessage(String clientMessageId) {
-        final ServerMessageData message = serverMessageMapper.getByClientMessageId(clientMessageId);
+        final ServerMessageData message = serverMessageMapper.getByProducerMessageId(clientMessageId);
         if (message == null) {
 //            throw new TpcBizException(ErrorCodeEnum.TPC10050002);
         }
@@ -102,6 +102,11 @@ public class MqMessageServiceImpl implements MqMessageService {
     @Override
     public void confirmFinishMessage(String consumerGroup, String producerMessageId) {
         mqConfirmService.confirmFinishMessage(consumerGroup,producerMessageId);
+    }
+
+    @Override
+    public ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId) {
+        return serverMessageMapper.getByProducerMessageId(producerMessageId);
     }
 
     private List<TpcMqConfirm> createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {

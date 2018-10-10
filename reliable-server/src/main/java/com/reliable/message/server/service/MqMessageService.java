@@ -16,4 +16,6 @@ public interface MqMessageService {
     void confirmReceiveMessage(String consumerGroup, String messageKey);
 
     void confirmFinishMessage(String consumerGroup, String messageKey);
+
+    ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId);
 }

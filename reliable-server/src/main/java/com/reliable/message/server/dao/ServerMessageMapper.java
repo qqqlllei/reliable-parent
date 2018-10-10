@@ -9,7 +9,7 @@ public interface ServerMessageMapper {
 
     int insert(ServerMessageData message);
 
-    ServerMessageData getByClientMessageId(String clientMessageId);
+    ServerMessageData getByProducerMessageId(String clientMessageId);
 
     int updateByMessageKey(ServerMessageData update);
 
