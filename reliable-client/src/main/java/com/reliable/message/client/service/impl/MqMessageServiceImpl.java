@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -39,6 +40,8 @@ public class MqMessageServiceImpl implements MqMessageService {
 		this.checkMessage(mqMessageData);
 		// 先保存消息
 		mqMessageData.setMessageType(MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
+		mqMessageData.setCreatedTime(new Date());
+		mqMessageData.setProducerMessageId(mqMessageData.getProducerGroup()+"-"+mqMessageData.getId());
 		mqMessageDataMapper.insert(mqMessageData);
 	}
 
