@@ -5,10 +5,7 @@ import com.reliable.message.client.dao.ClientMessageDataMapper;
 import com.reliable.message.client.feign.MqMessageFeign;
 import com.reliable.message.client.service.MqMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.dto.TpcMqMessageDto;
-import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MqMessageTypeEnum;
-import com.reliable.message.model.exception.BusinessException;
 import com.reliable.message.model.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -17,7 +14,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 
 @Slf4j
@@ -105,10 +101,8 @@ public class MqMessageServiceImpl implements MqMessageService {
 	@Override
 	public List<ClientMessageData> getProducerMessage(JSONObject jobTaskParameter) {
 		//设置消息类型
-		jobTaskParameter.put("message_type",MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
-
+		jobTaskParameter.put("messageType",MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
 		//检查清除时间
-
 		return mqMessageDataMapper.getClientMessageByParams(jobTaskParameter);
 	}
 
@@ -135,6 +129,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 //			throw new TpcBizException(ErrorCodeEnum.TPC100500015, mqMessageData.getMessageKey());
 		}
 	}
+
 
 
 }

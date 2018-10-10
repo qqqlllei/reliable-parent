@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-@ElasticJobConfig(cron = "0/50 * * * * ? ", jobParameter = "{'fetchNum':'200','taskType':'SENDING_MESSAGE'}",description="生产者消息清理")
+@ElasticJobConfig(cron = "0/50 * * * * ? ", jobParameter = "{'fetchNum':200,'taskType':'SENDING_MESSAGE'}",description="生产者消息清理")
 public class ClientMessageDataflow extends AbstractBaseDataflowJob<ClientMessageData> {
 
     private Logger logger = LoggerFactory.getLogger(ClientMessageDataflow.class);
