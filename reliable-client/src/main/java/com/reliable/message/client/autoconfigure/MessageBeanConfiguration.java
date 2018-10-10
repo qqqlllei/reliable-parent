@@ -2,6 +2,7 @@ package com.reliable.message.client.autoconfigure;
 
 import com.reliable.message.client.aspect.MqConsumerStoreAspect;
 import com.reliable.message.client.aspect.MqProducerStoreAspect;
+import com.reliable.message.client.job.ClientMessageDataflow;
 import com.reliable.message.client.service.MqMessageService;
 import com.reliable.message.client.service.impl.MqMessageServiceImpl;
 import com.reliable.message.client.web.ReliableController;
@@ -41,6 +42,13 @@ public class MessageBeanConfiguration {
 	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
 	public MqMessageService mqMessageService(){
 		return new MqMessageServiceImpl();
+	}
+
+
+	@Bean
+	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
+	public ClientMessageDataflow clientMessageDataflow(){
+		return new ClientMessageDataflow();
 	}
 
 }
