@@ -44,7 +44,7 @@
         DELETE FROM message_confirm WHERE consumer_group = #{consumerGroup} and producer_message_id = #{producerMessageId}
     </delete>
 
-    <select id="getMessageConfirmCountByProducerMessageId" parameterType="java.lang.String" >
+    <select id="getMessageConfirmCountByProducerMessageId" parameterType="java.lang.String" resultType="java.lang.Integer" >
         SELECT count(*) FROM message_confirm WHERE producer_message_id = #{producerMessageId}
     </select>
 

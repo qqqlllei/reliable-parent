@@ -66,6 +66,9 @@ public class MqMessageServiceImpl implements MqMessageService {
 		log.info("confirmReceiveMessage - 消费者={}, 确认收到messageId={}的消息", consumerGroup, messageId);
 		// 先保存消息
 		messageData.setMessageType(MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
+		Date currentTime = new Date();
+		messageData.setCreatedTime(currentTime);
+		messageData.setUpdateTime(currentTime);
 		mqMessageDataMapper.insert(messageData);
 
 //		Wrapper wrapper = mqMessageFeign.confirmReceiveMessage(consumerGroup, messageData.getProducerMessageId());
