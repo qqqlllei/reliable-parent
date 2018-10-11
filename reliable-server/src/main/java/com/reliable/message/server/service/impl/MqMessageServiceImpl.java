@@ -54,7 +54,7 @@ public class MqMessageServiceImpl implements MqMessageService {
 
         Date now = new Date();
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        message.setStatus(MqSendStatusEnum.WAIT_SEND.sendStatus());
+        message.setStatus(MqSendStatusEnum.WAIT_CONFIRM.sendStatus());
         message.setProducerMessageId(clientMessageData.getProducerGroup()+"-"+clientMessageData.getId());
         message.setId(uniqueId.getNextIdByApplicationName(ServerMessageData.class.getSimpleName()));
         message.setUpdateTime(now);
@@ -113,6 +113,11 @@ public class MqMessageServiceImpl implements MqMessageService {
     @Override
     public void deleteServerMessageDataById(Long id) {
         serverMessageMapper.deleteServerMessageDataById(id);
+    }
+
+    @Override
+    public List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter) {
+        return serverMessageMapper.getWaitConfirmServerMessageData(jobTaskParameter);
     }
 
     @Transactional

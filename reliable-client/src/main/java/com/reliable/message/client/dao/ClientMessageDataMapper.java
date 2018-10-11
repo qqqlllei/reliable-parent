@@ -16,4 +16,6 @@ public interface ClientMessageDataMapper {
     void deleteMessageByProducerMessageId(String producerMessageId);
 
     List<ClientMessageData> getClientMessageByParams(JSONObject jobTaskParameter);
+
+    ClientMessageData getClientMessageDataByProducerMessageId(String producerMessageId);
 }

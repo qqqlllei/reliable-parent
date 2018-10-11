@@ -114,6 +114,11 @@ public class MqMessageServiceImpl implements MqMessageService {
 		return mqMessageDataMapper.getClientMessageByParams(jobTaskParameter);
 	}
 
+	@Override
+	public ClientMessageData getClientMessageDataByProducerMessageId(String producerMessageId) {
+		return mqMessageDataMapper.getClientMessageDataByProducerMessageId(producerMessageId);
+	}
+
 
 	private void checkMessage(ClientMessageData mqMessageData) {
 		if (null == mqMessageData) {

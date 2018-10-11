@@ -20,4 +20,6 @@ public interface ClientMessageFeign {
     @RequestLine("POST")
     void deleteClientMessageData(URI uri);
 
+    @RequestLine("GET")
+    ClientMessageData getClientMessageDataByProducerMessageId(URI uri);
 }

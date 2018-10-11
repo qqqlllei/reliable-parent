@@ -17,7 +17,8 @@ import java.util.List;
  * Created by 李雷 on 2018/10/10.
  */
 @Component
-@ElasticJobConfig(cron = "elastic.job.cron.confirmFinishMessageClearCron", jobParameter = "{'fetchNum':200,'taskType':'SENDING_MESSAGE'}",description="消息服务成功消费记录清除")
+@ElasticJobConfig(cron = "elastic.job.cron.confirmFinishMessageClearCron",
+        jobParameter = "{'fetchNum':200,'taskType':'SENDING_MESSAGE'}",description="消息服务成功消费记录清除")
 public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<ServerMessageData> {
     private Logger logger = LoggerFactory.getLogger(ConfirmFinishMessageClearJob.class);
 

@@ -27,6 +27,7 @@ public class ClientMessageAdapter {
 
 
     private static final String DELETE_CLIENT_MESSAGE_URL="/deleteMessage/";
+    private static final String GET_CLIENT_MESSAGE_URL="/getClientMessage/";
 
 
     @Autowired
@@ -42,6 +43,12 @@ public class ClientMessageAdapter {
 
     public List<ClientMessageData> getClientMessageData(String baseUri, List<String> messageIds) throws URISyntaxException {
         return clientMessageFeign.getClientMessageData(new URI(baseUri), messageIds);
+    }
+
+    public ClientMessageData getClientMessageDataByProducerMessageId(String consumerGroup,String producerMessageId) throws URISyntaxException {
+        String baseUrl = getBaseUrl(consumerGroup);
+        String url = baseUrl+GET_CLIENT_MESSAGE_URL+producerMessageId;
+        return clientMessageFeign.getClientMessageDataByProducerMessageId(new URI(url));
     }
 
     public void deleteClientMessageData(String consumerGroup,String producerMessageId) throws URISyntaxException {

@@ -1,6 +1,7 @@
 package com.reliable.message.client.web;
 
 import com.reliable.message.client.service.MqMessageService;
+import com.reliable.message.model.domain.ClientMessageData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,14 @@ public class ReliableController {
     public void deleteMessageByProducerMessageId(@PathVariable("producerMessageId") String producerMessageId){
         System.out.println("============deleteMessageByProducerMessageId================");
         mqMessageService.deleteMessageByProducerMessageId(producerMessageId);
+
+    }
+
+
+    @RequestMapping("/getClientMessage/{producerMessageId}")
+    public ClientMessageData getClientMessageByProducerMessageId(@PathVariable("producerMessageId") String producerMessageId){
+        System.out.println("============getClientMessageByProducerMessageId================");
+        return mqMessageService.getClientMessageDataByProducerMessageId(producerMessageId);
 
     }
 

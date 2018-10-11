@@ -66,6 +66,10 @@
 		DELETE FROM client_message_data WHERE producer_message_id = #{producerMessageId}
 	</delete>
 
+	<select id="getClientMessageDataByProducerMessageId" parameterType="java.lang.String" resultMap="RM_ClientMessageData" >
+		SELECT * FROM client_message_data WHERE producer_message_id = #{producerMessageId}
+	</select>
+
 
 	<select id="getClientMessageByParams" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ClientMessageData">
 		  SELECT * FROM client_message_data WHERE message_type=#{messageType} AND created_time &lt;  DATE_SUB(CURDATE(),INTERVAL 1 DAY)

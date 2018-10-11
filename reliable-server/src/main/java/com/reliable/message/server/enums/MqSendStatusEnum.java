@@ -4,7 +4,7 @@ public enum MqSendStatusEnum {
 	/**
 	 * 未发送.
 	 */
-	WAIT_SEND(10, "未发送"),
+	WAIT_CONFIRM(10, "未发送"),
 
 	/**
 	 * 已发送.

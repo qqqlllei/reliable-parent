@@ -32,4 +32,6 @@ public interface MqMessageService {
 	void deleteMessageByProducerMessageId(String producerMessageId);
 
 	List<ClientMessageData> getProducerMessage(JSONObject jobTaskParameter);
+
+    ClientMessageData getClientMessageDataByProducerMessageId(String producerMessageId);
 }

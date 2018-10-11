@@ -26,4 +26,6 @@ public interface ServerMessageMapper {
     List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject);
 
     void deleteServerMessageDataById(Long id);
+
+    List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
 }
