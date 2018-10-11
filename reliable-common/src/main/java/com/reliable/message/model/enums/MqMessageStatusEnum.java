@@ -13,7 +13,7 @@ public enum MqMessageStatusEnum {
     /**
      * 消费者.
      */
-    SEDING(1, "发送中");
+    SENDING(1, "发送中");
 
     private int messageStatus;
 

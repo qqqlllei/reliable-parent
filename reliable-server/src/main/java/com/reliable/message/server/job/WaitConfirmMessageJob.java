@@ -65,7 +65,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
         logger.info("WaitConfirmMessageJob.processJobData - serverMessageDataList={}", serverMessageDataList);
 
         for (ServerMessageData serverMessageData : serverMessageDataList) {
-
+            mqMessageService.confirmAndSendMessage(serverMessageData.getProducerMessageId());
         }
     }
 }
