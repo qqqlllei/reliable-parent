@@ -125,7 +125,7 @@
 
 
     <select id="getServerMessageDataByParams" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData" >
-        SELECT * FROM message WHERE status = #{status} AND created_time &lt; #{clearTime}
+        SELECT * FROM message WHERE status = #{status} AND create_time &lt; #{clearTime}
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} Limit 0, #{fetchNum}
     </select>
 
