@@ -15,4 +15,6 @@ public interface MqConfirmMapper {
     void confirmFinishMessage(@Param("consumerGroup") String consumerGroup,@Param("producerMessageId") String producerMessageId);
 
     int getMessageConfirmCountByProducerMessageId(String producerMessageId);
+
+    List<TpcMqConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId);
 }

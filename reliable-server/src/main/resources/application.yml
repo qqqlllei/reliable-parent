@@ -46,7 +46,8 @@ elastic:
       namespace: elastic-job-${spring.application.name}
     cron:
       confirmFinishMessageClearCron: 0 0/30 * * * ? *
-
+      waitConfirmMessageJobCron: 0 0/30 * * * ? *
+      sendingMessageCron: 0 0/30 * * * ? *
 
 
 

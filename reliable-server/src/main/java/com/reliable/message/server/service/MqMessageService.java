@@ -27,4 +27,6 @@ public interface MqMessageService {
     void deleteServerMessageDataById(Long id);
 
     List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
+
+    List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter);
 }

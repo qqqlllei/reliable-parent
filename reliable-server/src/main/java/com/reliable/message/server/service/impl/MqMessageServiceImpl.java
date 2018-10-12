@@ -2,7 +2,6 @@ package com.reliable.message.server.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.enums.MqMessageTypeEnum;
 import com.reliable.message.model.util.TimeUtil;
 import com.reliable.message.server.dao.ServerMessageMapper;
 import com.reliable.message.server.domain.ServerMessageData;
@@ -12,7 +11,6 @@ import com.reliable.message.server.service.MqConfirmService;
 import com.reliable.message.server.service.MqConsumerService;
 import com.reliable.message.server.service.MqMessageService;
 import com.reliable.message.server.util.UniqueId;
-
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by 李雷 on 2018/5/11.
@@ -118,6 +118,11 @@ public class MqMessageServiceImpl implements MqMessageService {
     @Override
     public List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter) {
         return serverMessageMapper.getWaitConfirmServerMessageData(jobTaskParameter);
+    }
+
+    @Override
+    public List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter) {
+        return serverMessageMapper.getSendingMessageData(jobTaskParameter);
     }
 
     @Transactional

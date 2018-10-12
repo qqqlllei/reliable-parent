@@ -31,4 +31,9 @@ public class MqConfirmServiceImpl implements MqConfirmService{
     public int getMessageConfirmCountByProducerMessageId(String producerMessageId) {
         return mqConfirmMapper.getMessageConfirmCountByProducerMessageId(producerMessageId);
     }
+
+    @Override
+    public List<TpcMqConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId) {
+        return mqConfirmMapper.getMessageConfirmsByProducerMessageId(producerMessageId);
+    }
 }

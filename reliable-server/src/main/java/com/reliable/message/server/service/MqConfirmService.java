@@ -13,4 +13,6 @@ public interface MqConfirmService {
     void confirmFinishMessage(String consumerGroup ,String producerMessageId);
 
     int getMessageConfirmCountByProducerMessageId(String producerMessageId);
+
+    List<TpcMqConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId);
 }
