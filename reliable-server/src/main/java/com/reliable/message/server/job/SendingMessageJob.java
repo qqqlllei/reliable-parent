@@ -3,7 +3,6 @@ package com.reliable.message.server.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
-import com.netflix.discovery.converters.Auto;
 import com.reliable.message.server.domain.ServerMessageData;
 import com.reliable.message.server.domain.TpcMqConfirm;
 import com.reliable.message.server.service.MqConfirmService;
@@ -48,9 +47,7 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
         for (ServerMessageData serverMessageData : serverMessageDataList) {
             List<TpcMqConfirm> messageConfirms = mqConfirmService.getMessageConfirmsByProducerMessageId(serverMessageData.getProducerMessageId());
 
-            for (TpcMqConfirm messageConfirm:messageConfirms ) {
-                
-            }
+            mqMessageService.sendMessageToMessageQueue(messageConfirms,serverMessageData);
         }
 
     }

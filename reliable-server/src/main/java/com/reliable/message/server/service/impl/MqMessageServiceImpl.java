@@ -154,7 +154,7 @@ public class MqMessageServiceImpl implements MqMessageService {
         return list;
     }
 
-    private void sendMessageToMessageQueue(List<TpcMqConfirm> confirmList,final ServerMessageData message ){
+    public void sendMessageToMessageQueue(List<TpcMqConfirm> confirmList,final ServerMessageData message ){
         for (TpcMqConfirm confirm: confirmList) {
             this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
         }

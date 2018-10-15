@@ -3,6 +3,7 @@ package com.reliable.message.server.service;
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.server.domain.ServerMessageData;
+import com.reliable.message.server.domain.TpcMqConfirm;
 
 import java.util.List;
 
@@ -29,4 +30,6 @@ public interface MqMessageService {
     List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
 
     List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter);
+
+    void sendMessageToMessageQueue(List<TpcMqConfirm> confirmList, final ServerMessageData message );
 }
