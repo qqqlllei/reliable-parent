@@ -6,7 +6,7 @@ import com.job.lite.job.AbstractBaseDataflowJob;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.server.domain.ServerMessageData;
 import com.reliable.message.server.feign.ClientMessageAdapter;
-import com.reliable.message.server.service.MqMessageService;
+import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
     private Logger logger = LoggerFactory.getLogger(WaitConfirmMessageJob.class);
 
     @Autowired
-    private MqMessageService mqMessageService;
+    private MessageService messageService;
 
     @Autowired
     private ClientMessageAdapter clientMessageAdapter;
@@ -37,7 +37,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
 
         logger.info("WaitConfirmMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
 
-        List<ServerMessageData> serverMessageDataList =  mqMessageService.getWaitConfirmServerMessageData(jobTaskParameter);
+        List<ServerMessageData> serverMessageDataList =  messageService.getWaitConfirmServerMessageData(jobTaskParameter);
 
         List<ServerMessageData> fetchServerMessageList = new ArrayList<ServerMessageData>();
         for (ServerMessageData serverMessageData : serverMessageDataList) {
@@ -49,7 +49,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
                 if(clientMessageData!=null){
                     fetchServerMessageList.add(serverMessageData);
                 }else{
-                    mqMessageService.deleteServerMessageDataById(serverMessageData.getId());
+                    messageService.deleteServerMessageDataById(serverMessageData.getId());
                 }
             } catch (URISyntaxException e) {
                 logger.error(e.getMessage());
@@ -65,7 +65,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
         logger.info("WaitConfirmMessageJob.processJobData - serverMessageDataList={}", serverMessageDataList);
 
         for (ServerMessageData serverMessageData : serverMessageDataList) {
-            mqMessageService.confirmAndSendMessage(serverMessageData.getProducerMessageId());
+            messageService.confirmAndSendMessage(serverMessageData.getProducerMessageId());
         }
     }
 }

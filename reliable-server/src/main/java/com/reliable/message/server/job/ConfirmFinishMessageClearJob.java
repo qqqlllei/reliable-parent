@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
 import com.reliable.message.server.domain.ServerMessageData;
-import com.reliable.message.server.service.MqConfirmService;
-import com.reliable.message.server.service.MqMessageService;
+import com.reliable.message.server.service.MessageConfirmService;
+import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +23,15 @@ public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<Server
     private Logger logger = LoggerFactory.getLogger(ConfirmFinishMessageClearJob.class);
 
     @Autowired
-    private MqMessageService mqMessageService;
+    private MessageService messageService;
 
     @Autowired
-    private MqConfirmService mqConfirmService;
+    private MessageConfirmService messageConfirmService;
 
     @Override
     protected List<ServerMessageData> fetchJobData(JSONObject jobTaskParameter) {
         logger.info("fetchJobData - jobTaskParameter={}", jobTaskParameter);
-        List<ServerMessageData> serverMessageDataList =  mqMessageService.getServerMessageDataByParams(jobTaskParameter);
+        List<ServerMessageData> serverMessageDataList =  messageService.getServerMessageDataByParams(jobTaskParameter);
         return serverMessageDataList;
     }
 
@@ -41,10 +41,10 @@ public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<Server
 
         for (ServerMessageData serverMessageData : serverMessageDataList) {
 
-            int count = mqConfirmService.getMessageConfirmCountByProducerMessageId(serverMessageData.getProducerMessageId());
+            int count = messageConfirmService.getMessageConfirmCountByProducerMessageId(serverMessageData.getProducerMessageId());
 
             if(count == 0){
-                mqMessageService.deleteServerMessageDataById(serverMessageData.getId());
+                messageService.deleteServerMessageDataById(serverMessageData.getId());
             }
 
         }

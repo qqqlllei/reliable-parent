@@ -6,7 +6,7 @@ import java.util.Date;
 
 
 @Data
-public class TpcMqConfirm {
+public class MessageConfirm {
 	/**
 	 * ID
 	 */
@@ -57,7 +57,7 @@ public class TpcMqConfirm {
 	 * @param producerMessageId   the producerMessageId
 	 * @param consumerGroup the consumer code
 	 */
-	public TpcMqConfirm(final Long id, final Long messageId, final String producerMessageId, final String consumerGroup) {
+	public MessageConfirm(final Long id, final Long messageId, final String producerMessageId, final String consumerGroup) {
 		this.id = id;
 		this.messageId = messageId;
 		this.producerMessageId = producerMessageId;

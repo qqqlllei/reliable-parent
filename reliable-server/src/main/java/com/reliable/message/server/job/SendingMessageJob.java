@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
 import com.reliable.message.server.domain.ServerMessageData;
-import com.reliable.message.server.domain.TpcMqConfirm;
-import com.reliable.message.server.service.MqConfirmService;
-import com.reliable.message.server.service.MqMessageService;
+import com.reliable.message.server.domain.MessageConfirm;
+import com.reliable.message.server.service.MessageConfirmService;
+import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +24,17 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
     private Logger logger = LoggerFactory.getLogger(SendingMessageJob.class);
 
     @Autowired
-    private MqMessageService mqMessageService;
+    private MessageService messageService;
 
     @Autowired
-    private MqConfirmService mqConfirmService;
+    private MessageConfirmService messageConfirmService;
 
     @Override
     protected List<ServerMessageData> fetchJobData(JSONObject jobTaskParameter) {
 
         logger.info("SendingMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
 
-        List<ServerMessageData> serverMessageDataList = mqMessageService.getSendingMessageData(jobTaskParameter);
+        List<ServerMessageData> serverMessageDataList = messageService.getSendingMessageData(jobTaskParameter);
 
         return serverMessageDataList;
     }
@@ -45,9 +45,9 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
         logger.info("SendingMessageJob.processJobData - serverMessageDataList={}", serverMessageDataList);
 
         for (ServerMessageData serverMessageData : serverMessageDataList) {
-            List<TpcMqConfirm> messageConfirms = mqConfirmService.getMessageConfirmsByProducerMessageId(serverMessageData.getProducerMessageId());
+            List<MessageConfirm> messageConfirms = messageConfirmService.getMessageConfirmsByProducerMessageId(serverMessageData.getProducerMessageId());
 
-            mqMessageService.sendMessageToMessageQueue(messageConfirms,serverMessageData);
+            messageService.sendMessageToMessageQueue(messageConfirms,serverMessageData);
         }
 
     }

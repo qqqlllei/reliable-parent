@@ -3,14 +3,14 @@ package com.reliable.message.server.service;
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.server.domain.ServerMessageData;
-import com.reliable.message.server.domain.TpcMqConfirm;
+import com.reliable.message.server.domain.MessageConfirm;
 
 import java.util.List;
 
 /**
  * Created by 李雷 on 2018/5/11.
  */
-public interface MqMessageService {
+public interface MessageService {
     void saveMessageWaitingConfirm(ClientMessageData tpcMqMessageDto);
 
     void confirmAndSendMessage(String messageId);
@@ -31,7 +31,7 @@ public interface MqMessageService {
 
     List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter);
 
-    void sendMessageToMessageQueue(List<TpcMqConfirm> confirmList, final ServerMessageData message );
+    void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ServerMessageData message );
 
     void directSendMessage(ClientMessageData clientMessageData);
 

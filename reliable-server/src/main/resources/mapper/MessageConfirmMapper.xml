@@ -3,7 +3,7 @@
 <mapper namespace="com.reliable.message.server.dao.MqConfirmMapper">
 
 
-    <resultMap id="RM_MessageConfirm" type="com.reliable.message.server.domain.TpcMqConfirm">
+    <resultMap id="RM_MessageConfirm" type="com.reliable.message.server.domain.MessageConfirm">
         <result property="id" column="id"/>
         <result property="messageId" column="message_id" />
         <result property="consumerGroup" column="consumer_group" />

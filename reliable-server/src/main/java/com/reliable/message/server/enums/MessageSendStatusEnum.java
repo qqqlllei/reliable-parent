@@ -1,6 +1,6 @@
 package com.reliable.message.server.enums;
 
-public enum MqSendStatusEnum {
+public enum MessageSendStatusEnum {
 	/**
 	 * 未发送.
 	 */
@@ -20,7 +20,7 @@ public enum MqSendStatusEnum {
 
 	private String value;
 
-	MqSendStatusEnum(int sendStatus, String value) {
+	MessageSendStatusEnum(int sendStatus, String value) {
 		this.sendStatus = sendStatus;
 		this.value = value;
 	}
