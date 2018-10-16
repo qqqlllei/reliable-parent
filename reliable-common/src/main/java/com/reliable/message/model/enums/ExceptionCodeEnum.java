@@ -4,7 +4,12 @@ public enum ExceptionCodeEnum {
 
 	MSG_CONSUMER_ARGS_IS_NULL(100000,"消息服务消费者参数为空!"),
 	MSG_CONSUMER_ARGS_TYPE_IS_WRONG(100001,"消息服务消费者参数类型错误!"),
-	MSG_CONSUMER_ARGS_CONVERT_EXCEPTION(100001,"消息服务消费者参数类型转换异常!")
+	MSG_CONSUMER_ARGS_CONVERT_EXCEPTION(100001,"消息服务消费者参数类型转换异常!"),
+
+
+	MSG_PRODUCER_ARGS_IS_NULL(200000,"消息服务发送者参数为空!"),
+	MSG_PRODUCER_ARGS_TYPE_IS_WRONG(200001,"消息服务发送者参数类型错误!"),
+	MSG_PRODUCER_ENTITY_ID_IS_EMPTY(200002,"消息服务发送者消息id为null!")
 	;
 	private int code;
 	private String msg;

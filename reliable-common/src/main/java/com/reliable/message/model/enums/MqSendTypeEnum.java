@@ -16,7 +16,5 @@ public enum MqSendTypeEnum {
 	/**
 	 * 直接发送
 	 */
-	//TODO 消费切口 有问题, 日后修复 暂时不可用
-//	@Deprecated
 	DIRECT_SEND
 }

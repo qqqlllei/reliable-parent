@@ -4,8 +4,9 @@ import com.reliable.message.client.annotation.MqProducerStore;
 import com.reliable.message.client.service.MqMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.DelayLevelEnum;
-import com.reliable.message.model.enums.MqMessageStatusEnum;
+import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MqSendTypeEnum;
+import com.reliable.message.model.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -52,7 +53,7 @@ public class MqProducerStoreAspect {
 		int orderType = annotation.orderType().orderType();
 		DelayLevelEnum delayLevelEnum = annotation.delayLevel();
 		if (args.length == 0) {
-//			throw new TpcBizException(ErrorCodeEnum.TPC10050005);
+			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_IS_NULL);
 		}
 		ClientMessageData domain = null;
 		for (Object object : args) {
@@ -63,11 +64,11 @@ public class MqProducerStoreAspect {
 		}
 
 		if (domain == null) {
-//			throw new TpcBizException(ErrorCodeEnum.TPC10050005);
+			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_TYPE_IS_WRONG);
 		}
 
 		if(domain.getId() == null){
-//			throw new TpcBizException(ErrorCodeEnum.TPC10050005);
+			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ENTITY_ID_IS_EMPTY);
 		}
 
 		domain.setOrderType(orderType);
