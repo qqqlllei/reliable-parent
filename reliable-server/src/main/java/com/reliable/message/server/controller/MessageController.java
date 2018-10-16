@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/message")
-public class MqMessageController {
+public class MessageController {
 
     @Autowired
     private MessageService messageService;
