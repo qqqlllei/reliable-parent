@@ -14,9 +14,6 @@ public interface ServerMessageMapper {
 
     ServerMessageData getByProducerMessageId(String clientMessageId);
 
-    int updateByMessageKey(ServerMessageData update);
-
-
     int updateById(ServerMessageData update);
 
     Long getConfirmIdByGroupAndKey(String consumerGroup, String messageKey);
