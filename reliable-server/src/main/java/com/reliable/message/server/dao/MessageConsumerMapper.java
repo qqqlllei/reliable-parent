@@ -5,6 +5,6 @@ import java.util.List;
 /**
  * Created by 李雷 on 2018/5/14.
  */
-public interface MqConsumerMapper {
+public interface MessageConsumerMapper {
     List<String> listConsumerGroupByTopic(String messageTopic);
 }

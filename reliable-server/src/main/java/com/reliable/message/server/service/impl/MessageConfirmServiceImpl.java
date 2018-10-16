@@ -1,6 +1,6 @@
 package com.reliable.message.server.service.impl;
 
-import com.reliable.message.server.dao.MqConfirmMapper;
+import com.reliable.message.server.dao.MessageConfirmMapper;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,25 +15,25 @@ import java.util.List;
 public class MessageConfirmServiceImpl implements MessageConfirmService {
 
     @Autowired
-    private MqConfirmMapper mqConfirmMapper;
+    private MessageConfirmMapper messageConfirmMapper;
 
     @Override
     public void batchCreateMqConfirm(List<MessageConfirm> list) {
-        mqConfirmMapper.batchCreateMqConfirm(list);
+        messageConfirmMapper.batchCreateMqConfirm(list);
     }
 
     @Override
     public void confirmFinishMessage(String consumerGroup ,String producerMessageId) {
-        mqConfirmMapper.confirmFinishMessage(consumerGroup,producerMessageId);
+        messageConfirmMapper.confirmFinishMessage(consumerGroup,producerMessageId);
     }
 
     @Override
     public int getMessageConfirmCountByProducerMessageId(String producerMessageId) {
-        return mqConfirmMapper.getMessageConfirmCountByProducerMessageId(producerMessageId);
+        return messageConfirmMapper.getMessageConfirmCountByProducerMessageId(producerMessageId);
     }
 
     @Override
     public List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId) {
-        return mqConfirmMapper.getMessageConfirmsByProducerMessageId(producerMessageId);
+        return messageConfirmMapper.getMessageConfirmsByProducerMessageId(producerMessageId);
     }
 }
