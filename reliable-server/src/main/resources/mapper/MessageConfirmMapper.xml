@@ -72,7 +72,7 @@
 
 
     <select id="getMessageConfirmsByProducerMessageId" parameterType="java.lang.String" resultMap="RM_MessageConfirm">
-        SELECT * FROM message_confirm WHERE producer_message_id = #{producerMessageId}
+        SELECT * FROM message_confirm WHERE producer_message_id = #{producerMessageId} AND dead = 0
     </select>
 
     <update id="updateById" >
