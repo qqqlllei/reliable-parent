@@ -17,4 +17,6 @@ public interface MessageConfirmMapper {
     int getMessageConfirmCountByProducerMessageId(String producerMessageId);
 
     List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId);
+
+    void updateById(MessageConfirm messageConfirm);
 }

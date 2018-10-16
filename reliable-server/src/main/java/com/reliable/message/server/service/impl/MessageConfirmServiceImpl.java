@@ -36,4 +36,9 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
     public List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId) {
         return messageConfirmMapper.getMessageConfirmsByProducerMessageId(producerMessageId);
     }
+
+    @Override
+    public void updateById(MessageConfirm messageConfirm) {
+        messageConfirmMapper.updateById(messageConfirm);
+    }
 }

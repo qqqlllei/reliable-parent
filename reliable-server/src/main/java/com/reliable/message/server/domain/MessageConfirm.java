@@ -39,10 +39,18 @@ public class MessageConfirm {
 	 */
 	private Integer status;
 
+
+	private Integer sendTimes;
+
+	/**
+	 * 是否死亡 0 - 活着; 1-死亡
+	 */
+	private Integer dead;
+
 	/**
 	 * 创建时间
 	 */
-	private Date createdTime;
+	private Date createTime;
 
 	/**
 	 * 更新时间
@@ -57,10 +65,16 @@ public class MessageConfirm {
 	 * @param producerMessageId   the producerMessageId
 	 * @param consumerGroup the consumer code
 	 */
-	public MessageConfirm(final Long id, final Long messageId, final String producerMessageId, final String consumerGroup) {
+	public MessageConfirm(final Long id, final Long messageId,
+						  final String producerMessageId,
+						  final String consumerGroup,
+						  final Integer sendTimes,
+						  final Integer dead) {
 		this.id = id;
 		this.messageId = messageId;
 		this.producerMessageId = producerMessageId;
 		this.consumerGroup = consumerGroup;
+		this.sendTimes=sendTimes;
+		this.dead = dead;
 	}
 }

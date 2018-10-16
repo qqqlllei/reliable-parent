@@ -53,10 +53,7 @@ public class ServerMessageData implements Serializable {
 	 */
 	private Integer sendTimes;
 
-	/**
-	 * 是否死亡 0 - 活着; 1-死亡
-	 */
-	private Integer dead;
+
 
 	/**
 	 * 创建时间

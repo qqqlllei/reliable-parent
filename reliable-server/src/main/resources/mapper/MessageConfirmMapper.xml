@@ -9,6 +9,10 @@
         <result property="consumerGroup" column="consumer_group" />
         <result property="consumeCount" column="consume_count" />
         <result property="producerMessageId" column="producer_message_id" />
+        <result property="sendTimes" column="send_times" />
+        <result property="dead" column="dead" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
     </resultMap>
 
 
@@ -18,14 +22,22 @@
         id,
         message_id,
         producer_message_id,
-        consumer_group)
+        consumer_group,
+        send_times ,
+        dead,
+        create_time,
+        update_time)
         VALUES
         <foreach collection="tpcMqConfirmList" item="item" index="index" separator=",">
             (
             #{item.id,jdbcType=BIGINT},
             #{item.messageId,jdbcType=BIGINT},
             #{item.producerMessageId,jdbcType=VARCHAR},
-            #{item.consumerGroup,jdbcType=VARCHAR}
+            #{item.consumerGroup,jdbcType=VARCHAR},
+            #{item.sendTimes,jdbcType=INT},
+            #{item.dead,jdbcType=INT},
+            #{item.create_time,jdbcType=TIMESTAMP},
+            #{item.update_time,jdbcType=TIMESTAMP}
             )
         </foreach>
     </insert>
@@ -62,5 +74,11 @@
     <select id="getMessageConfirmsByProducerMessageId" parameterType="java.lang.String" resultMap="RM_MessageConfirm">
         SELECT * FROM message_confirm WHERE producer_message_id = #{producerMessageId}
     </select>
+
+    <update id="updateById" >
+      UPDATE message_confirm
+      SET send_times = #{sendTimes} ,dead = #{dead},update_time = #{updateTime}
+      WHERE id = #{id}
+    </update>
 
 </mapper>

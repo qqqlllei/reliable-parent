@@ -15,4 +15,6 @@ public interface MessageConfirmService {
     int getMessageConfirmCountByProducerMessageId(String producerMessageId);
 
     List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId);
+
+    void updateById(MessageConfirm messageConfirm);
 }

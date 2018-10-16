@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +23,10 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
 
 
     private Logger logger = LoggerFactory.getLogger(SendingMessageJob.class);
+
+    private Integer MAX_RESEND_COUNT=5;
+
+    private Integer SERVER_MESSAGE_DEAD_STATUS= 1;
 
     @Autowired
     private MessageService messageService;
@@ -46,9 +51,16 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
 
         for (ServerMessageData serverMessageData : serverMessageDataList) {
             List<MessageConfirm> messageConfirms = messageConfirmService.getMessageConfirmsByProducerMessageId(serverMessageData.getProducerMessageId());
-
-            messageService.sendMessageToMessageQueue(messageConfirms,serverMessageData);
+            for (MessageConfirm messageConfirm : messageConfirms) {
+                int sendTimes = messageConfirm.getSendTimes();
+                if(sendTimes >= MAX_RESEND_COUNT ){
+                    messageConfirm.setDead(SERVER_MESSAGE_DEAD_STATUS);
+                }
+                messageConfirm.setSendTimes(sendTimes+1);
+                messageConfirm.setUpdateTime(new Date());
+                messageConfirmService.updateById(messageConfirm);
+                messageService.directSendMessage(serverMessageData,serverMessageData.getMessageTopic(),serverMessageData.getMessageKey());
+            }
         }
-
     }
 }

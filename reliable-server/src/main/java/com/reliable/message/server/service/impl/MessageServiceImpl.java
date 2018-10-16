@@ -43,7 +43,8 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private KafkaTemplate kafkaTemplate;
 
-    private static final String MQ_CONFIRM_TABLE ="MQ_CONFIRM_TABLE";
+    private static final Integer FIRST_SEND_TIME_COUNT =1;
+    private static final Integer DEFAULT_DEAD_STATUS =0;
 
     @Override
     public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) {
@@ -146,7 +147,11 @@ public class MessageServiceImpl implements MessageService {
 //            throw new TpcBizException(ErrorCodeEnum.TPC100500010, topic);
         }
         for (final String consumerCode : consumerGroupList) {
-            messageConfirm = new MessageConfirm(uniqueId.getNextIdByApplicationName(MessageConfirm.class.getSimpleName()), messageId, messageKey, consumerCode);
+            messageConfirm = new MessageConfirm(uniqueId.getNextIdByApplicationName(MessageConfirm.class.getSimpleName()), messageId, messageKey,
+                    consumerCode,FIRST_SEND_TIME_COUNT,DEFAULT_DEAD_STATUS);
+            Date currentTime = new Date();
+            messageConfirm.setCreateTime(currentTime);
+            messageConfirm.setUpdateTime(currentTime);
             list.add(messageConfirm);
         }
 
@@ -157,6 +162,7 @@ public class MessageServiceImpl implements MessageService {
     public void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ServerMessageData message ){
         for (MessageConfirm confirm: confirmList) {
             this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
+
         }
     }
 
