@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Component
 @FeignClient(value = "reliable-server")
-public interface MqMessageFeign {
+public interface MessageFeign {
 
 
     @RequestMapping(value = "/message/saveMessageWaitingConfirm",method = RequestMethod.POST)

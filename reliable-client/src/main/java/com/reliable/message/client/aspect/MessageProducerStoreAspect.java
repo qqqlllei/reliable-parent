@@ -1,7 +1,7 @@
 package com.reliable.message.client.aspect;
 
-import com.reliable.message.client.annotation.MqProducerStore;
-import com.reliable.message.client.service.MqMessageService;
+import com.reliable.message.client.annotation.MessageProducerStore;
+import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.DelayLevelEnum;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
@@ -26,9 +26,9 @@ import java.lang.reflect.Method;
  */
 @Slf4j
 @Aspect
-public class MqProducerStoreAspect {
+public class MessageProducerStoreAspect {
 	@Resource
-	private MqMessageService mqMessageService;
+	private ReliableMessageService reliableMessageService;
 	@Value("${spring.application.name}")
 	private String appName;
 
@@ -37,7 +37,7 @@ public class MqProducerStoreAspect {
 	@Value("${reliable.message.producerGroup:}")
 	private String producerGroup;
 
-	@Pointcut("@annotation(com.reliable.message.client.annotation.MqProducerStore)")
+	@Pointcut("@annotation(com.reliable.message.client.annotation.MessageProducerStore)")
 	public void mqProducerStoreAnnotationPointcut() {
 
 	}
@@ -48,7 +48,7 @@ public class MqProducerStoreAspect {
 		if(StringUtils.isBlank(producerGroup)) producerGroup = appName;
 		Object result;
 		Object[] args = joinPoint.getArgs();
-		MqProducerStore annotation = getAnnotation(joinPoint);
+		MessageProducerStore annotation = getAnnotation(joinPoint);
 		MqSendTypeEnum type = annotation.sendType();
 		DelayLevelEnum delayLevelEnum = annotation.delayLevel();
 		if (args.length == 0) {
@@ -76,22 +76,22 @@ public class MqProducerStoreAspect {
 			if (delayLevelEnum != DelayLevelEnum.ZERO) {
 				domain.setDelayLevel(delayLevelEnum.delayLevel());
 			}
-			mqMessageService.saveWaitConfirmMessage(domain);
+			reliableMessageService.saveWaitConfirmMessage(domain);
 		}
 		result = joinPoint.proceed();
 		if (type == MqSendTypeEnum.SAVE_AND_SEND) {
-			mqMessageService.saveAndSendMessage(domain);
+			reliableMessageService.saveAndSendMessage(domain);
 		} else if (type == MqSendTypeEnum.DIRECT_SEND) {
-			mqMessageService.directSendMessage(domain);
+			reliableMessageService.directSendMessage(domain);
 		} else {
-			mqMessageService.confirmAndSendMessage(domain.getProducerGroup()+"-"+domain.getId());
+			reliableMessageService.confirmAndSendMessage(domain.getProducerGroup()+"-"+domain.getId());
 		}
 		return result;
 	}
 
-	private static MqProducerStore getAnnotation(JoinPoint joinPoint) {
+	private static MessageProducerStore getAnnotation(JoinPoint joinPoint) {
 		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 		Method method = methodSignature.getMethod();
-		return method.getAnnotation(MqProducerStore.class);
+		return method.getAnnotation(MessageProducerStore.class);
 	}
 }

@@ -1,8 +1,8 @@
 package com.reliable.message.client.aspect;
 
 
-import com.reliable.message.client.annotation.MqConsumerStore;
-import com.reliable.message.client.service.MqMessageService;
+import com.reliable.message.client.annotation.MessageConsumerStore;
+import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MqMessageTypeEnum;
@@ -23,10 +23,10 @@ import java.lang.reflect.Method;
 
 @Slf4j
 @Aspect
-public class MqConsumerStoreAspect {
+public class MessageConsumerStoreAspect {
 
 	@Resource
-	private MqMessageService mqMessageService;
+	private ReliableMessageService reliableMessageService;
 
 	@Value("${spring.application.name}")
 	private String appName;
@@ -38,7 +38,7 @@ public class MqConsumerStoreAspect {
 	private static final String CONSUME_SUCCESS = "CONSUME_SUCCESS";
 
 
-	@Pointcut("@annotation(com.reliable.message.client.annotation.MqConsumerStore)")
+	@Pointcut("@annotation(com.reliable.message.client.annotation.MessageConsumerStore)")
 	public void mqConsumerStoreAnnotationPointcut() {
 
 	}
@@ -52,7 +52,7 @@ public class MqConsumerStoreAspect {
 		Object result;
 		long startTime = System.currentTimeMillis();
 		Object[] args = joinPoint.getArgs();
-		MqConsumerStore annotation = getAnnotation(joinPoint);
+		MessageConsumerStore annotation = getAnnotation(joinPoint);
 		boolean isStorePreStatus = annotation.storePreStatus();
 		ClientMessageData clientMessageData;
 		if (args == null || args.length == 0) {
@@ -80,19 +80,19 @@ public class MqConsumerStoreAspect {
 		if (isStorePreStatus) {
 
 			// 重复消费检查
-			boolean consumed = mqMessageService.checkMessageStatus(messageId,MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
+			boolean consumed = reliableMessageService.checkMessageStatus(messageId,MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
-				mqMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
+				reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
 				return null;
 			}
-			mqMessageService.confirmReceiveMessage(consumerGroup, clientMessageData);
+			reliableMessageService.confirmReceiveMessage(consumerGroup, clientMessageData);
 		}
 		String methodName = joinPoint.getSignature().getName();
 		try {
 			result = joinPoint.proceed();
 			log.info("result={}", result);
 			if (CONSUME_SUCCESS.equals(result.toString())) {
-				mqMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
+				reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
 			}
 		} catch (Exception e) {
 			log.error("发送可靠消息, 目标方法[{}], 出现异常={}", methodName, e.getMessage(), e);
@@ -103,9 +103,9 @@ public class MqConsumerStoreAspect {
 		return result;
 	}
 
-	private MqConsumerStore getAnnotation(JoinPoint joinPoint) {
+	private MessageConsumerStore getAnnotation(JoinPoint joinPoint) {
 		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 		Method method = methodSignature.getMethod();
-		return method.getAnnotation(MqConsumerStore.class);
+		return method.getAnnotation(MessageConsumerStore.class);
 	}
 }

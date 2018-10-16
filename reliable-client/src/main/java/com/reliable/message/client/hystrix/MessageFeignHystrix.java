@@ -1,6 +1,6 @@
 package com.reliable.message.client.hystrix;
 
-import com.reliable.message.client.feign.MqMessageFeign;
+import com.reliable.message.client.feign.MessageFeign;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Component
 @Slf4j
-public class MqMessageFeignHystrix implements MqMessageFeign {
+public class MessageFeignHystrix implements MessageFeign {
 
     @Override
     public Wrapper saveMessageWaitingConfirm(ClientMessageData clientMessageData) {
