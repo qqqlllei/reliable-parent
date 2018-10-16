@@ -119,6 +119,16 @@ public class MqMessageServiceImpl implements MqMessageService {
 		return mqMessageDataMapper.getClientMessageDataByProducerMessageId(producerMessageId);
 	}
 
+	@Override
+	public void directSendMessage(ClientMessageData clientMessageData) {
+		mqMessageFeign.directSendMessage(clientMessageData);
+	}
+
+	@Override
+	public void saveAndSendMessage(ClientMessageData clientMessageData) {
+		mqMessageFeign.saveAndSendMessage(clientMessageData);
+	}
+
 
 	private void checkMessage(ClientMessageData mqMessageData) {
 		if (null == mqMessageData) {

@@ -4,6 +4,7 @@ import com.reliable.message.client.annotation.MqProducerStore;
 import com.reliable.message.client.service.MqMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.DelayLevelEnum;
+import com.reliable.message.model.enums.MqMessageStatusEnum;
 import com.reliable.message.model.enums.MqSendTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -35,24 +36,11 @@ public class MqProducerStoreAspect {
 	@Value("${reliable.message.producerGroup:}")
 	private String producerGroup;
 
-//	@Resource
-//	private TaskExecutor taskExecutor;
-
-	/**
-	 * Add exe time annotation pointcut.
-	 */
 	@Pointcut("@annotation(com.reliable.message.client.annotation.MqProducerStore)")
 	public void mqProducerStoreAnnotationPointcut() {
 
 	}
 
-	/**
-	 * Add exe time method object.
-	 *
-	 * @param joinPoint the join point
-	 *
-	 * @return the object
-	 */
 	@Around(value = "mqProducerStoreAnnotationPointcut()")
 	public Object processMqProducerStoreJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
 		log.info("processMqProducerStoreJoinPoint - 线程id={}", Thread.currentThread().getId());
@@ -89,14 +77,13 @@ public class MqProducerStoreAspect {
 			if (delayLevelEnum != DelayLevelEnum.ZERO) {
 				domain.setDelayLevel(delayLevelEnum.delayLevel());
 			}
-//			domain.setStatus(MqMessageStatusEnum.WAIT_CONFIRM.messageStatus());
 			mqMessageService.saveWaitConfirmMessage(domain);
 		}
 		result = joinPoint.proceed();
 		if (type == MqSendTypeEnum.SAVE_AND_SEND) {
-//			mqMessageService.saveAndSendMessage(domain);
+			mqMessageService.saveAndSendMessage(domain);
 		} else if (type == MqSendTypeEnum.DIRECT_SEND) {
-//			mqMessageService.directSendMessage(domain);
+			mqMessageService.directSendMessage(domain);
 		} else {
 			mqMessageService.confirmAndSendMessage(domain.getProducerGroup()+"-"+domain.getId());
 		}

@@ -159,4 +159,28 @@ public class MqMessageServiceImpl implements MqMessageService {
             this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
         }
     }
+
+    @Override
+    public void directSendMessage(ClientMessageData clientMessageData) {
+        ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
+        List<String> consumerGroupList = mqConsumerService.listConsumerGroupByTopic(message.getMessageTopic());
+        for (String consumer : consumerGroupList) {
+            this.directSendMessage(message,message.getMessageTopic()+"-"+consumer,message.getMessageKey());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void saveAndSendMessage(ClientMessageData clientMessageData) {
+        ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
+        message.setStatus(MqSendStatusEnum.SENDING.sendStatus());
+        Date now = new Date();
+        message.setProducerMessageId(clientMessageData.getProducerGroup()+"-"+clientMessageData.getId());
+        message.setId(uniqueId.getNextIdByApplicationName(ServerMessageData.class.getSimpleName()));
+        message.setUpdateTime(now);
+        message.setCreateTime(now);
+        serverMessageMapper.insert(message);
+        List<TpcMqConfirm> confirmList = createMqConfirmListByTopic(message.getMessageTopic(),message.getId(),message.getMessageKey());
+        sendMessageToMessageQueue(confirmList,message);
+    }
 }

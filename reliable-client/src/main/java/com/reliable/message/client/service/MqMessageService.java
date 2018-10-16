@@ -34,4 +34,8 @@ public interface MqMessageService {
 	List<ClientMessageData> getProducerMessage(JSONObject jobTaskParameter);
 
     ClientMessageData getClientMessageDataByProducerMessageId(String producerMessageId);
+
+    void directSendMessage(ClientMessageData domain);
+
+	void saveAndSendMessage(ClientMessageData domain);
 }

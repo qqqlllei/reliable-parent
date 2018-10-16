@@ -32,4 +32,8 @@ public interface MqMessageService {
     List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter);
 
     void sendMessageToMessageQueue(List<TpcMqConfirm> confirmList, final ServerMessageData message );
+
+    void directSendMessage(ClientMessageData clientMessageData);
+
+    void saveAndSendMessage(ClientMessageData clientMessageData);
 }

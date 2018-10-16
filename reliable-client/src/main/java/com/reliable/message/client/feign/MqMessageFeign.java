@@ -29,4 +29,9 @@ public interface MqMessageFeign {
     @RequestMapping(value = "/message/checkServerMessageIsExist",method = RequestMethod.POST)
     Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") String producerMessageId);
 
+    @RequestMapping(value = "/message/directSendMessage",method = RequestMethod.POST)
+    Wrapper directSendMessage(ClientMessageData clientMessageData);
+
+    @RequestMapping(value = "/message/saveAndSendMessage",method = RequestMethod.POST)
+    Wrapper saveAndSendMessage(ClientMessageData clientMessageData);
 }
