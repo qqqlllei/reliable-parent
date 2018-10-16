@@ -5,7 +5,7 @@ import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.DelayLevelEnum;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
-import com.reliable.message.model.enums.MqSendTypeEnum;
+import com.reliable.message.model.enums.MessageSendTypeEnum;
 import com.reliable.message.model.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +49,7 @@ public class MessageProducerStoreAspect {
 		Object result;
 		Object[] args = joinPoint.getArgs();
 		MessageProducerStore annotation = getAnnotation(joinPoint);
-		MqSendTypeEnum type = annotation.sendType();
+		MessageSendTypeEnum type = annotation.sendType();
 		DelayLevelEnum delayLevelEnum = annotation.delayLevel();
 		if (args.length == 0) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_IS_NULL);
@@ -72,16 +72,16 @@ public class MessageProducerStoreAspect {
 
 		domain.setProducerGroup(producerGroup);
 
-		if (type == MqSendTypeEnum.WAIT_CONFIRM) {
+		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
 			if (delayLevelEnum != DelayLevelEnum.ZERO) {
 				domain.setDelayLevel(delayLevelEnum.delayLevel());
 			}
 			reliableMessageService.saveWaitConfirmMessage(domain);
 		}
 		result = joinPoint.proceed();
-		if (type == MqSendTypeEnum.SAVE_AND_SEND) {
+		if (type == MessageSendTypeEnum.SAVE_AND_SEND) {
 			reliableMessageService.saveAndSendMessage(domain);
-		} else if (type == MqSendTypeEnum.DIRECT_SEND) {
+		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			reliableMessageService.directSendMessage(domain);
 		} else {
 			reliableMessageService.confirmAndSendMessage(domain.getProducerGroup()+"-"+domain.getId());

@@ -6,7 +6,7 @@ import com.reliable.message.client.feign.MessageFeign;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
-import com.reliable.message.model.enums.MqMessageTypeEnum;
+import com.reliable.message.model.enums.MessageTypeEnum;
 import com.reliable.message.model.exception.BusinessException;
 import com.reliable.message.model.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		// 校验消息数据
 		this.checkMessage(mqMessageData);
 		// 先保存消息
-		mqMessageData.setMessageType(MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
+		mqMessageData.setMessageType(MessageTypeEnum.PRODUCER_MESSAGE.messageType());
 		Date currentDate = new Date();
 		mqMessageData.setCreatedTime(currentDate);
 		mqMessageData.setUpdateTime(currentDate);
@@ -64,7 +64,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		final Long messageId = messageData.getId();
 		log.info("confirmReceiveMessage - 消费者={}, 确认收到messageId={}的消息", consumerGroup, messageId);
 		// 先保存消息
-		messageData.setMessageType(MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
+		messageData.setMessageType(MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 		Date currentTime = new Date();
 		messageData.setCreatedTime(currentTime);
 		messageData.setUpdateTime(currentTime);
@@ -96,7 +96,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	@Override
 	public List<ClientMessageData> getProducerMessage(JSONObject jobTaskParameter) {
 		//设置消息类型
-		jobTaskParameter.put("messageType",MqMessageTypeEnum.PRODUCER_MESSAGE.messageType());
+		jobTaskParameter.put("messageType", MessageTypeEnum.PRODUCER_MESSAGE.messageType());
 		//检查清除时间
 		return mqMessageDataMapper.getClientMessageByParams(jobTaskParameter);
 	}

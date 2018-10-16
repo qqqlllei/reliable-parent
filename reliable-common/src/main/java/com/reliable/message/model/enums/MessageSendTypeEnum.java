@@ -2,7 +2,7 @@ package com.reliable.message.model.enums;
 
 
 
-public enum MqSendTypeEnum {
+public enum MessageSendTypeEnum {
 	/**
 	 * 等待确认.
 	 */

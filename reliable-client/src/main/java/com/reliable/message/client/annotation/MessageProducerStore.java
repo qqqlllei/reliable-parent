@@ -2,7 +2,7 @@ package com.reliable.message.client.annotation;
 
 
 import com.reliable.message.model.enums.DelayLevelEnum;
-import com.reliable.message.model.enums.MqSendTypeEnum;
+import com.reliable.message.model.enums.MessageSendTypeEnum;
 
 import java.lang.annotation.*;
 
@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Inherited
 @Documented
 public @interface MessageProducerStore {
-	MqSendTypeEnum sendType() default MqSendTypeEnum.WAIT_CONFIRM;
+	MessageSendTypeEnum sendType() default MessageSendTypeEnum.WAIT_CONFIRM;
 
 	DelayLevelEnum delayLevel() default DelayLevelEnum.ZERO;
 }

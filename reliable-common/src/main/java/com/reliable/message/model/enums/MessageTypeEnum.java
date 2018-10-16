@@ -2,7 +2,7 @@ package com.reliable.message.model.enums;
 
 
 
-public enum MqMessageTypeEnum {
+public enum MessageTypeEnum {
 	/**
 	 * 生产者.
 	 */
@@ -16,7 +16,7 @@ public enum MqMessageTypeEnum {
 
 	private String value;
 
-	MqMessageTypeEnum(int messageType, String value) {
+	MessageTypeEnum(int messageType, String value) {
 		this.messageType = messageType;
 		this.value = value;
 	}

@@ -5,7 +5,7 @@ import com.reliable.message.client.annotation.MessageConsumerStore;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
-import com.reliable.message.model.enums.MqMessageTypeEnum;
+import com.reliable.message.model.enums.MessageTypeEnum;
 import com.reliable.message.model.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -80,7 +80,7 @@ public class MessageConsumerStoreAspect {
 		if (isStorePreStatus) {
 
 			// 重复消费检查
-			boolean consumed = reliableMessageService.checkMessageStatus(messageId,MqMessageTypeEnum.CONSUMER_MESSAGE.messageType());
+			boolean consumed = reliableMessageService.checkMessageStatus(messageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
 				reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
 				return null;
