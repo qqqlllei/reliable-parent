@@ -50,7 +50,6 @@ public class MqProducerStoreAspect {
 		Object[] args = joinPoint.getArgs();
 		MqProducerStore annotation = getAnnotation(joinPoint);
 		MqSendTypeEnum type = annotation.sendType();
-		int orderType = annotation.orderType().orderType();
 		DelayLevelEnum delayLevelEnum = annotation.delayLevel();
 		if (args.length == 0) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_IS_NULL);
@@ -71,7 +70,6 @@ public class MqProducerStoreAspect {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ENTITY_ID_IS_EMPTY);
 		}
 
-		domain.setOrderType(orderType);
 		domain.setProducerGroup(producerGroup);
 
 		if (type == MqSendTypeEnum.WAIT_CONFIRM) {

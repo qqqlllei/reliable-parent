@@ -38,11 +38,6 @@ public class ClientMessageData {
 	private Integer messageType;
 
 	/**
-	 * 顺序类型, 0有序 1无序
-	 */
-	private int orderType;
-
-	/**
 	 * 消息状态
 	 */
 	private Integer status;

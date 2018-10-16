@@ -34,4 +34,14 @@ public class MqMessageFeignHystrix implements MqMessageFeign {
     public Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") String producerMessageId) {
         return null;
     }
+
+    @Override
+    public Wrapper directSendMessage(ClientMessageData clientMessageData) {
+        return null;
+    }
+
+    @Override
+    public Wrapper saveAndSendMessage(ClientMessageData clientMessageData) {
+        return null;
+    }
 }
