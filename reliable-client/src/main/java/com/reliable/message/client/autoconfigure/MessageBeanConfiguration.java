@@ -9,8 +9,10 @@ import com.reliable.message.client.web.ReliableController;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
+@EnableAsync
 public class MessageBeanConfiguration {
 
 	@Bean
