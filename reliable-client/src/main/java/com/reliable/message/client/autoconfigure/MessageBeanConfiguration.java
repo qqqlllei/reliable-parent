@@ -36,7 +36,7 @@ public class MessageBeanConfiguration {
 
 	@Bean
 	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
-	public ReliableMessageService mqMessageService(){
+	public ReliableMessageService reliableMessageService(){
 		return new ReliableMessageServiceImpl();
 	}
 

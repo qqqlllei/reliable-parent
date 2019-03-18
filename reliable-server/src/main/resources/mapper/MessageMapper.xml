@@ -19,7 +19,6 @@
         <result property="taskStatus" column="task_status"/>
         <result property="updateTime" column="update_time"/>
         <result property="resendTimes" column="resend_times"/>
-        <result property="dead" column="dead"/>
         <result property="nextExeTime" column="next_exe_time"/>
         <result property="yn" column="yn"/>
         <result property="creator" column="creator"/>
@@ -32,7 +31,7 @@
 
     <sql id="columns">
         <![CDATA[
-		id,version,message_key,message_topic,message_tag,message_body,message_type,producer_group,delay_level,order_type,status,task_status,update_time,resend_times,dead,next_exe_time,yn,creator,creator_id,created_time,last_operator,last_operator_id
+		id,version,message_key,message_topic,message_tag,message_body,message_type,producer_group,delay_level,order_type,status,task_status,update_time,resend_times,next_exe_time,yn,creator,creator_id,created_time,last_operator,last_operator_id
 	    ]]>
     </sql>
 
@@ -67,9 +66,6 @@
             <if test="sendTimes != null">
                 send_times = #{sendTimes} ,
             </if>
-            <if test="dead != null">
-                dead = #{dead} ,
-            </if>
 
             <if test="createTime != null">
                 create_time = #{createTime}
@@ -91,7 +87,6 @@
 	        	status ,
 	        	update_time ,
 	        	send_times ,
-	        	dead ,
 	        	create_time
 	        ) VALUES (
 	        	#{id} ,
@@ -104,7 +99,6 @@
 	        	#{status} ,
 	        	#{updateTime} ,
 	        	#{sendTimes} ,
-	        	#{dead} ,
 	        	#{createTime}
 	        )
 	    ]]>
