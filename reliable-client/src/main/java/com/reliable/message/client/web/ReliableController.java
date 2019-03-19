@@ -19,7 +19,7 @@ public class ReliableController {
 
 
     @RequestMapping("/deleteMessage/{producerMessageId}")
-    public void deleteMessageByProducerMessageId(@PathVariable("producerMessageId") String producerMessageId){
+    public void deleteMessageByProducerMessageId(@PathVariable("producerMessageId") Long producerMessageId){
         System.out.println("============deleteMessageByProducerMessageId================");
         reliableMessageService.deleteMessageByProducerMessageId(producerMessageId);
 

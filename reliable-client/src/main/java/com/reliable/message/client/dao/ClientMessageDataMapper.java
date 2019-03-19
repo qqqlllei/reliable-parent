@@ -11,9 +11,9 @@ public interface ClientMessageDataMapper {
 
     int insert(ClientMessageData mqMessageData);
 
-    ClientMessageData getClientMessageByMessageIdAndType(@Param("messageId") Long messageId,@Param("messageType") int type);
+    ClientMessageData getClientMessageByProducerMessageIdAndType(@Param("producerMessageId") Long producerMessageId,@Param("messageType") int type);
 
-    void deleteMessageByProducerMessageId(String producerMessageId);
+    void deleteMessageByProducerMessageId(Long producerMessageId);
 
     List<ClientMessageData> getClientMessageByParams(JSONObject jobTaskParameter);
 

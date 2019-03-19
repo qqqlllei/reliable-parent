@@ -2,8 +2,9 @@ package com.reliable.message.server.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.model.domain.ServerMessageData;
 import com.reliable.message.model.wrapper.Wrapper;
-import com.reliable.message.server.domain.ServerMessageData;
+
 import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class MessageController {
 
 
     @RequestMapping("/confirmAndSendMessage")
-    Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") String producerMessageId){
+    Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") Long producerMessageId){
         logger.info("确认并发送消息. producerMessageId={}", producerMessageId);
         messageService.confirmAndSendMessage(producerMessageId);
         return Wrapper.ok();
@@ -49,7 +50,7 @@ public class MessageController {
     }
 
     @RequestMapping("/checkServerMessageIsExist")
-    Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") final String producerMessageId){
+    Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") final Long producerMessageId){
         ServerMessageData serverMessageData = messageService.getServerMessageDataByProducerMessageId(producerMessageId);
 
         if(serverMessageData!=null) return Wrapper.ok().result(true);

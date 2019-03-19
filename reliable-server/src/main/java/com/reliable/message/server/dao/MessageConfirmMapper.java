@@ -14,9 +14,9 @@ public interface MessageConfirmMapper {
 
     void confirmFinishMessage(@Param("consumerGroup") String consumerGroup,@Param("producerMessageId") String producerMessageId);
 
-    int getMessageConfirmCountByProducerMessageId(String producerMessageId);
+    int getMessageConfirmCountByProducerMessageId(Long producerMessageId);
 
-    List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId);
+    List<MessageConfirm> getMessageConfirmsByProducerMessageId(Long producerMessageId);
 
     void updateById(MessageConfirm messageConfirm);
 }

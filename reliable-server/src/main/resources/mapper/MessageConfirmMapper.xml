@@ -21,6 +21,7 @@
         (
         id,
         message_id,
+        producer_group,
         producer_message_id,
         consumer_group,
         send_times ,
@@ -32,7 +33,8 @@
             (
             #{item.id,jdbcType=BIGINT},
             #{item.messageId,jdbcType=BIGINT},
-            #{item.producerMessageId,jdbcType=VARCHAR},
+            #{item.producerGroup,jdbcType=VARCHAR},
+            #{item.producerMessageId,jdbcType=BIGINT},
             #{item.consumerGroup,jdbcType=VARCHAR},
             #{item.sendTimes,jdbcType=INTEGER},
             #{item.dead,jdbcType=INTEGER},
@@ -66,12 +68,12 @@
         DELETE FROM message_confirm WHERE consumer_group = #{consumerGroup} and producer_message_id = #{producerMessageId}
     </delete>
 
-    <select id="getMessageConfirmCountByProducerMessageId" parameterType="java.lang.String" resultType="java.lang.Integer" >
+    <select id="getMessageConfirmCountByProducerMessageId" parameterType="java.lang.Long" resultType="java.lang.Integer" >
         SELECT count(*) FROM message_confirm WHERE producer_message_id = #{producerMessageId}
     </select>
 
 
-    <select id="getMessageConfirmsByProducerMessageId" parameterType="java.lang.String" resultMap="RM_MessageConfirm">
+    <select id="getMessageConfirmsByProducerMessageId" parameterType="java.lang.Long" resultMap="RM_MessageConfirm">
         SELECT * FROM message_confirm WHERE producer_message_id = #{producerMessageId} AND dead = 0
     </select>
 

@@ -4,6 +4,7 @@ package com.reliable.message.client.aspect;
 import com.reliable.message.client.annotation.MessageConsumerStore;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.model.domain.ServerMessageData;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MessageTypeEnum;
 import com.reliable.message.model.exception.BusinessException;
@@ -48,36 +49,36 @@ public class MessageConsumerStoreAspect {
 		Object[] args = joinPoint.getArgs();
 		MessageConsumerStore annotation = getAnnotation(joinPoint);
 		boolean isStorePreStatus = annotation.storePreStatus();
-		ClientMessageData clientMessageData;
+		ServerMessageData serverMessageData;
 		if (args == null || args.length == 0) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_IS_NULL);
 		}
 
-		if (!(args[0] instanceof ClientMessageData)) {
-			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_IS_NULL);
+		if (!(args[0] instanceof ServerMessageData)) {
+			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_TYPE_IS_WRONG);
 		}
 
 		try {
-			clientMessageData = (ClientMessageData) args[0];
+			serverMessageData = (ServerMessageData) args[0];
 		} catch (Exception e) {
 			log.error("processMqConsumerStoreJoinPoint={}", e.getMessage(), e);
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
 		}
-		final Long messageId = clientMessageData.getId();
+		final Long producerMessageId = serverMessageData.getProducerMessageId();
 
 		if (isStorePreStatus) {
 			// 重复消费检查
-			boolean consumed = reliableMessageService.checkMessageStatus(messageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
+			boolean consumed = reliableMessageService.checkMessageStatus(producerMessageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
-				reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
+				reliableMessageService.confirmFinishMessage(consumerGroup, serverMessageData.getProducerMessageId());
 				return ;
 			}
-			reliableMessageService.confirmReceiveMessage(consumerGroup, clientMessageData);
+			reliableMessageService.confirmReceiveMessage(consumerGroup, serverMessageData);
 		}
 		String methodName = joinPoint.getSignature().getName();
 		try {
 			joinPoint.proceed();
-			reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
+			reliableMessageService.confirmFinishMessage(consumerGroup, serverMessageData.getProducerMessageId());
 		} catch (Exception e) {
 			log.error("发送可靠消息, 目标方法[{}], 出现异常={}", methodName, e.getMessage(), e);
 			throw e;

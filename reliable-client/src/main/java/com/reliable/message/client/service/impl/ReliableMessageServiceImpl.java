@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.client.dao.ClientMessageDataMapper;
 import com.reliable.message.client.feign.MessageFeign;
 import com.reliable.message.client.service.ReliableMessageService;
+import com.reliable.message.client.util.MessageClientUniqueId;
 import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.model.domain.ServerMessageData;
 import com.reliable.message.model.enums.ExceptionCodeEnum;
 import com.reliable.message.model.enums.MessageTypeEnum;
 import com.reliable.message.model.exception.BusinessException;
@@ -28,13 +30,16 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	@Autowired
 	private MessageFeign messageFeign;
 
+	@Autowired
+	private MessageClientUniqueId messageClientUniqueId;
+
 	@Override
-	public void saveWaitConfirmMessage(final ClientMessageData mqMessageData) {
+	public void saveWaitConfirmMessage(final ClientMessageData clientMessageData) {
 		//当前应用的本地消息存储
-		this.saveProducerMessage(mqMessageData);
+		this.saveProducerMessage(clientMessageData);
 		//可靠消息服务远程接口
-		Wrapper wrapper = messageFeign.saveMessageWaitingConfirm(mqMessageData);
-		log.info("<== saveWaitConfirmMessage - 存储预发送消息成功. messageKey={}, wrapper={}", mqMessageData.getMessageKey(),wrapper.getCode());
+		Wrapper wrapper = messageFeign.saveMessageWaitingConfirm(clientMessageData);
+		log.info("<== saveWaitConfirmMessage - 存储预发送消息成功. messageKey={}, wrapper={}", clientMessageData.getMessageKey(),wrapper.getCode());
 	}
 
 	@Override
@@ -46,13 +51,12 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		Date currentDate = new Date();
 		mqMessageData.setCreatedTime(currentDate);
 		mqMessageData.setUpdateTime(currentDate);
-		mqMessageData.setProducerMessageId(mqMessageData.getProducerGroup()+"-"+mqMessageData.getId());
 		mqMessageDataMapper.insert(mqMessageData);
 	}
 
 	@Async
 	@Override
-	public void confirmAndSendMessage(String producerMessageId) {
+	public void confirmAndSendMessage(Long producerMessageId) {
 		Wrapper wrapper = messageFeign.confirmAndSendMessage(producerMessageId);
 		if (wrapper == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_CONFIRM_AND_SEND_MESSAGE_ERROR);
@@ -61,21 +65,21 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	}
 
 	@Override
-	public void confirmReceiveMessage(String consumerGroup, ClientMessageData messageData) {
-		final Long messageId = messageData.getId();
-		log.info("confirmReceiveMessage - 消费者={}, 确认收到messageId={}的消息", consumerGroup, messageId);
-		// 先保存消息
-		messageData.setMessageType(MessageTypeEnum.CONSUMER_MESSAGE.messageType());
-		Date currentTime = new Date();
-		messageData.setCreatedTime(currentTime);
-		messageData.setUpdateTime(currentTime);
-		mqMessageDataMapper.insert(messageData);
+	public void confirmReceiveMessage(String consumerGroup, ServerMessageData messageData) {
+		log.info("confirmReceiveMessage - 消费者={}, 确认收到messageId={}的消息", consumerGroup, messageData.getId());
+		ClientMessageData clientMessageData = new ClientMessageData(messageClientUniqueId.getNextIdByApplicationName(consumerGroup,ClientMessageData.class.getSimpleName())
+				,messageData.getMessageBody(),messageData.getMessageTopic(),messageData.getMessageKey());
+		clientMessageData.setMessageType(MessageTypeEnum.CONSUMER_MESSAGE.messageType());
+		Date currentDate = new Date();
+		clientMessageData.setCreatedTime(currentDate);
+		clientMessageData.setUpdateTime(currentDate);
+		mqMessageDataMapper.insert(clientMessageData);
 	}
 
 	@Async
 	@Override
-	public void confirmFinishMessage(String consumerGroup, String messageKey) {
-		Wrapper wrapper = messageFeign.confirmFinishMessage(consumerGroup, messageKey);
+	public void confirmFinishMessage(String consumerGroup, Long producerMessageId) {
+		Wrapper wrapper = messageFeign.confirmFinishMessage(consumerGroup, producerMessageId);
 		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
 		if (wrapper == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_CONFIRM_FINISH_MESSAGE_ERROR);
@@ -83,14 +87,14 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	}
 
 	@Override
-	public boolean checkMessageStatus(Long messageId,int type) {
-		ClientMessageData clientMessageData = mqMessageDataMapper.getClientMessageByMessageIdAndType(messageId,type);
+	public boolean checkMessageStatus(Long producerMessageId,int type) {
+		ClientMessageData clientMessageData = mqMessageDataMapper.getClientMessageByProducerMessageIdAndType(producerMessageId,type);
 		if(clientMessageData !=null ) return true;
 		return false;
 	}
 
 	@Override
-	public void deleteMessageByProducerMessageId(String producerMessageId) {
+	public void deleteMessageByProducerMessageId(Long producerMessageId) {
 		mqMessageDataMapper.deleteMessageByProducerMessageId(producerMessageId);
 	}
 

@@ -1,7 +1,7 @@
 package com.reliable.message.server.dao;
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.server.domain.ServerMessageData;
+import com.reliable.message.model.domain.ServerMessageData;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface ServerMessageMapper {
 
     int insert(ServerMessageData message);
 
-    ServerMessageData getByProducerMessageId(String clientMessageId);
+    ServerMessageData getByProducerMessageId(Long clientMessageId);
 
     int updateById(ServerMessageData update);
 

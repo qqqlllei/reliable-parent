@@ -14,6 +14,8 @@ public class ClientMessageData {
 	 */
 	private Integer version;
 
+	private Long producerMessageId;
+
 	/**
 	 * 消息key
 	 */
@@ -23,9 +25,6 @@ public class ClientMessageData {
 	 * topic
 	 */
 	private String messageTopic;
-
-
-	private String producerMessageId;
 
 	/**
 	 * 消息内容

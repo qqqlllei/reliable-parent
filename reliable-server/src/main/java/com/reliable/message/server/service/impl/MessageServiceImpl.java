@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.util.TimeUtil;
 import com.reliable.message.server.dao.ServerMessageMapper;
-import com.reliable.message.server.domain.ServerMessageData;
+import com.reliable.message.model.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.enums.MessageSendStatusEnum;
 import com.reliable.message.server.service.MessageConfirmService;
@@ -56,7 +56,7 @@ public class MessageServiceImpl implements MessageService {
         Date now = new Date();
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
         message.setStatus(MessageSendStatusEnum.WAIT_CONFIRM.sendStatus());
-        message.setProducerMessageId(clientMessageData.getProducerGroup()+"-"+clientMessageData.getId());
+        message.setProducerMessageId(clientMessageData.getId());
         message.setId(uniqueId.getNextIdByApplicationName(ServerMessageData.class.getSimpleName()));
         message.setUpdateTime(now);
         message.setCreateTime(now);
@@ -64,7 +64,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void confirmAndSendMessage(String clientMessageId) {
+    public void confirmAndSendMessage(Long clientMessageId) {
         final ServerMessageData message = serverMessageMapper.getByProducerMessageId(clientMessageId);
         if (message == null) {
 //            throw new TpcBizException(ErrorCodeEnum.TPC10050002);
@@ -102,7 +102,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId) {
+    public ServerMessageData getServerMessageDataByProducerMessageId(Long producerMessageId) {
         return serverMessageMapper.getByProducerMessageId(producerMessageId);
     }
 
@@ -137,12 +137,12 @@ public class MessageServiceImpl implements MessageService {
         serverMessageMapper.updateById(update);
 
         // 创建消费待确认列表
-        List<MessageConfirm> confirmList =  this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(), message.getProducerMessageId());
+        List<MessageConfirm> confirmList =  this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(),message.getProducerGroup(), message.getProducerMessageId());
         return confirmList;
     }
 
-    private List<MessageConfirm> createMqConfirmListByTopic(String messageTopic, Long messageId, String messageKey) {
-        List<MessageConfirm> list = new ArrayList<MessageConfirm>();
+    private List<MessageConfirm> createMqConfirmListByTopic(String messageTopic, Long messageId,String producerGroup, Long producerMessageId) {
+        List<MessageConfirm> list = new ArrayList<>();
         MessageConfirm messageConfirm;
         List<String> consumerGroupList = messageConsumerService.listConsumerGroupByTopic(messageTopic);
 
@@ -151,7 +151,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         for (final String consumerCode : consumerGroupList) {
-            messageConfirm = new MessageConfirm(uniqueId.getNextIdByApplicationName(MessageConfirm.class.getSimpleName()), messageId, messageKey,
+            messageConfirm = new MessageConfirm(uniqueId.getNextIdByApplicationName(MessageConfirm.class.getSimpleName()), messageId,producerGroup, producerMessageId,
                     consumerCode,FIRST_SEND_TIME_COUNT,DEFAULT_DEAD_STATUS);
             Date currentTime = new Date();
             messageConfirm.setCreateTime(currentTime);
@@ -185,12 +185,12 @@ public class MessageServiceImpl implements MessageService {
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
         message.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
         Date now = new Date();
-        message.setProducerMessageId(clientMessageData.getProducerGroup()+"-"+clientMessageData.getId());
+        message.setProducerMessageId(clientMessageData.getId());
         message.setId(uniqueId.getNextIdByApplicationName(ServerMessageData.class.getSimpleName()));
         message.setUpdateTime(now);
         message.setCreateTime(now);
         serverMessageMapper.insert(message);
-        List<MessageConfirm> confirmList = createMqConfirmListByTopic(message.getMessageTopic(),message.getId(),message.getMessageKey());
+        List<MessageConfirm> confirmList = createMqConfirmListByTopic(message.getMessageTopic(),message.getId(),message.getProducerGroup(),message.getProducerMessageId());
         sendMessageToMessageQueue(confirmList,message);
     }
 }

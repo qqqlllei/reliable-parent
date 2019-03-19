@@ -3,7 +3,7 @@ package com.reliable.message.server.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
-import com.reliable.message.server.domain.ServerMessageData;
+import com.reliable.message.model.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageService;

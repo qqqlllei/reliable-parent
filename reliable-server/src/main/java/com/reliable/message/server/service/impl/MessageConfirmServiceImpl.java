@@ -28,12 +28,12 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
     }
 
     @Override
-    public int getMessageConfirmCountByProducerMessageId(String producerMessageId) {
+    public int getMessageConfirmCountByProducerMessageId(Long producerMessageId) {
         return messageConfirmMapper.getMessageConfirmCountByProducerMessageId(producerMessageId);
     }
 
     @Override
-    public List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId) {
+    public List<MessageConfirm> getMessageConfirmsByProducerMessageId(Long producerMessageId) {
         return messageConfirmMapper.getMessageConfirmsByProducerMessageId(producerMessageId);
     }
 

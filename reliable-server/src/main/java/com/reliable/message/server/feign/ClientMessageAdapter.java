@@ -46,7 +46,7 @@ public class ClientMessageAdapter {
         return clientMessageFeign.getClientMessageData(new URI(baseUri), messageIds);
     }
 
-    public ClientMessageData getClientMessageDataByProducerMessageId(String consumerGroup,String producerMessageId) throws URISyntaxException {
+    public ClientMessageData getClientMessageDataByProducerMessageId(String consumerGroup,Long producerMessageId) throws URISyntaxException {
         String baseUrl = getBaseUrl(consumerGroup);
         String url = baseUrl+GET_CLIENT_MESSAGE_URL+producerMessageId;
         return clientMessageFeign.getClientMessageDataByProducerMessageId(new URI(url));

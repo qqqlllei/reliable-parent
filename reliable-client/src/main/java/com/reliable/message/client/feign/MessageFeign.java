@@ -21,13 +21,13 @@ public interface MessageFeign {
     Wrapper saveMessageWaitingConfirm(@RequestBody ClientMessageData clientMessageData);
 
     @RequestMapping(value = "/message/confirmAndSendMessage",method = RequestMethod.POST)
-    Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") String producerMessageId);
+    Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") Long producerMessageId);
 
     @RequestMapping(value = "/message/confirmFinishMessage",method = RequestMethod.POST)
-    Wrapper confirmFinishMessage(@RequestParam("consumerGroup") String consumerGroup,@RequestParam("producerMessageId") String producerMessageId);
+    Wrapper confirmFinishMessage(@RequestParam("consumerGroup") String consumerGroup,@RequestParam("producerMessageId") Long producerMessageId);
 
     @RequestMapping(value = "/message/checkServerMessageIsExist",method = RequestMethod.POST)
-    Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") String producerMessageId);
+    Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") Long producerMessageId);
 
     @RequestMapping(value = "/message/directSendMessage",method = RequestMethod.POST)
     Wrapper directSendMessage(ClientMessageData clientMessageData);

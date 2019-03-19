@@ -84,7 +84,7 @@ public class MessageProducerStoreAspect {
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			reliableMessageService.directSendMessage(domain);
 		} else {
-			reliableMessageService.confirmAndSendMessage(domain.getProducerGroup()+"-"+domain.getId());
+			reliableMessageService.confirmAndSendMessage(domain.getId());
 		}
 		return result;
 	}
