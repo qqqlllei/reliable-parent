@@ -73,6 +73,8 @@ public class MessageServiceImpl implements MessageService {
         //save record
         List<MessageConfirm> confirmList = confirmAndSendMessage(message);
 
+        if(confirmList.size() == 0) return;
+
         //send message to mq
         sendMessageToMessageQueue(confirmList,message);
 
@@ -143,9 +145,11 @@ public class MessageServiceImpl implements MessageService {
         List<MessageConfirm> list = new ArrayList<MessageConfirm>();
         MessageConfirm messageConfirm;
         List<String> consumerGroupList = messageConsumerService.listConsumerGroupByTopic(messageTopic);
+
         if (consumerGroupList ==null || consumerGroupList.size() == 0) {
-//            throw new TpcBizException(ErrorCodeEnum.TPC100500010, topic);
+            return new ArrayList<>();
         }
+
         for (final String consumerCode : consumerGroupList) {
             messageConfirm = new MessageConfirm(uniqueId.getNextIdByApplicationName(MessageConfirm.class.getSimpleName()), messageId, messageKey,
                     consumerCode,FIRST_SEND_TIME_COUNT,DEFAULT_DEAD_STATUS);
@@ -160,9 +164,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     public void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ServerMessageData message ){
-        for (MessageConfirm confirm: confirmList) {
-            this.directSendMessage(message, message.getMessageTopic()+"-"+confirm.getConsumerGroup(), message.getMessageKey());
 
+        for (MessageConfirm confirm: confirmList) {
+            this.directSendMessage(message, message.getMessageTopic()+"_"+confirm.getConsumerGroup().toUpperCase(), message.getMessageKey());
         }
     }
 

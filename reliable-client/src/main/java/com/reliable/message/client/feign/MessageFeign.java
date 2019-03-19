@@ -2,7 +2,7 @@ package com.reliable.message.client.feign;
 
 import com.reliable.message.model.domain.ClientMessageData;
 import com.reliable.message.model.wrapper.Wrapper;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

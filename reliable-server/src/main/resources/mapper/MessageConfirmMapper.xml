@@ -34,10 +34,10 @@
             #{item.messageId,jdbcType=BIGINT},
             #{item.producerMessageId,jdbcType=VARCHAR},
             #{item.consumerGroup,jdbcType=VARCHAR},
-            #{item.sendTimes,jdbcType=INT},
-            #{item.dead,jdbcType=INT},
-            #{item.create_time,jdbcType=TIMESTAMP},
-            #{item.update_time,jdbcType=TIMESTAMP}
+            #{item.sendTimes,jdbcType=INTEGER},
+            #{item.dead,jdbcType=INTEGER},
+            #{item.createTime,jdbcType=TIMESTAMP},
+            #{item.updateTime,jdbcType=TIMESTAMP}
             )
         </foreach>
     </insert>

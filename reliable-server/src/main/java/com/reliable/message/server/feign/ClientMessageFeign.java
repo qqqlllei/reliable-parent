@@ -2,7 +2,7 @@ package com.reliable.message.server.feign;
 
 import com.reliable.message.model.domain.ClientMessageData;
 import feign.RequestLine;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 
 import java.net.URI;
 import java.util.List;

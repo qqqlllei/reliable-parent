@@ -31,25 +31,19 @@ public class MessageConsumerStoreAspect {
 	@Value("${spring.application.name}")
 	private String appName;
 
-
 	@Value("${reliable.message.consumerGroup:}")
 	private String consumerGroup;
-
-	private static final String CONSUME_SUCCESS = "CONSUME_SUCCESS";
-
 
 	@Pointcut("@annotation(com.reliable.message.client.annotation.MessageConsumerStore)")
 	public void mqConsumerStoreAnnotationPointcut() {
 
 	}
 
-
 	@Around(value = "mqConsumerStoreAnnotationPointcut()")
-	public Object processMqConsumerStoreJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
+	public void processMqConsumerStoreJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
 
 		log.info("processMqConsumerStoreJoinPoint - 线程id={}", Thread.currentThread().getId());
 		if(StringUtils.isBlank(consumerGroup)) consumerGroup = appName;
-		Object result;
 		long startTime = System.currentTimeMillis();
 		Object[] args = joinPoint.getArgs();
 		MessageConsumerStore annotation = getAnnotation(joinPoint);
@@ -71,36 +65,25 @@ public class MessageConsumerStoreAspect {
 		}
 		final Long messageId = clientMessageData.getId();
 
-
-
-
-
-
-
 		if (isStorePreStatus) {
-
 			// 重复消费检查
 			boolean consumed = reliableMessageService.checkMessageStatus(messageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
 				reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
-				return null;
+				return ;
 			}
 			reliableMessageService.confirmReceiveMessage(consumerGroup, clientMessageData);
 		}
 		String methodName = joinPoint.getSignature().getName();
 		try {
-			result = joinPoint.proceed();
-			log.info("result={}", result);
-			if (CONSUME_SUCCESS.equals(result.toString())) {
-				reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
-			}
+			joinPoint.proceed();
+			reliableMessageService.confirmFinishMessage(consumerGroup, clientMessageData.getProducerMessageId());
 		} catch (Exception e) {
 			log.error("发送可靠消息, 目标方法[{}], 出现异常={}", methodName, e.getMessage(), e);
 			throw e;
 		} finally {
 			log.info("发送可靠消息 目标方法[{}], 总耗时={}", methodName, System.currentTimeMillis() - startTime);
 		}
-		return result;
 	}
 
 	private MessageConsumerStore getAnnotation(JoinPoint joinPoint) {

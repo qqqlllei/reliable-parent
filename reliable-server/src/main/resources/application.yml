@@ -1,11 +1,5 @@
 server:
   port: 8086
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://127.0.0.1:8761/eureka
-  instance:
-    prefer-ip-address: true
 spring:
   application:
     name: reliable-server
@@ -15,9 +9,18 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/reliable_message?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
     username: root
     password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.0.8.189:8848
+        ip: 10.33.50.40
+        metadata: {"version":@version@}
+      config:
+        server-addr: 10.0.8.189:8848
+        file-extension: yml
 
   kafka:
-    bootstrap-servers: 10.33.80.101:9092
+    bootstrap-servers: 10.33.80.103:9092
 
 feign:
   hystrix:
@@ -42,11 +45,11 @@ mybatis:
 elastic:
   job:
     zookeeper:
-      addressList: 10.33.80.101:2181
+      addressList: 10.33.80.103:2181
       namespace: elastic-job-${spring.application.name}
     cron:
       confirmFinishMessageClearCron: 0 0/30 * * * ? *
-      waitConfirmMessageJobCron: 0 0/30 * * * ? *
+      waitConfirmMessageJobCron: 0 0/1 * * * ? *
       sendingMessageCron: 0 0/30 * * * ? *
 
 

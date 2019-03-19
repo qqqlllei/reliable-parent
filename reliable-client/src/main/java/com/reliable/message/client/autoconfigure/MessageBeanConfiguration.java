@@ -29,7 +29,7 @@ public class MessageBeanConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false}")
+	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
 	public ReliableController reliableController(){
 		return new ReliableController();
 	}
@@ -42,7 +42,7 @@ public class MessageBeanConfiguration {
 
 
 	@Bean
-	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
+	@ConditionalOnExpression("${reliable.message.producerMessageDelteFlag:false}")
 	public ClientMessageDataflow clientMessageDataflow(){
 		return new ClientMessageDataflow();
 	}

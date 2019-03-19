@@ -10,7 +10,8 @@ import com.reliable.message.model.enums.MessageTypeEnum;
 import com.reliable.message.model.exception.BusinessException;
 import com.reliable.message.model.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,8 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		//当前应用的本地消息存储
 		this.saveProducerMessage(mqMessageData);
 		//可靠消息服务远程接口
-		messageFeign.saveMessageWaitingConfirm(mqMessageData);
-		log.info("<== saveWaitConfirmMessage - 存储预发送消息成功. messageKey={}", mqMessageData.getMessageKey());
+		Wrapper wrapper = messageFeign.saveMessageWaitingConfirm(mqMessageData);
+		log.info("<== saveWaitConfirmMessage - 存储预发送消息成功. messageKey={}, wrapper={}", mqMessageData.getMessageKey(),wrapper.getCode());
 	}
 
 	@Override

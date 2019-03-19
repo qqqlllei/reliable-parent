@@ -10,6 +10,7 @@ import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
 /**
  * Created by 李雷 on 2018/10/11.
  */
+@Component
 @ElasticJobConfig(cron = "elastic.job.cron.waitConfirmMessageJobCron",
         jobParameter = "{'fetchNum':200,'taskType':'SENDING_MESSAGE'}",description="待确认消息异常处理")
 public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessageData> {
@@ -39,7 +41,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
 
         List<ServerMessageData> serverMessageDataList =  messageService.getWaitConfirmServerMessageData(jobTaskParameter);
 
-        List<ServerMessageData> fetchServerMessageList = new ArrayList<ServerMessageData>();
+        List<ServerMessageData> fetchServerMessageList = new ArrayList<>();
         for (ServerMessageData serverMessageData : serverMessageDataList) {
             serverMessageData.getProducerMessageId();
             try {
