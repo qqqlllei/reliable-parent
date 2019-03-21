@@ -9,7 +9,7 @@ public enum MessageSendTypeEnum {
 	WAIT_CONFIRM,
 
 	/**
-	 * 直接发送.
+	 * 保存并发送.
 	 */
 	SAVE_AND_SEND,
 

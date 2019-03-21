@@ -2,7 +2,9 @@ package com.reliable.message.common.domain;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class ClientMessageData {
@@ -80,6 +82,8 @@ public class ClientMessageData {
 	 * producer group name
 	 */
 	private String producerGroup;
+
+	private List<String> consumerList;
 
 	public ClientMessageData(){
 

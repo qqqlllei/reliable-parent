@@ -173,7 +173,14 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void directSendMessage(ClientMessageData clientMessageData) {
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        List<String> consumerGroupList = messageConsumerService.listConsumerGroupByTopic(message.getMessageTopic());
+        List<String> consumerGroupList;
+
+        if(clientMessageData.getConsumerList().size() >0){
+            consumerGroupList=clientMessageData.getConsumerList();
+        }else{
+            consumerGroupList= messageConsumerService.listConsumerGroupByTopic(message.getMessageTopic());
+        }
+
         for (String consumer : consumerGroupList) {
             this.directSendMessage(message,message.getMessageTopic()+"-"+consumer,message.getMessageKey());
         }
