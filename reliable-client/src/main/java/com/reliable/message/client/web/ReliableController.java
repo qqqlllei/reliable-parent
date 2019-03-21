@@ -1,7 +1,7 @@
 package com.reliable.message.client.web;
 
 import com.reliable.message.client.service.ReliableMessageService;
-import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.common.domain.ClientMessageData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +19,7 @@ public class ReliableController {
 
 
     @RequestMapping("/deleteMessage/{producerMessageId}")
-    public void deleteMessageByProducerMessageId(@PathVariable("producerMessageId") Long producerMessageId){
+    public void deleteMessageByProducerMessageId(@PathVariable("producerMessageId") String producerMessageId){
         System.out.println("============deleteMessageByProducerMessageId================");
         reliableMessageService.deleteMessageByProducerMessageId(producerMessageId);
 

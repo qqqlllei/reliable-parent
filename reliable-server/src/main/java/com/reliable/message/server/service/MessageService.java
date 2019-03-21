@@ -1,8 +1,8 @@
 package com.reliable.message.server.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.domain.ServerMessageData;
+import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 public interface MessageService {
     void saveMessageWaitingConfirm(ClientMessageData tpcMqMessageDto);
 
-    void confirmAndSendMessage(Long producerMessageId);
+    void confirmAndSendMessage(String producerMessageId);
 
     void directSendMessage(ServerMessageData messageData, String topic, String key);
 
@@ -21,11 +21,11 @@ public interface MessageService {
 
     void confirmFinishMessage(String consumerGroup, String producerMessageId);
 
-    ServerMessageData getServerMessageDataByProducerMessageId(Long producerMessageId);
+    ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId);
 
     List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject);
 
-    void deleteServerMessageDataById(Long id);
+    void deleteServerMessageDataById(String id);
 
     List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
 

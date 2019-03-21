@@ -4,7 +4,7 @@
 
 
 
-    <resultMap id="RM_ServerMessageData" type="com.reliable.message.model.domain.ServerMessageData">
+    <resultMap id="RM_ServerMessageData" type="com.reliable.message.common.domain.ServerMessageData">
         <result property="id" column="id"/>
         <result property="version" column="version"/>
         <result property="messageKey" column="message_key"/>
@@ -27,13 +27,6 @@
         <result property="lastOperator" column="last_operator"/>
         <result property="lastOperatorId" column="last_operator_id"/>
     </resultMap>
-
-
-    <sql id="columns">
-        <![CDATA[
-		id,version,message_key,message_topic,message_tag,message_body,message_type,producer_group,delay_level,order_type,status,task_status,update_time,resend_times,next_exe_time,yn,creator,creator_id,created_time,last_operator,last_operator_id
-	    ]]>
-    </sql>
 
 
     <sql id="update_sql">
@@ -63,9 +56,6 @@
             <if test="updateTime != null">
                 update_time = #{updateTime} ,
             </if>
-            <if test="sendTimes != null">
-                send_times = #{sendTimes} ,
-            </if>
 
             <if test="createTime != null">
                 create_time = #{createTime}
@@ -86,7 +76,6 @@
 	        	producer_group ,
 	        	status ,
 	        	update_time ,
-	        	send_times ,
 	        	create_time
 	        ) VALUES (
 	        	#{id} ,
@@ -98,18 +87,17 @@
 	        	#{producerGroup} ,
 	        	#{status} ,
 	        	#{updateTime} ,
-	        	#{sendTimes} ,
 	        	#{createTime}
 	        )
 	    ]]>
     </insert>
 
 
-    <select id="getByProducerMessageId" parameterType="java.lang.Long" resultMap="RM_ServerMessageData" >
+    <select id="getByProducerMessageId" parameterType="java.lang.String" resultMap="RM_ServerMessageData" >
             SELECT * FROM message WHERE producer_message_id = #{producerMessageId}
     </select>
     
-    <update id="updateById" parameterType="com.reliable.message.model.domain.ServerMessageData"  >
+    <update id="updateById" parameterType="com.reliable.message.common.domain.ServerMessageData"  >
         UPDATE message
         <include refid="update_sql" />
         WHERE
@@ -124,7 +112,7 @@
     </select>
 
 
-    <delete id="deleteServerMessageDataById" parameterType="java.lang.Long" >
+    <delete id="deleteServerMessageDataById" parameterType="java.lang.String" >
         DELETE FROM message where id = #{id}
     </delete>
 

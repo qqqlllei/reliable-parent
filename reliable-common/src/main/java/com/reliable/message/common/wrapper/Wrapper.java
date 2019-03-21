@@ -1,4 +1,4 @@
-package com.reliable.message.model.wrapper;
+package com.reliable.message.common.wrapper;
 
 import lombok.Data;
 

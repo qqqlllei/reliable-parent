@@ -3,11 +3,10 @@ package com.reliable.message.client.aspect;
 
 import com.reliable.message.client.annotation.MessageConsumerStore;
 import com.reliable.message.client.service.ReliableMessageService;
-import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.domain.ServerMessageData;
-import com.reliable.message.model.enums.ExceptionCodeEnum;
-import com.reliable.message.model.enums.MessageTypeEnum;
-import com.reliable.message.model.exception.BusinessException;
+import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.enums.ExceptionCodeEnum;
+import com.reliable.message.common.enums.MessageTypeEnum;
+import com.reliable.message.common.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -64,13 +63,14 @@ public class MessageConsumerStoreAspect {
 			log.error("processMqConsumerStoreJoinPoint={}", e.getMessage(), e);
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
 		}
-		final Long producerMessageId = serverMessageData.getProducerMessageId();
+		final String producerMessageId = serverMessageData.getProducerMessageId();
 
 		if (isStorePreStatus) {
 			// 重复消费检查
 			boolean consumed = reliableMessageService.checkMessageStatus(producerMessageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
 				reliableMessageService.confirmFinishMessage(consumerGroup, serverMessageData.getProducerMessageId());
+				log.info("processMqConsumerStoreJoinPoint - 线程id={} 已经消费producerId为{} 的消息", Thread.currentThread().getId(),serverMessageData.getProducerMessageId());
 				return ;
 			}
 			reliableMessageService.confirmReceiveMessage(consumerGroup, serverMessageData);

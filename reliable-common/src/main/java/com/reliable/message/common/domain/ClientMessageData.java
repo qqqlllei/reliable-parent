@@ -1,4 +1,4 @@
-package com.reliable.message.model.domain;
+package com.reliable.message.common.domain;
 
 import lombok.Data;
 
@@ -7,14 +7,14 @@ import java.util.Date;
 @Data
 public class ClientMessageData {
 
-	private Long id;
+	private String id;
 
 	/**
 	 * 版本号
 	 */
 	private Integer version;
 
-	private Long producerMessageId;
+	private String producerMessageId;
 
 	/**
 	 * 消息key
@@ -84,7 +84,7 @@ public class ClientMessageData {
 	public ClientMessageData(){
 
 	}
-	public ClientMessageData(final Long id,final String msgBody, final String topic, final String key) {
+	public ClientMessageData(final String id,final String msgBody, final String topic, final String key) {
 		this.id = id;
 		this.messageBody = msgBody;
 		this.messageTopic = topic;

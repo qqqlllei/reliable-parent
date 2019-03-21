@@ -1,16 +1,19 @@
 package com.reliable.message.server.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.util.TimeUtil;
+import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.enums.ExceptionCodeEnum;
+import com.reliable.message.common.exception.BusinessException;
+import com.reliable.message.common.util.TimeUtil;
+import com.reliable.message.common.util.UUIDUtil;
 import com.reliable.message.server.dao.ServerMessageMapper;
-import com.reliable.message.model.domain.ServerMessageData;
+import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
+import com.reliable.message.server.enums.MessageConfirmEnum;
 import com.reliable.message.server.enums.MessageSendStatusEnum;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageConsumerService;
 import com.reliable.message.server.service.MessageService;
-import com.reliable.message.server.util.UniqueId;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +41,6 @@ public class MessageServiceImpl implements MessageService {
     private MessageConfirmService messageConfirmService;
 
     @Autowired
-    private UniqueId uniqueId;
-
-    @Autowired
     private KafkaTemplate kafkaTemplate;
 
     private static final Integer FIRST_SEND_TIME_COUNT =1;
@@ -57,17 +57,17 @@ public class MessageServiceImpl implements MessageService {
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
         message.setStatus(MessageSendStatusEnum.WAIT_CONFIRM.sendStatus());
         message.setProducerMessageId(clientMessageData.getId());
-        message.setId(uniqueId.getNextIdByApplicationName(ServerMessageData.class.getSimpleName()));
+        message.setId(UUIDUtil.getId());
         message.setUpdateTime(now);
         message.setCreateTime(now);
         serverMessageMapper.insert(message);
     }
 
     @Override
-    public void confirmAndSendMessage(Long clientMessageId) {
+    public void confirmAndSendMessage(String clientMessageId) {
         final ServerMessageData message = serverMessageMapper.getByProducerMessageId(clientMessageId);
         if (message == null) {
-//            throw new TpcBizException(ErrorCodeEnum.TPC10050002);
+            throw new BusinessException(ExceptionCodeEnum.GET_SERVER_MSG_IS_NULL_BY_CLIENT_ID);
         }
 
         //save record
@@ -91,7 +91,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void confirmReceiveMessage(String consumerGroup, String producerMessageId) {
-        Long confirmId = serverMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, producerMessageId);
+        String confirmId = serverMessageMapper.getConfirmIdByGroupAndKey(consumerGroup, producerMessageId);
         // 3. 更新消费信息的状态
         serverMessageMapper.confirmReceiveMessage(confirmId);
     }
@@ -102,7 +102,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public ServerMessageData getServerMessageDataByProducerMessageId(Long producerMessageId) {
+    public ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId) {
         return serverMessageMapper.getByProducerMessageId(producerMessageId);
     }
 
@@ -114,7 +114,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void deleteServerMessageDataById(Long id) {
+    public void deleteServerMessageDataById(String id) {
         serverMessageMapper.deleteServerMessageDataById(id);
     }
 
@@ -141,7 +141,7 @@ public class MessageServiceImpl implements MessageService {
         return confirmList;
     }
 
-    private List<MessageConfirm> createMqConfirmListByTopic(String messageTopic, Long messageId,String producerGroup, Long producerMessageId) {
+    private List<MessageConfirm> createMqConfirmListByTopic(String messageTopic, String messageId,String producerGroup, String producerMessageId) {
         List<MessageConfirm> list = new ArrayList<>();
         MessageConfirm messageConfirm;
         List<String> consumerGroupList = messageConsumerService.listConsumerGroupByTopic(messageTopic);
@@ -151,8 +151,8 @@ public class MessageServiceImpl implements MessageService {
         }
 
         for (final String consumerCode : consumerGroupList) {
-            messageConfirm = new MessageConfirm(uniqueId.getNextIdByApplicationName(MessageConfirm.class.getSimpleName()), messageId,producerGroup, producerMessageId,
-                    consumerCode,FIRST_SEND_TIME_COUNT,DEFAULT_DEAD_STATUS);
+            messageConfirm = new MessageConfirm(UUIDUtil.getId(), messageId,producerGroup, producerMessageId,
+                    consumerCode,FIRST_SEND_TIME_COUNT,DEFAULT_DEAD_STATUS, MessageConfirmEnum.NOT_COMFIRM.confirmFlag());
             Date currentTime = new Date();
             messageConfirm.setCreateTime(currentTime);
             messageConfirm.setUpdateTime(currentTime);
@@ -186,7 +186,7 @@ public class MessageServiceImpl implements MessageService {
         message.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
         Date now = new Date();
         message.setProducerMessageId(clientMessageData.getId());
-        message.setId(uniqueId.getNextIdByApplicationName(ServerMessageData.class.getSimpleName()));
+        message.setId(UUIDUtil.getId());
         message.setUpdateTime(now);
         message.setCreateTime(now);
         serverMessageMapper.insert(message);

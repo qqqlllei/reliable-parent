@@ -2,8 +2,8 @@ package com.reliable.message.client.service;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.domain.ServerMessageData;
+import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.domain.ServerMessageData;
 
 import java.util.List;
 
@@ -22,15 +22,15 @@ public interface ReliableMessageService {
 	 */
 	void saveProducerMessage(ClientMessageData mqMessageData);
 
-    void confirmAndSendMessage(Long producerMessageId);
+    void confirmAndSendMessage(String producerMessageId);
 
     void confirmReceiveMessage(String consumerGroup, ServerMessageData dto);
 
-	void confirmFinishMessage(String consumerGroup, Long producerMessageId);
+	void confirmFinishMessage(String consumerGroup, String producerMessageId);
 
-    boolean checkMessageStatus(Long producerMessageId,int type);
+    boolean checkMessageStatus(String producerMessageId,int type);
 
-	void deleteMessageByProducerMessageId(Long producerMessageId);
+	void deleteMessageByProducerMessageId(String producerMessageId);
 
 	List<ClientMessageData> getProducerMessage(JSONObject jobTaskParameter);
 

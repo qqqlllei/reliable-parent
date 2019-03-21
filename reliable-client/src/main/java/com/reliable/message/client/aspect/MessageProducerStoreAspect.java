@@ -2,11 +2,12 @@ package com.reliable.message.client.aspect;
 
 import com.reliable.message.client.annotation.MessageProducerStore;
 import com.reliable.message.client.service.ReliableMessageService;
-import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.enums.DelayLevelEnum;
-import com.reliable.message.model.enums.ExceptionCodeEnum;
-import com.reliable.message.model.enums.MessageSendTypeEnum;
-import com.reliable.message.model.exception.BusinessException;
+import com.reliable.message.common.util.UUIDUtil;
+import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.enums.DelayLevelEnum;
+import com.reliable.message.common.enums.ExceptionCodeEnum;
+import com.reliable.message.common.enums.MessageSendTypeEnum;
+import com.reliable.message.common.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -66,11 +67,15 @@ public class MessageProducerStoreAspect {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_TYPE_IS_WRONG);
 		}
 
-		if(domain.getId() == null){
-			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ENTITY_ID_IS_EMPTY);
-		}
+		domain.setId(UUIDUtil.getId());
 
 		domain.setProducerGroup(producerGroup);
+
+
+		String messageKey = domain.getMessageKey();
+		if(StringUtils.isBlank(messageKey)){
+			domain.setMessageKey(domain.getId());
+		}
 
 		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
 			if (delayLevelEnum != DelayLevelEnum.ZERO) {

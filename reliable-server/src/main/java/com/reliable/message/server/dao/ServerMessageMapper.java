@@ -1,7 +1,7 @@
 package com.reliable.message.server.dao;
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.model.domain.ServerMessageData;
+import com.reliable.message.common.domain.ServerMessageData;
 
 import java.util.List;
 
@@ -12,17 +12,17 @@ public interface ServerMessageMapper {
 
     int insert(ServerMessageData message);
 
-    ServerMessageData getByProducerMessageId(Long clientMessageId);
+    ServerMessageData getByProducerMessageId(String clientMessageId);
 
     int updateById(ServerMessageData update);
 
-    Long getConfirmIdByGroupAndKey(String consumerGroup, String messageKey);
+    String getConfirmIdByGroupAndKey(String consumerGroup, String messageKey);
 
-    void confirmReceiveMessage(Long confirmId);
+    void confirmReceiveMessage(String confirmId);
 
     List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject);
 
-    void deleteServerMessageDataById(Long id);
+    void deleteServerMessageDataById(String id);
 
     List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
 

@@ -3,7 +3,7 @@
 <mapper namespace="com.reliable.message.client.dao.ClientMessageDataMapper">
 
 
-	<resultMap id="RM_ClientMessageData" type="com.reliable.message.model.domain.ClientMessageData">
+	<resultMap id="RM_ClientMessageData" type="com.reliable.message.common.domain.ClientMessageData">
 		<result property="id" column="id"/>
 		<result property="version" column="version"/>
 		<result property="producerMessageId" column="producer_message_id" />
@@ -19,13 +19,15 @@
 		<result property="createdTime" column="created_time"/>
 		<result property="lastOperator" column="last_operator"/>
 		<result property="lastOperatorId" column="last_operator_id"/>
+		<result property="producerGroup" column="producer_group" />
 	</resultMap>
 
-	<insert id="insert" parameterType="com.reliable.message.model.domain.ClientMessageData" >
+	<insert id="insert" parameterType="com.reliable.message.common.domain.ClientMessageData" >
 		INSERT INTO client_message_data (
 				id ,
 				version ,
 				producer_message_id,
+				producer_group,
 				message_key ,
 				message_topic ,
 				message_type ,
@@ -42,6 +44,7 @@
 				#{id} ,
 				#{version} ,
 				#{producerMessageId},
+				#{producerGroup},
 				#{messageKey} ,
 				#{messageTopic} ,
 				#{messageType} ,

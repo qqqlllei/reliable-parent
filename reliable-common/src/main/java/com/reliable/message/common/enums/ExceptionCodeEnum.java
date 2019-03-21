@@ -1,4 +1,4 @@
-package com.reliable.message.model.enums;
+package com.reliable.message.common.enums;
 
 public enum ExceptionCodeEnum {
 
@@ -13,7 +13,10 @@ public enum ExceptionCodeEnum {
 	MSG_PRODUCER_CONFIRM_AND_SEND_MESSAGE_ERROR(200003, "消息服务发送者确认并发送消息异常!"),
 	MSG_PRODUCER_ARGS_OF_MESSAGE_TOPIC_IS_NULL(200004,"消息服务发送者参数[topic] is null!" ),
 	MSG_PRODUCER_ARGS_OF_MESSAGE_BODY_IS_NULL(200005, "消息服务发送者参数[body] is null!"),
-	MSG_PRODUCER_ARGS_OF_MESSAGE_GROUP_IS_NULL(200006, "消息服务发送者参数[group] is null!");
+	MSG_PRODUCER_ARGS_OF_MESSAGE_GROUP_IS_NULL(200006, "消息服务发送者参数[group] is null!"),
+
+
+	GET_SERVER_MSG_IS_NULL_BY_CLIENT_ID(300000,"根据clientId获取消息为空");
 	private int code;
 	private String msg;
 

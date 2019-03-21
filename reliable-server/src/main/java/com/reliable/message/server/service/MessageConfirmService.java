@@ -12,9 +12,9 @@ public interface MessageConfirmService {
 
     void confirmFinishMessage(String consumerGroup ,String producerMessageId);
 
-    int getMessageConfirmCountByProducerMessageId(Long producerMessageId);
+    int getMessageConfirmCountByProducerMessageId(String producerMessageId);
 
-    List<MessageConfirm> getMessageConfirmsByProducerMessageId(Long producerMessageId);
+    List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId);
 
     void updateById(MessageConfirm messageConfirm);
 }

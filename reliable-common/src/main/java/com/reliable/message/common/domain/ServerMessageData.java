@@ -1,4 +1,4 @@
-package com.reliable.message.model.domain;
+package com.reliable.message.common.domain;
 
 import lombok.Data;
 
@@ -10,15 +10,14 @@ import java.util.List;
 @Data
 public class ServerMessageData implements Serializable {
 	private static final long serialVersionUID = -5951754367474682967L;
-	private Long id;
+	private String id;
 	private Integer version;
 	private String messageTopic;
 	private String producerGroup;
-	private Long producerMessageId;
+	private String producerMessageId;
 	private String messageKey;
 	private Integer status;
 	private String messageBody;
-	private Integer sendTimes;
 	private Date createTime;
 	private Date updateTime;
 	private List<Integer> preStatusList;

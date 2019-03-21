@@ -1,8 +1,8 @@
 //package com.reliable.message.client.hystrix;
 //
 //import com.reliable.message.client.feign.MessageFeign;
-//import com.reliable.message.model.domain.ClientMessageData;
-//import com.reliable.message.model.wrapper.Wrapper;
+//import com.reliable.message.common.domain.ClientMessageData;
+//import com.reliable.message.common.wrapper.Wrapper;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.stereotype.Component;
 //import org.springframework.web.bind.annotation.RequestParam;

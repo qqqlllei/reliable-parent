@@ -1,4 +1,4 @@
-package com.reliable.message.model.enums;
+package com.reliable.message.common.enums;
 
 public enum DelayLevelEnum {
 	/**

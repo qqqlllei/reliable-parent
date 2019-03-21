@@ -3,7 +3,7 @@ package com.reliable.message.server.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
-import com.reliable.message.model.domain.ServerMessageData;
+import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageService;
@@ -24,9 +24,9 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
 
     private Logger logger = LoggerFactory.getLogger(SendingMessageJob.class);
 
-    private Integer MAX_RESEND_COUNT=5;
+    private Integer MAX_RESEND_COUNT = 5;
 
-    private Integer SERVER_MESSAGE_DEAD_STATUS= 1;
+    private Integer SERVER_MESSAGE_DEAD_STATUS = 1;
 
     @Autowired
     private MessageService messageService;
@@ -59,7 +59,8 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
                 messageConfirm.setSendTimes(sendTimes+1);
                 messageConfirm.setUpdateTime(new Date());
                 messageConfirmService.updateById(messageConfirm);
-                messageService.directSendMessage(serverMessageData,serverMessageData.getMessageTopic(),serverMessageData.getMessageKey());
+                System.out.println("=============="+serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase()+"===============");
+                messageService.directSendMessage(serverMessageData,serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase(),serverMessageData.getMessageKey());
             }
         }
     }

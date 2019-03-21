@@ -7,13 +7,13 @@ import java.util.Date;
 
 @Data
 public class MessageConfirm {
-	private Long id;
+	private String id;
 	private Integer version;
-	private Long messageId;
+	private String messageId;
 	private String consumerGroup;
 	private Integer consumeCount;
 	private String producerGroup;
-	private Long producerMessageId;
+	private String producerMessageId;
 	/**
 	 * 状态, 10 - 未确认 ; 20 - 已确认; 30 已消费
 	 */
@@ -25,12 +25,17 @@ public class MessageConfirm {
 	private Integer dead;
 	private Date createTime;
 	private Date updateTime;
+	private Integer confirmFlag; // 0 未消费，1.已消费
 
-	public MessageConfirm(final Long id, final Long messageId,final String producerGroup,
-						  final Long producerMessageId,
+	public MessageConfirm(){
+
+	}
+
+	public MessageConfirm(final String id, final String messageId,final String producerGroup,
+						  final String producerMessageId,
 						  final String consumerGroup,
 						  final Integer sendTimes,
-						  final Integer dead) {
+						  final Integer dead,Integer confirmFlag) {
 		this.id = id;
 		this.messageId = messageId;
 		this.producerGroup = producerGroup;
@@ -38,5 +43,6 @@ public class MessageConfirm {
 		this.consumerGroup = consumerGroup;
 		this.sendTimes=sendTimes;
 		this.dead = dead;
+		this.confirmFlag = confirmFlag;
 	}
 }

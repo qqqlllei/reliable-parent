@@ -1,4 +1,4 @@
-package com.reliable.message.model.util;
+package com.reliable.message.common.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

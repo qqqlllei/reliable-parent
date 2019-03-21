@@ -1,6 +1,6 @@
 package com.reliable.message.server.feign;
 
-import com.reliable.message.model.domain.ClientMessageData;
+import com.reliable.message.common.domain.ClientMessageData;
 import feign.RequestLine;
 import org.springframework.cloud.openfeign.FeignClient;
 

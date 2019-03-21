@@ -1,6 +1,6 @@
-package com.reliable.message.model.exception;
+package com.reliable.message.common.exception;
 
-import com.reliable.message.model.enums.ExceptionCodeEnum;
+import com.reliable.message.common.enums.ExceptionCodeEnum;
 
 public class BusinessException extends RuntimeException {
 

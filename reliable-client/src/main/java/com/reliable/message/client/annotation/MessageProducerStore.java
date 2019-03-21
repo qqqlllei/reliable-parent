@@ -1,8 +1,8 @@
 package com.reliable.message.client.annotation;
 
 
-import com.reliable.message.model.enums.DelayLevelEnum;
-import com.reliable.message.model.enums.MessageSendTypeEnum;
+import com.reliable.message.common.enums.DelayLevelEnum;
+import com.reliable.message.common.enums.MessageSendTypeEnum;
 
 import java.lang.annotation.*;
 

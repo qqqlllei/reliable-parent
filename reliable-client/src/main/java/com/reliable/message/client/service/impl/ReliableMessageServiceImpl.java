@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.client.dao.ClientMessageDataMapper;
 import com.reliable.message.client.feign.MessageFeign;
 import com.reliable.message.client.service.ReliableMessageService;
-import com.reliable.message.client.util.MessageClientUniqueId;
-import com.reliable.message.model.domain.ClientMessageData;
-import com.reliable.message.model.domain.ServerMessageData;
-import com.reliable.message.model.enums.ExceptionCodeEnum;
-import com.reliable.message.model.enums.MessageTypeEnum;
-import com.reliable.message.model.exception.BusinessException;
-import com.reliable.message.model.wrapper.Wrapper;
+import com.reliable.message.common.util.UUIDUtil;
+import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.enums.ExceptionCodeEnum;
+import com.reliable.message.common.enums.MessageTypeEnum;
+import com.reliable.message.common.exception.BusinessException;
+import com.reliable.message.common.wrapper.Wrapper;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,9 +29,6 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	private ClientMessageDataMapper mqMessageDataMapper;
 	@Autowired
 	private MessageFeign messageFeign;
-
-	@Autowired
-	private MessageClientUniqueId messageClientUniqueId;
 
 	@Override
 	public void saveWaitConfirmMessage(final ClientMessageData clientMessageData) {
@@ -56,7 +53,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 
 	@Async
 	@Override
-	public void confirmAndSendMessage(Long producerMessageId) {
+	public void confirmAndSendMessage(String producerMessageId) {
 		Wrapper wrapper = messageFeign.confirmAndSendMessage(producerMessageId);
 		if (wrapper == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_CONFIRM_AND_SEND_MESSAGE_ERROR);
@@ -67,9 +64,10 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	@Override
 	public void confirmReceiveMessage(String consumerGroup, ServerMessageData messageData) {
 		log.info("confirmReceiveMessage - 消费者={}, 确认收到messageId={}的消息", consumerGroup, messageData.getId());
-		ClientMessageData clientMessageData = new ClientMessageData(messageClientUniqueId.getNextIdByApplicationName(consumerGroup,ClientMessageData.class.getSimpleName())
+		ClientMessageData clientMessageData = new ClientMessageData(UUIDUtil.getId()
 				,messageData.getMessageBody(),messageData.getMessageTopic(),messageData.getMessageKey());
 		clientMessageData.setMessageType(MessageTypeEnum.CONSUMER_MESSAGE.messageType());
+		clientMessageData.setProducerMessageId(messageData.getProducerMessageId());
 		Date currentDate = new Date();
 		clientMessageData.setCreatedTime(currentDate);
 		clientMessageData.setUpdateTime(currentDate);
@@ -78,7 +76,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 
 	@Async
 	@Override
-	public void confirmFinishMessage(String consumerGroup, Long producerMessageId) {
+	public void confirmFinishMessage(String consumerGroup, String producerMessageId) {
 		Wrapper wrapper = messageFeign.confirmFinishMessage(consumerGroup, producerMessageId);
 		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
 		if (wrapper == null) {
@@ -87,14 +85,14 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	}
 
 	@Override
-	public boolean checkMessageStatus(Long producerMessageId,int type) {
+	public boolean checkMessageStatus(String producerMessageId,int type) {
 		ClientMessageData clientMessageData = mqMessageDataMapper.getClientMessageByProducerMessageIdAndType(producerMessageId,type);
 		if(clientMessageData !=null ) return true;
 		return false;
 	}
 
 	@Override
-	public void deleteMessageByProducerMessageId(Long producerMessageId) {
+	public void deleteMessageByProducerMessageId(String producerMessageId) {
 		mqMessageDataMapper.deleteMessageByProducerMessageId(producerMessageId);
 	}
 

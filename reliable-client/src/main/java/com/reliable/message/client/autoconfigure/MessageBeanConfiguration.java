@@ -5,7 +5,6 @@ import com.reliable.message.client.aspect.MessageProducerStoreAspect;
 import com.reliable.message.client.job.ClientMessageDataflow;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.client.service.impl.ReliableMessageServiceImpl;
-import com.reliable.message.client.util.MessageClientUniqueId;
 import com.reliable.message.client.web.ReliableController;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -46,12 +45,6 @@ public class MessageBeanConfiguration {
 	@ConditionalOnExpression("${reliable.message.producerMessageDelteFlag:false}")
 	public ClientMessageDataflow clientMessageDataflow(){
 		return new ClientMessageDataflow();
-	}
-
-	@Bean
-	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
-	public MessageClientUniqueId messageClientUniqueId(){
-		return new MessageClientUniqueId();
 	}
 
 }
