@@ -1,6 +1,6 @@
 package com.reliable.message.client.aspect;
 
-import com.reliable.message.client.annotation.MessageProducerStore;
+import com.reliable.message.client.annotation.MessageProducer;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.util.UUIDUtil;
 import com.reliable.message.common.domain.ClientMessageData;
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  */
 @Slf4j
 @Aspect
-public class MessageProducerStoreAspect {
+public class MessageProducerAspect {
 	@Resource
 	private ReliableMessageService reliableMessageService;
 	@Value("${spring.application.name}")
@@ -38,18 +38,18 @@ public class MessageProducerStoreAspect {
 	@Value("${reliable.message.producerGroup:}")
 	private String producerGroup;
 
-	@Pointcut("@annotation(com.reliable.message.client.annotation.MessageProducerStore)")
-	public void mqProducerStoreAnnotationPointcut() {
+	@Pointcut("@annotation(com.reliable.message.client.annotation.MessageProducer)")
+	public void messageProducerAnnotationPointcut() {
 
 	}
 
-	@Around(value = "mqProducerStoreAnnotationPointcut()")
-	public Object processMqProducerStoreJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
-		log.info("processMqProducerStoreJoinPoint - 线程id={}", Thread.currentThread().getId());
+	@Around(value = "messageProducerAnnotationPointcut()")
+	public Object processMessageProducerJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
+		log.info("processMessageProducerJoinPoint - 线程id={}", Thread.currentThread().getId());
 		if(StringUtils.isBlank(producerGroup)) producerGroup = appName;
 		Object result;
 		Object[] args = joinPoint.getArgs();
-		MessageProducerStore annotation = getAnnotation(joinPoint);
+		MessageProducer annotation = getAnnotation(joinPoint);
 		MessageSendTypeEnum type = annotation.sendType();
 		DelayLevelEnum delayLevelEnum = annotation.delayLevel();
 		if (args.length == 0) {
@@ -94,9 +94,9 @@ public class MessageProducerStoreAspect {
 		return result;
 	}
 
-	private static MessageProducerStore getAnnotation(JoinPoint joinPoint) {
+	private static MessageProducer getAnnotation(JoinPoint joinPoint) {
 		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 		Method method = methodSignature.getMethod();
-		return method.getAnnotation(MessageProducerStore.class);
+		return method.getAnnotation(MessageProducer.class);
 	}
 }

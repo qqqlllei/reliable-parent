@@ -19,7 +19,7 @@ import java.util.Random;
 
 /**
  * Created by 李雷 on 2018/10/9.
- * Feign 通过eureka 动态获取url调用
+ * Feign 通过注册中心 动态获取url调用
  */
 @Component
 @Import(FeignClientsConfiguration.class)

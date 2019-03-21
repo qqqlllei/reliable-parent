@@ -1,7 +1,7 @@
 package com.reliable.message.client.aspect;
 
 
-import com.reliable.message.client.annotation.MessageConsumerStore;
+import com.reliable.message.client.annotation.MessageConsumer;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 
 @Slf4j
 @Aspect
-public class MessageConsumerStoreAspect {
+public class MessageConsumerAspect {
 
 	@Resource
 	private ReliableMessageService reliableMessageService;
@@ -34,20 +34,20 @@ public class MessageConsumerStoreAspect {
 	@Value("${reliable.message.consumerGroup:}")
 	private String consumerGroup;
 
-	@Pointcut("@annotation(com.reliable.message.client.annotation.MessageConsumerStore)")
-	public void mqConsumerStoreAnnotationPointcut() {
+	@Pointcut("@annotation(com.reliable.message.client.annotation.MessageConsumer)")
+	public void messageConsumerAnnotationPointcut() {
 
 	}
 
-	@Around(value = "mqConsumerStoreAnnotationPointcut()")
-	public void processMqConsumerStoreJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
+	@Around(value = "messageConsumerAnnotationPointcut()")
+	public void processMessageConsumerJoinPoint(ProceedingJoinPoint joinPoint) throws Throwable {
 
-		log.info("processMqConsumerStoreJoinPoint - 线程id={}", Thread.currentThread().getId());
+		log.info("processMessageConsumerJoinPoint - 线程id={}", Thread.currentThread().getId());
 		if(StringUtils.isBlank(consumerGroup)) consumerGroup = appName;
 		long startTime = System.currentTimeMillis();
 		Object[] args = joinPoint.getArgs();
-		MessageConsumerStore annotation = getAnnotation(joinPoint);
-		boolean isStorePreStatus = annotation.storePreStatus();
+		MessageConsumer annotation = getAnnotation(joinPoint);
+
 		ServerMessageData serverMessageData;
 		if (args == null || args.length == 0) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_IS_NULL);
@@ -60,17 +60,18 @@ public class MessageConsumerStoreAspect {
 		try {
 			serverMessageData = (ServerMessageData) args[0];
 		} catch (Exception e) {
-			log.error("processMqConsumerStoreJoinPoint={}", e.getMessage(), e);
+			log.error("processMessageConsumerJoinPoint={}", e.getMessage(), e);
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_ARGS_CONVERT_EXCEPTION);
 		}
 		final String producerMessageId = serverMessageData.getProducerMessageId();
 
-		if (isStorePreStatus) {
+		boolean isStore = annotation.storageStatus();
+		if (isStore) {
 			// 重复消费检查
 			boolean consumed = reliableMessageService.checkMessageStatus(producerMessageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
 				reliableMessageService.confirmFinishMessage(consumerGroup, serverMessageData.getProducerMessageId());
-				log.info("processMqConsumerStoreJoinPoint - 线程id={} 已经消费producerId为{} 的消息", Thread.currentThread().getId(),serverMessageData.getProducerMessageId());
+				log.info("processMessageConsumerJoinPoint - 线程id={} 已经消费producerId为{} 的消息", Thread.currentThread().getId(),serverMessageData.getProducerMessageId());
 				return ;
 			}
 			reliableMessageService.confirmReceiveMessage(consumerGroup, serverMessageData);
@@ -87,9 +88,9 @@ public class MessageConsumerStoreAspect {
 		}
 	}
 
-	private MessageConsumerStore getAnnotation(JoinPoint joinPoint) {
+	private MessageConsumer getAnnotation(JoinPoint joinPoint) {
 		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 		Method method = methodSignature.getMethod();
-		return method.getAnnotation(MessageConsumerStore.class);
+		return method.getAnnotation(MessageConsumer.class);
 	}
 }

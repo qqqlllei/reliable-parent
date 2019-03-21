@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface MessageConsumerStore {
+public @interface MessageConsumer {
 
-	boolean storePreStatus() default true;
+	boolean storageStatus() default true;
 }

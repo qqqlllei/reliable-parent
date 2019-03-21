@@ -1,7 +1,7 @@
 package com.reliable.message.client.autoconfigure;
 
-import com.reliable.message.client.aspect.MessageConsumerStoreAspect;
-import com.reliable.message.client.aspect.MessageProducerStoreAspect;
+import com.reliable.message.client.aspect.MessageConsumerAspect;
+import com.reliable.message.client.aspect.MessageProducerAspect;
 import com.reliable.message.client.job.ClientMessageDataflow;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.client.service.impl.ReliableMessageServiceImpl;
@@ -17,15 +17,15 @@ public class MessageBeanConfiguration {
 
 	@Bean
 	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
-	public MessageProducerStoreAspect messageProducerStoreAspect() {
-		return new MessageProducerStoreAspect();
+	public MessageProducerAspect messageProducerStoreAspect() {
+		return new MessageProducerAspect();
 	}
 
 
 	@Bean
 	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false}")
-	public MessageConsumerStoreAspect messageConsumerStoreAspect() {
-		return new MessageConsumerStoreAspect();
+	public MessageConsumerAspect messageConsumerStoreAspect() {
+		return new MessageConsumerAspect();
 	}
 
 	@Bean
