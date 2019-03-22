@@ -38,6 +38,13 @@ public class ClientMessageData {
 	 */
 	private Integer messageType;
 
+
+	/**
+	 * 消息版本
+	 */
+
+	private String messageVersion;
+
 	/**
 	 * 消息状态
 	 */

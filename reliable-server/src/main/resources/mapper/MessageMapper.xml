@@ -11,6 +11,7 @@
         <result property="messageTopic" column="message_topic"/>
         <result property="messageBody" column="message_body"/>
         <result property="messageType" column="message_type"/>
+        <result property="messageVersion" column="message_version" />
         <result property="producerGroup" column="producer_group"/>
         <result property="producerMessageId" column="producer_message_id" />
         <result property="delayLevel" column="delay_level"/>
@@ -72,6 +73,7 @@
 	        	message_topic ,
 	        	message_body ,
 	        	message_key,
+	        	message_version,
 	        	producer_message_id,
 	        	producer_group ,
 	        	status ,
@@ -83,6 +85,7 @@
 	        	#{messageTopic} ,
 	        	#{messageBody} ,
 	        	#{messageKey},
+	        	#{messageVersion},
 	        	#{producerMessageId} ,
 	        	#{producerGroup} ,
 	        	#{status} ,

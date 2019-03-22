@@ -50,7 +50,7 @@ public class MessageServiceImpl implements MessageService {
     public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) {
 
         if (StringUtils.isEmpty(clientMessageData.getMessageTopic())) {
-//            throw new TpcBizException(ErrorCodeEnum.TPC10050001);
+            throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_OF_MESSAGE_TOPIC_IS_NULL);
         }
 
         Date now = new Date();
@@ -144,6 +144,7 @@ public class MessageServiceImpl implements MessageService {
     private List<MessageConfirm> createMqConfirmListByTopic(String messageTopic, String messageId,String producerGroup, String producerMessageId) {
         List<MessageConfirm> list = new ArrayList<>();
         MessageConfirm messageConfirm;
+
         List<String> consumerGroupList = messageConsumerService.listConsumerGroupByTopic(messageTopic);
 
         if (consumerGroupList ==null || consumerGroupList.size() == 0) {
@@ -166,7 +167,13 @@ public class MessageServiceImpl implements MessageService {
     public void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ServerMessageData message ){
 
         for (MessageConfirm confirm: confirmList) {
-            this.directSendMessage(message, message.getMessageTopic()+"_"+confirm.getConsumerGroup().toUpperCase(), message.getMessageKey());
+
+            String topic= message.getMessageTopic()+"_"+confirm.getConsumerGroup().toUpperCase();
+            String messageVersion = message.getMessageVersion();
+            if(StringUtils.isNotBlank(messageVersion)){
+                topic = message.getMessageTopic()+"_"+messageVersion+"_"+confirm.getConsumerGroup().toUpperCase();
+            }
+            this.directSendMessage(message, topic, message.getMessageKey());
         }
     }
 
@@ -182,7 +189,15 @@ public class MessageServiceImpl implements MessageService {
         }
 
         for (String consumer : consumerGroupList) {
-            this.directSendMessage(message,message.getMessageTopic()+"-"+consumer,message.getMessageKey());
+
+            String topic= message.getMessageTopic()+"_"+consumer;
+
+            String messageVersion = message.getMessageVersion();
+            if(StringUtils.isNotBlank(messageVersion)){
+                topic = message.getMessageTopic()+"_"+messageVersion+"_"+consumer;
+            }
+
+            this.directSendMessage(message,topic,message.getMessageKey());
         }
     }
 

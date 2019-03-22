@@ -10,6 +10,7 @@
 		<result property="messageKey" column="message_key"/>
 		<result property="messageTopic" column="message_topic"/>
 		<result property="messageBody" column="message_body"/>
+		<result property="messageVersion" column="message_version" />
 		<result property="messageType" column="message_type"/>
 		<result property="delayLevel" column="delay_level"/>
 		<result property="status" column="status"/>
@@ -32,6 +33,7 @@
 				message_topic ,
 				message_type ,
 				message_body ,
+				message_version,
 				delay_level ,
 				status ,
 				creator ,
@@ -49,6 +51,7 @@
 				#{messageTopic} ,
 				#{messageType} ,
 				#{messageBody} ,
+				#{messageVersion},
 				#{delayLevel} ,
 				#{status} ,
 				#{creator} ,

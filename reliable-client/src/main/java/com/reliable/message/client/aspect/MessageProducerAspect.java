@@ -34,6 +34,10 @@ public class MessageProducerAspect {
 	private String appName;
 
 
+	@Value("${info.version}")
+	private String serverVersion;
+
+
 
 	@Value("${reliable.message.producerGroup:}")
 	private String producerGroup;
@@ -51,6 +55,7 @@ public class MessageProducerAspect {
 		Object[] args = joinPoint.getArgs();
 		MessageProducer annotation = getAnnotation(joinPoint);
 		MessageSendTypeEnum type = annotation.sendType();
+
 		DelayLevelEnum delayLevelEnum = annotation.delayLevel();
 		if (args.length == 0) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_IS_NULL);
@@ -65,6 +70,10 @@ public class MessageProducerAspect {
 
 		if (domain == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_TYPE_IS_WRONG);
+		}
+
+		if(annotation.grayMessage().isGray()){
+			domain.setMessageVersion(serverVersion);
 		}
 
 		domain.setId(UUIDUtil.getId());
