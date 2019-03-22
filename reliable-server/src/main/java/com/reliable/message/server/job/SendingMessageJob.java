@@ -7,6 +7,7 @@ import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +60,15 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
                 messageConfirm.setSendTimes(sendTimes+1);
                 messageConfirm.setUpdateTime(new Date());
                 messageConfirmService.updateById(messageConfirm);
-                System.out.println("=============="+serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase()+"===============");
-                messageService.directSendMessage(serverMessageData,serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase(),serverMessageData.getMessageKey());
+
+                String topic= serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase();
+
+                String messageVersion = serverMessageData.getMessageVersion();
+                if(StringUtils.isNotBlank(messageVersion)){
+                    topic = serverMessageData.getMessageTopic()+"_"+messageVersion+"_"+messageConfirm.getConsumerGroup().toUpperCase();
+                }
+
+                messageService.directSendMessage(serverMessageData,topic,serverMessageData.getMessageKey());
             }
         }
     }
