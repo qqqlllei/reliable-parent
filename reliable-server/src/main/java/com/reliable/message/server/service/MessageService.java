@@ -36,4 +36,10 @@ public interface MessageService {
     void directSendMessage(ClientMessageData clientMessageData);
 
     void saveAndSendMessage(ClientMessageData clientMessageData);
+
+    void clearFinishMessage(String messageId);
+
+    void updateSendingMessage(ServerMessageData serverMessageData, MessageConfirm messageConfirm);
+
+    void updateById(ServerMessageData serverMessageData);
 }

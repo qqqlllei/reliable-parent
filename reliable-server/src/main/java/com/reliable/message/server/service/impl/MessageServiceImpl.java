@@ -215,4 +215,23 @@ public class MessageServiceImpl implements MessageService {
         List<MessageConfirm> confirmList = createMqConfirmListByTopic(message.getMessageTopic(),message.getId(),message.getProducerGroup(),message.getProducerMessageId());
         sendMessageToMessageQueue(confirmList,message);
     }
+
+    @Override
+    @Transactional
+    public void clearFinishMessage(String messageId) {
+        deleteServerMessageDataById(messageId);
+        messageConfirmService.deleteMessageConfirmByMessageId(messageId);
+    }
+
+    @Override
+    @Transactional
+    public void updateSendingMessage(ServerMessageData serverMessageData, MessageConfirm messageConfirm) {
+        serverMessageData.setUpdateTime(new Date());
+        updateById(serverMessageData);
+        messageConfirmService.updateById(messageConfirm);
+    }
+
+    public void updateById(ServerMessageData serverMessageData) {
+        this.serverMessageMapper.updateById(serverMessageData);
+    }
 }

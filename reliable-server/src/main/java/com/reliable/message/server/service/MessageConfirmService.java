@@ -17,4 +17,6 @@ public interface MessageConfirmService {
     List<MessageConfirm> getMessageConfirmsByProducerMessageId(String producerMessageId);
 
     void updateById(MessageConfirm messageConfirm);
+
+    void deleteMessageConfirmByMessageId(String messageId);
 }

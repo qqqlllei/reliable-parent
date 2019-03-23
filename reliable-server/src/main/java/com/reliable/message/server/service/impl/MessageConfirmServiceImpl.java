@@ -41,4 +41,9 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
     public void updateById(MessageConfirm messageConfirm) {
         messageConfirmMapper.updateById(messageConfirm);
     }
+
+    @Override
+    public void deleteMessageConfirmByMessageId(String messageId) {
+        messageConfirmMapper.deleteMessageConfirmByMessageId(messageId);
+    }
 }

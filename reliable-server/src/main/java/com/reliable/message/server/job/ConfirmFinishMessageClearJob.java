@@ -45,7 +45,7 @@ public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<Server
             int count = messageConfirmService.getMessageConfirmCountByProducerMessageId(serverMessageData.getProducerMessageId());
 
             if(count == 0){
-                messageService.deleteServerMessageDataById(serverMessageData.getId());
+                messageService.clearFinishMessage(serverMessageData.getId());
             }
 
         }

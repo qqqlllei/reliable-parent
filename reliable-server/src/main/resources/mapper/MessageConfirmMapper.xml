@@ -86,4 +86,11 @@
       WHERE id = #{id}
     </update>
 
+
+    <delete id="deleteMessageConfirmByMessageId" parameterType="java.lang.String" >
+
+        DELETE FROM message_confirm WHERE message_id = #{messageId}
+
+    </delete>
+
 </mapper>
