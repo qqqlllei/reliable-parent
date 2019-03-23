@@ -80,6 +80,7 @@ public class MessageConsumerAspect {
 		try {
 			joinPoint.proceed();
 			reliableMessageService.confirmFinishMessage(consumerGroup, serverMessageData.getProducerMessageId());
+			log.info("processMessageConsumerJoinPoint - 线程id={} 消费producerId为{} 的消息", Thread.currentThread().getId(),serverMessageData.getProducerMessageId());
 		} catch (Exception e) {
 			log.error("发送可靠消息, 目标方法[{}], 出现异常={}", methodName, e.getMessage(), e);
 			throw e;

@@ -1,5 +1,6 @@
 package com.reliable.message.server.dao;
 
+import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.server.domain.MessageConfirm;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,4 +22,6 @@ public interface MessageConfirmMapper {
     void updateById(MessageConfirm messageConfirm);
 
     void deleteMessageConfirmByMessageId(String messageId);
+
+    List<MessageConfirm> getUnConfirmMessage(JSONObject jobTaskParameter);
 }

@@ -1,5 +1,6 @@
 package com.reliable.message.server.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.server.dao.MessageConfirmMapper;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
@@ -45,5 +46,10 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
     @Override
     public void deleteMessageConfirmByMessageId(String messageId) {
         messageConfirmMapper.deleteMessageConfirmByMessageId(messageId);
+    }
+
+    @Override
+    public List<MessageConfirm> getUnConfirmMessage(JSONObject jobTaskParameter) {
+        return messageConfirmMapper.getUnConfirmMessage(jobTaskParameter);
     }
 }

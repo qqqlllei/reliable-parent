@@ -20,7 +20,7 @@ import java.util.List;
  */
 @ElasticJobConfig(cron = "elastic.job.cron.sendingMessageCron",
         jobParameter = "{'fetchNum':200,'taskType':'SENDING_MESSAGE'}",description="待发送消息异常处理")
-public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData> {
+public class SendingMessageJob extends AbstractBaseDataflowJob<MessageConfirm> {
 
 
     private Logger logger = LoggerFactory.getLogger(SendingMessageJob.class);
@@ -36,48 +36,41 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<ServerMessageData
     private MessageConfirmService messageConfirmService;
 
     @Override
-    protected List<ServerMessageData> fetchJobData(JSONObject jobTaskParameter) {
+    protected List<MessageConfirm> fetchJobData(JSONObject jobTaskParameter) {
 
         logger.info("SendingMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
 
-        List<ServerMessageData> serverMessageDataList = messageService.getSendingMessageData(jobTaskParameter);
+        List<MessageConfirm> unConfirmMessages =  messageConfirmService.getUnConfirmMessage(jobTaskParameter);
 
-        return serverMessageDataList;
+        return unConfirmMessages;
     }
 
     @Override
-    protected void processJobData(List<ServerMessageData> serverMessageDataList) {
+    protected void processJobData(List<MessageConfirm> messageConfirms) {
 
-        logger.info("SendingMessageJob.processJobData - serverMessageDataList={}", serverMessageDataList);
+        logger.info("SendingMessageJob.processJobData - messageConfirms={}", messageConfirms);
 
-        for (ServerMessageData serverMessageData : serverMessageDataList) {
-            List<MessageConfirm> messageConfirms = messageConfirmService.getMessageConfirmsByProducerMessageId(serverMessageData.getProducerMessageId());
 
-            if(messageConfirms.size() == 0){
-                serverMessageData.setUpdateTime(new Date());
-                messageService.updateById(serverMessageData);
-                continue;
+
+        for (MessageConfirm messageConfirm : messageConfirms) {
+            int sendTimes = messageConfirm.getSendTimes();
+            if(sendTimes >= MAX_RESEND_COUNT ){
+                messageConfirm.setDead(SERVER_MESSAGE_DEAD_STATUS);
+            }
+            messageConfirm.setSendTimes(sendTimes+1);
+            messageConfirm.setUpdateTime(new Date());
+            ServerMessageData serverMessageData = messageService.getServerMessageDataByProducerMessageId(messageConfirm.getProducerMessageId());
+
+            messageConfirmService.updateById(messageConfirm);
+
+            String topic= serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase();
+
+            String messageVersion = serverMessageData.getMessageVersion();
+            if(StringUtils.isNotBlank(messageVersion)){
+                topic = serverMessageData.getMessageTopic()+"_"+messageVersion+"_"+messageConfirm.getConsumerGroup().toUpperCase();
             }
 
-            for (MessageConfirm messageConfirm : messageConfirms) {
-                int sendTimes = messageConfirm.getSendTimes();
-                if(sendTimes >= MAX_RESEND_COUNT ){
-                    messageConfirm.setDead(SERVER_MESSAGE_DEAD_STATUS);
-                }
-                messageConfirm.setSendTimes(sendTimes+1);
-                messageConfirm.setUpdateTime(new Date());
-
-                messageService.updateSendingMessage(serverMessageData,messageConfirm);
-
-                String topic= serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase();
-
-                String messageVersion = serverMessageData.getMessageVersion();
-                if(StringUtils.isNotBlank(messageVersion)){
-                    topic = serverMessageData.getMessageTopic()+"_"+messageVersion+"_"+messageConfirm.getConsumerGroup().toUpperCase();
-                }
-
-                messageService.directSendMessage(serverMessageData,topic,serverMessageData.getMessageKey());
-            }
+            messageService.directSendMessage(serverMessageData,topic,serverMessageData.getMessageKey());
         }
     }
 }

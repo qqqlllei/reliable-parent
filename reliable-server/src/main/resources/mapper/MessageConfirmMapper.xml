@@ -93,4 +93,12 @@
 
     </delete>
 
+
+
+    <select id="getUnConfirmMessage" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_MessageConfirm">
+
+          SELECT * FROM message_confirm WHERE confirm_flag = 0 AND create_time &lt; DATE_SUB(CURRENT_TIMESTAMP(),INTERVAL 1 MINUTE)
+        AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
+    </select>
+
 </mapper>

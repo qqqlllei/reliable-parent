@@ -1,5 +1,6 @@
 package com.reliable.message.server.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.server.domain.MessageConfirm;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface MessageConfirmService {
     void updateById(MessageConfirm messageConfirm);
 
     void deleteMessageConfirmByMessageId(String messageId);
+
+    List<MessageConfirm> getUnConfirmMessage(JSONObject jobTaskParameter);
 }

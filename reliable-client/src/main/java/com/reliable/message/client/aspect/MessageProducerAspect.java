@@ -99,6 +99,7 @@ public class MessageProducerAspect {
 			reliableMessageService.directSendMessage(domain);
 		} else {
 			reliableMessageService.confirmAndSendMessage(domain.getId());
+			log.info("confirmAndSendMessage============> ok ");
 		}
 		return result;
 	}
