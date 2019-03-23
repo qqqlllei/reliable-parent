@@ -64,18 +64,14 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @Transactional
     public void confirmAndSendMessage(String clientMessageId) {
         final ServerMessageData message = serverMessageMapper.getByProducerMessageId(clientMessageId);
         if (message == null) {
             throw new BusinessException(ExceptionCodeEnum.GET_SERVER_MSG_IS_NULL_BY_CLIENT_ID);
         }
-
-        //save record
         List<MessageConfirm> confirmList = confirmAndSendMessage(message);
-
         if(confirmList.size() == 0) return;
-
-        //send message to mq
         sendMessageToMessageQueue(confirmList,message);
 
     }
@@ -128,7 +124,7 @@ public class MessageServiceImpl implements MessageService {
         return serverMessageMapper.getSendingMessageData(jobTaskParameter);
     }
 
-    @Transactional
+
     private List<MessageConfirm>  confirmAndSendMessage(ServerMessageData message){
         ServerMessageData update = new ServerMessageData();
         update.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
@@ -137,7 +133,7 @@ public class MessageServiceImpl implements MessageService {
         serverMessageMapper.updateById(update);
 
         // 创建消费待确认列表
-        List<MessageConfirm> confirmList =  this.createMqConfirmListByTopic(message.getMessageTopic(), message.getId(),message.getProducerGroup(), message.getProducerMessageId());
+        List<MessageConfirm> confirmList =  createMqConfirmListByTopic(message.getMessageTopic(), message.getId(),message.getProducerGroup(), message.getProducerMessageId());
         return confirmList;
     }
 
