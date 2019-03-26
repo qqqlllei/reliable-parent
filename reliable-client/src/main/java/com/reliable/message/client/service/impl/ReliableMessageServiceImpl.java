@@ -66,6 +66,8 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		clientMessageData.setMessageType(MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 		clientMessageData.setProducerMessageId(messageData.getProducerMessageId());
 		clientMessageData.setMessageVersion(messageData.getMessageVersion());
+		clientMessageData.setDelayLevel(messageData.getDelayLevel());
+		clientMessageData.setSendTime(messageData.getSendTime());
 		Date currentDate = new Date();
 		clientMessageData.setCreatedTime(currentDate);
 		clientMessageData.setUpdateTime(currentDate);
