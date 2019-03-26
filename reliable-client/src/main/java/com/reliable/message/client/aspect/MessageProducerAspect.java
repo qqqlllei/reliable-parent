@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.concurrent.DelayQueue;
 
@@ -40,8 +41,8 @@ public class MessageProducerAspect {
 	private String serverVersion;
 
 
-	@Autowired
-	private TaskExecutor taskExecutor;
+	@Resource(name = "messageTaskExecutor")
+	private TaskExecutor messageTaskExecutor;
 
 	@Autowired
 	private DelayQueue<DelayMessageTask> delayMessageQueue;
@@ -99,7 +100,7 @@ public class MessageProducerAspect {
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			reliableMessageService.directSendMessage(domain);
 		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
-			taskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,reliableMessageService));
+			messageTaskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,reliableMessageService));
 		} else{
 			reliableMessageService.confirmAndSendMessage(domain.getId());
 		}

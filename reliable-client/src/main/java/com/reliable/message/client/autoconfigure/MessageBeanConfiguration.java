@@ -56,14 +56,14 @@ public class MessageBeanConfiguration {
 
 
 
-	@Bean
+	@Bean(name = "messageTaskExecutor")
 	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
 	public TaskExecutor messageTaskExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		// 设置核心线程数
-		executor.setCorePoolSize(10);
 		// 设置最大线程数
 		executor.setMaxPoolSize(20);
+		// 设置核心线程数
+		executor.setCorePoolSize(10);
 		// 设置队列容量
 		executor.setQueueCapacity(200);
 		// 设置线程活跃时间（秒）
@@ -72,6 +72,23 @@ public class MessageBeanConfiguration {
 		executor.setThreadNamePrefix("delay-message-thread-");
 		// 设置拒绝策略
 		executor.setRejectedExecutionHandler(delayMessageRegictedExecutionHandler());
+		return executor;
+	}
+
+
+	@Bean
+	public TaskExecutor taskExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		// 设置核心线程数
+		executor.setCorePoolSize(10);
+		// 设置最大线程数
+		executor.setMaxPoolSize(10);
+		// 设置队列容量
+		executor.setQueueCapacity(100);
+		// 设置线程活跃时间（秒）
+		executor.setKeepAliveSeconds(60);
+		// 设置默认线程名称
+		executor.setThreadNamePrefix("taskExecutor-");
 		return executor;
 	}
 
