@@ -40,8 +40,8 @@ public class MessageProducerAspect {
 	private String serverVersion;
 
 
-//	@Autowired
-//	private TaskExecutor taskExecutor;
+	@Autowired
+	private TaskExecutor taskExecutor;
 
 	@Autowired
 	private DelayQueue<DelayMessageTask> delayMessageQueue;
@@ -99,7 +99,7 @@ public class MessageProducerAspect {
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			reliableMessageService.directSendMessage(domain);
 		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
-//			taskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,reliableMessageService));
+			taskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,reliableMessageService));
 		} else{
 			reliableMessageService.confirmAndSendMessage(domain.getId());
 		}

@@ -22,7 +22,7 @@ public class DelayMessageRegictedExecutionHandler  implements RejectedExecutionH
         if(r instanceof DelayMessageTask){
             DelayMessageTask delayMessageTask = (DelayMessageTask) r;
             delayMessageQueue.remove(delayMessageTask);
-            LOGER.info("===================DelayMessageRegictedExecutionHandler.delayMessageQueue size :"+ delayMessageQueue.size());
+            LOGER.warn("===================DelayMessageRegictedExecutionHandler.delayMessageQueue size :"+ delayMessageQueue.size());
         }
     }
 }
