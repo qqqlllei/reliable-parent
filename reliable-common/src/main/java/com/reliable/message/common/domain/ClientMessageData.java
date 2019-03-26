@@ -1,8 +1,10 @@
 package com.reliable.message.common.domain;
 
+import com.reliable.message.common.enums.DelayLevelEnum;
+import com.reliable.message.common.util.TimeUtil;
+import com.reliable.message.common.util.UUIDUtil;
 import lombok.Data;
-
-import java.util.ArrayList;
+import org.apache.commons.lang3.StringUtils;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +51,8 @@ public class ClientMessageData {
 	 * 消息状态
 	 */
 	private Integer status;
+
+	private Date sendTime;
 
 	/**
 	 * 延时级别
@@ -100,6 +104,27 @@ public class ClientMessageData {
 		this.messageBody = msgBody;
 		this.messageTopic = topic;
 		this.messageKey = key;
+	}
+
+	public void initParam(int delayLevel){
+
+		Date currentDate = new Date();
+		if(StringUtils.isBlank(this.getId())){
+			this.setId(UUIDUtil.getId());
+		}
+		this.setCreatedTime(currentDate);
+		this.setUpdateTime(currentDate);
+		this.setSendTime(currentDate);
+		this.setProducerMessageId(this.getId());
+		if (delayLevel != DelayLevelEnum.ZERO.delayLevel()) {
+			this.setDelayLevel(delayLevel);
+			this.setSendTime(TimeUtil.getAfterByMinuteTime(delayLevel));
+		}
+
+		String messageKey = this.getMessageKey();
+		if(StringUtils.isBlank(messageKey)){
+			this.setMessageKey(this.getId());
+		}
 	}
 
 }

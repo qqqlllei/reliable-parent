@@ -45,9 +45,6 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		this.checkMessage(mqMessageData);
 		// 先保存消息
 		mqMessageData.setMessageType(MessageTypeEnum.PRODUCER_MESSAGE.messageType());
-		Date currentDate = new Date();
-		mqMessageData.setCreatedTime(currentDate);
-		mqMessageData.setUpdateTime(currentDate);
 		mqMessageDataMapper.insert(mqMessageData);
 	}
 

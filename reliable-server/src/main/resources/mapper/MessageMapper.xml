@@ -10,23 +10,14 @@
         <result property="messageKey" column="message_key"/>
         <result property="messageTopic" column="message_topic"/>
         <result property="messageBody" column="message_body"/>
-        <result property="messageType" column="message_type"/>
         <result property="messageVersion" column="message_version" />
         <result property="producerGroup" column="producer_group"/>
         <result property="producerMessageId" column="producer_message_id" />
         <result property="delayLevel" column="delay_level"/>
-        <result property="orderType" column="order_type"/>
+        <result property="sendTime" column="send_time" />
         <result property="status" column="status"/>
-        <result property="taskStatus" column="task_status"/>
         <result property="updateTime" column="update_time"/>
-        <result property="resendTimes" column="resend_times"/>
-        <result property="nextExeTime" column="next_exe_time"/>
-        <result property="yn" column="yn"/>
-        <result property="creator" column="creator"/>
-        <result property="creatorId" column="creator_id"/>
-        <result property="createdTime" column="created_time"/>
-        <result property="lastOperator" column="last_operator"/>
-        <result property="lastOperatorId" column="last_operator_id"/>
+        <result property="createTime" column="create_time"/>
     </resultMap>
 
 
@@ -73,6 +64,8 @@
 	        	message_version,
 	        	producer_message_id,
 	        	producer_group ,
+	        	delay_level,
+	        	send_time,
 	        	status ,
 	        	update_time ,
 	        	create_time
@@ -85,6 +78,8 @@
 	        	#{messageVersion},
 	        	#{producerMessageId} ,
 	        	#{producerGroup} ,
+	        	#{delayLevel},
+	        	#{sendTime},
 	        	#{status} ,
 	        	#{updateTime} ,
 	        	#{createTime}
@@ -107,7 +102,7 @@
 
 
     <select id="getServerMessageDataByParams" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData" >
-        SELECT * FROM message WHERE status = #{status} AND create_time &lt; #{clearTime}
+        SELECT * FROM message WHERE status = #{status} AND send_time &lt; #{clearTime}
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem}ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 
@@ -118,13 +113,13 @@
 
 
     <select id="getWaitConfirmServerMessageData" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData" >
-        SELECT * FROM message WHERE status = 10 AND create_time &lt; DATE_SUB(CURRENT_TIMESTAMP(),INTERVAL 1 MINUTE)
+        SELECT * FROM message WHERE status = 10 AND send_time &lt; DATE_SUB(CURRENT_TIMESTAMP(),INTERVAL 1 MINUTE)
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 
 
     <select id="getSendingMessageData" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData">
-        SELECT * FROM message WHERE status = 20 AND create_time &lt; DATE_SUB(CURRENT_TIMESTAMP(),INTERVAL 1 MINUTE)
+        SELECT * FROM message WHERE status = 20 AND send_time &lt; DATE_SUB(CURRENT_TIMESTAMP(),INTERVAL 1 MINUTE)
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 

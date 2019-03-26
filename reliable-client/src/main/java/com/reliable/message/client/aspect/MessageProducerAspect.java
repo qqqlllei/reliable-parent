@@ -1,8 +1,8 @@
 package com.reliable.message.client.aspect;
 
 import com.reliable.message.client.annotation.MessageProducer;
+import com.reliable.message.client.delay.DelayMessageTask;
 import com.reliable.message.client.service.ReliableMessageService;
-import com.reliable.message.common.util.UUIDUtil;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.enums.DelayLevelEnum;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
@@ -16,10 +16,12 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.concurrent.DelayQueue;
 
 
 /**
@@ -28,7 +30,7 @@ import java.lang.reflect.Method;
 @Slf4j
 @Aspect
 public class MessageProducerAspect {
-	@Resource
+	@Autowired
 	private ReliableMessageService reliableMessageService;
 	@Value("${spring.application.name}")
 	private String appName;
@@ -36,6 +38,13 @@ public class MessageProducerAspect {
 
 	@Value("${info.version}")
 	private String serverVersion;
+
+
+//	@Autowired
+//	private TaskExecutor taskExecutor;
+
+	@Autowired
+	private DelayQueue<DelayMessageTask> delayMessageQueue;
 
 
 
@@ -57,9 +66,11 @@ public class MessageProducerAspect {
 		MessageSendTypeEnum type = annotation.sendType();
 
 		DelayLevelEnum delayLevelEnum = annotation.delayLevel();
+
 		if (args.length == 0) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_IS_NULL);
 		}
+
 		ClientMessageData domain = null;
 		for (Object object : args) {
 			if (object instanceof ClientMessageData) {
@@ -72,24 +83,14 @@ public class MessageProducerAspect {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_TYPE_IS_WRONG);
 		}
 
+		domain.initParam(delayLevelEnum.delayLevel());
+
 		if(annotation.grayMessage().isGray()){
 			domain.setMessageVersion(serverVersion);
 		}
-
-		domain.setId(UUIDUtil.getId());
-
 		domain.setProducerGroup(producerGroup);
 
-
-		String messageKey = domain.getMessageKey();
-		if(StringUtils.isBlank(messageKey)){
-			domain.setMessageKey(domain.getId());
-		}
-
 		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
-			if (delayLevelEnum != DelayLevelEnum.ZERO) {
-				domain.setDelayLevel(delayLevelEnum.delayLevel());
-			}
 			reliableMessageService.saveWaitConfirmMessage(domain);
 		}
 		result = joinPoint.proceed();
@@ -97,9 +98,10 @@ public class MessageProducerAspect {
 			reliableMessageService.saveAndSendMessage(domain);
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			reliableMessageService.directSendMessage(domain);
-		} else {
+		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
+//			taskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,reliableMessageService));
+		} else{
 			reliableMessageService.confirmAndSendMessage(domain.getId());
-			log.info("confirmAndSendMessage============> ok ");
 		}
 		return result;
 	}

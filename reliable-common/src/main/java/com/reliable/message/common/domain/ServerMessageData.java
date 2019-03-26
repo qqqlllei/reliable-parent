@@ -19,6 +19,8 @@ public class ServerMessageData implements Serializable {
 	private Integer status;
 	private String messageBody;
 	private String messageVersion;
+	private int delayLevel;
+	private Date sendTime;
 	private Date createTime;
 	private Date updateTime;
 	private List<Integer> preStatusList;

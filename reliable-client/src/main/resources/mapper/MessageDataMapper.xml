@@ -14,6 +14,7 @@
 		<result property="messageType" column="message_type"/>
 		<result property="delayLevel" column="delay_level"/>
 		<result property="status" column="status"/>
+		<result property="sendTime" column="send_time" />
 		<result property="updateTime" column="update_time"/>
 		<result property="creator" column="creator"/>
 		<result property="creatorId" column="creator_id"/>
@@ -36,6 +37,7 @@
 				message_version,
 				delay_level ,
 				status ,
+				send_time,
 				creator ,
 				creator_id ,
 				created_time ,
@@ -54,6 +56,7 @@
 				#{messageVersion},
 				#{delayLevel} ,
 				#{status} ,
+				#{sendTime},
 				#{creator} ,
 				#{creatorId} ,
 				#{createdTime} ,
@@ -75,7 +78,7 @@
 
 
 	<select id="getClientMessageByParams" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ClientMessageData">
-		  SELECT * FROM client_message_data WHERE message_type=#{messageType} AND created_time &lt;  DATE_SUB(CURDATE(),INTERVAL 1 DAY)
+		  SELECT * FROM client_message_data WHERE message_type=#{messageType} AND send_time &lt;  DATE_SUB(CURDATE(),INTERVAL 1 DAY)
 		  AND MOD(id, #{shardingTotalCount}) = #{shardingItem} Limit 0, #{fetchNum}
 	</select>
 </mapper>

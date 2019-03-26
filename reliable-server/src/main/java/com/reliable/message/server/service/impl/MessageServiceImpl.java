@@ -59,6 +59,8 @@ public class MessageServiceImpl implements MessageService {
         message.setProducerMessageId(clientMessageData.getId());
         message.setId(UUIDUtil.getId());
         message.setUpdateTime(now);
+        message.setDelayLevel(clientMessageData.getDelayLevel());
+        message.setSendTime(clientMessageData.getSendTime());
         message.setCreateTime(now);
         serverMessageMapper.insert(message);
     }

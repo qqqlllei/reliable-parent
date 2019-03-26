@@ -1,5 +1,6 @@
 package com.reliable.message.common.util;
 
+import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -13,6 +14,18 @@ public class TimeUtil {
         calendar.set(Calendar.HOUR_OF_DAY,calendar.get(Calendar.HOUR_OF_DAY)-hour);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return simpleDateFormat.format(calendar.getTime());
+    }
+
+
+
+    public static Date getAfterByMinuteTime(int minute){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MINUTE,calendar.get(Calendar.MINUTE)+minute);
+        return calendar.getTime();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getAfterByMinuteTime(10));
     }
 
 
