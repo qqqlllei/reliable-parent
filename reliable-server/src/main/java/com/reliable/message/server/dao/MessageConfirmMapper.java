@@ -13,7 +13,7 @@ public interface MessageConfirmMapper {
 
     void batchCreateMqConfirm(@Param("tpcMqConfirmList") List<MessageConfirm> list);
 
-    void confirmFinishMessage(@Param("consumerGroup") String consumerGroup,@Param("producerMessageId") String producerMessageId);
+    void confirmFinishMessage(@Param("id") String confirmId);
 
     int getMessageConfirmCountByProducerMessageId(String producerMessageId);
 
@@ -21,7 +21,9 @@ public interface MessageConfirmMapper {
 
     void updateById(MessageConfirm messageConfirm);
 
-    void deleteMessageConfirmByMessageId(String messageId);
-
     List<MessageConfirm> getUnConfirmMessage(JSONObject jobTaskParameter);
+
+    List<MessageConfirm> getMessageConfirmsByMessageId(@Param("messageId") String messageId);
+
+    void deleteMessageConfirmById(@Param("id") String id);
 }

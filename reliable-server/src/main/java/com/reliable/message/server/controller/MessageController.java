@@ -43,9 +43,9 @@ public class MessageController {
     }
 
     @RequestMapping("/confirmFinishMessage")
-    Wrapper confirmFinishMessage(@RequestParam("consumerGroup") final String consumerGroup, @RequestParam("producerMessageId") final String producerMessageId){
-        logger.info("确认完成消费消息. consumerGroup={}, producerMessageId={}", consumerGroup, producerMessageId);
-        messageService.confirmFinishMessage(consumerGroup, producerMessageId);
+    Wrapper confirmFinishMessage(@RequestParam("confirmId") final String confirmId){
+        logger.info("确认完成消费消息 confirmId={}", confirmId);
+        messageService.confirmFinishMessage(confirmId);
         return Wrapper.ok();
     }
 

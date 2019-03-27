@@ -24,7 +24,7 @@ public interface MessageFeign {
     Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") String producerMessageId);
 
     @RequestMapping(value = "/message/confirmFinishMessage",method = RequestMethod.POST)
-    Wrapper confirmFinishMessage(@RequestParam("consumerGroup") String consumerGroup,@RequestParam("producerMessageId") String producerMessageId);
+    Wrapper confirmFinishMessage(@RequestParam("confirmId") String confirmId);
 
     @RequestMapping(value = "/message/checkServerMessageIsExist",method = RequestMethod.POST)
     Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") String producerMessageId);

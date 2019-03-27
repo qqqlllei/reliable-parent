@@ -4,6 +4,7 @@ package com.reliable.message.client.service;
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.dto.MessageData;
 
 import java.util.List;
 
@@ -24,9 +25,9 @@ public interface ReliableMessageService {
 
     void confirmAndSendMessage(String producerMessageId);
 
-    void confirmReceiveMessage(String consumerGroup, ServerMessageData dto);
+    void confirmReceiveMessage(String consumerGroup, MessageData dto);
 
-	void confirmFinishMessage(String consumerGroup, String producerMessageId);
+	void confirmFinishMessage(String confirmId);
 
     boolean checkMessageStatus(String producerMessageId,int type);
 

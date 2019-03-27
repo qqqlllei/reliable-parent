@@ -1,6 +1,7 @@
 package com.reliable.message.server.feign;
 
 import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.server.constant.MessageConstant;
 import feign.Feign;
 import feign.Target;
 import feign.codec.Decoder;
@@ -27,8 +28,6 @@ public class ClientMessageAdapter {
 
 
 
-    private static final String DELETE_CLIENT_MESSAGE_URL="/deleteMessage/";
-    private static final String GET_CLIENT_MESSAGE_URL="/getClientMessage/";
 
 
     @Autowired
@@ -46,15 +45,25 @@ public class ClientMessageAdapter {
         return clientMessageFeign.getClientMessageData(new URI(baseUri), messageIds);
     }
 
-    public ClientMessageData getClientMessageDataByProducerMessageId(String consumerGroup,String producerMessageId) throws URISyntaxException {
+    public String getClientMessageDataByProducerMessageId(String consumerGroup,String producerMessageId) throws URISyntaxException {
+
+        int serverCount = discoveryClient.getInstances(consumerGroup).size();
+        if(serverCount ==0) return MessageConstant.CLIENT_SERVER_DOWN;
+
         String baseUrl = getBaseUrl(consumerGroup);
-        String url = baseUrl+GET_CLIENT_MESSAGE_URL+producerMessageId;
-        return clientMessageFeign.getClientMessageDataByProducerMessageId(new URI(url));
+        String url = baseUrl+MessageConstant.GET_CLIENT_MESSAGE_URL+producerMessageId;
+        ClientMessageData clientMessageData = clientMessageFeign.getClientMessageDataByProducerMessageId(new URI(url));
+
+        if(clientMessageData!=null){
+            return MessageConstant.CLIENT_TRANSACTION_OK;
+        }
+
+        return MessageConstant.CLIENT_TRANSACTION_ERROR;
     }
 
     public void deleteClientMessageData(String consumerGroup,String producerMessageId) throws URISyntaxException {
         String baseUrl = getBaseUrl(consumerGroup);
-        String deleteUrl = baseUrl+DELETE_CLIENT_MESSAGE_URL+producerMessageId;
+        String deleteUrl = baseUrl+MessageConstant.DELETE_CLIENT_MESSAGE_URL+producerMessageId;
         clientMessageFeign.deleteClientMessageData(new URI(deleteUrl));
     }
 

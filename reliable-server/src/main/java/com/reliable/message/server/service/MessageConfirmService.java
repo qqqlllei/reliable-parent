@@ -11,7 +11,7 @@ import java.util.List;
 public interface MessageConfirmService {
     void batchCreateMqConfirm(List<MessageConfirm> list);
 
-    void confirmFinishMessage(String consumerGroup ,String producerMessageId);
+    void confirmFinishMessage(String confirmId);
 
     int getMessageConfirmCountByProducerMessageId(String producerMessageId);
 

@@ -69,8 +69,9 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<MessageConfirm> {
             if(StringUtils.isNotBlank(messageVersion)){
                 topic = serverMessageData.getMessageTopic()+"_"+messageVersion+"_"+messageConfirm.getConsumerGroup().toUpperCase();
             }
-
-            messageService.directSendMessage(serverMessageData,topic,serverMessageData.getMessageKey());
+            JSONObject messageBody =JSONObject.parseObject(JSONObject.toJSON(serverMessageData).toString());
+            messageBody.put("confirmId",messageConfirm.getId());
+            messageService.directSendMessage(messageBody.toJSONString(),topic,serverMessageData.getMessageKey());
         }
     }
 }

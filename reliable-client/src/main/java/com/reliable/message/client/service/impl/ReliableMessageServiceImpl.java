@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.client.dao.ClientMessageDataMapper;
 import com.reliable.message.client.feign.MessageFeign;
 import com.reliable.message.client.service.ReliableMessageService;
+import com.reliable.message.common.dto.MessageData;
 import com.reliable.message.common.util.UUIDUtil;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.domain.ServerMessageData;
@@ -59,7 +60,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	}
 
 	@Override
-	public void confirmReceiveMessage(String consumerGroup, ServerMessageData messageData) {
+	public void confirmReceiveMessage(String consumerGroup, MessageData messageData) {
 		log.info("confirmReceiveMessage - 消费者={}, 确认收到messageId={}的消息", consumerGroup, messageData.getId());
 		ClientMessageData clientMessageData = new ClientMessageData(UUIDUtil.getId()
 				,messageData.getMessageBody(),messageData.getMessageTopic(),messageData.getMessageKey());
@@ -76,8 +77,8 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 
 	@Async
 	@Override
-	public void confirmFinishMessage(String consumerGroup, String producerMessageId) {
-		Wrapper wrapper = messageFeign.confirmFinishMessage(consumerGroup, producerMessageId);
+	public void confirmFinishMessage(String confirmId) {
+		Wrapper wrapper = messageFeign.confirmFinishMessage(confirmId);
 		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={} Thread={}", wrapper,Thread.currentThread().getName());
 		if (wrapper == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_CONFIRM_FINISH_MESSAGE_ERROR);

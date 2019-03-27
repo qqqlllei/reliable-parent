@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.server.dao.MessageConfirmMapper;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
+import com.reliable.message.server.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,8 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
     }
 
     @Override
-    public void confirmFinishMessage(String consumerGroup ,String producerMessageId) {
-        messageConfirmMapper.confirmFinishMessage(consumerGroup,producerMessageId);
+    public void confirmFinishMessage(String confirmId) {
+        messageConfirmMapper.confirmFinishMessage(confirmId);
     }
 
     @Override
@@ -45,7 +46,12 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
 
     @Override
     public void deleteMessageConfirmByMessageId(String messageId) {
-        messageConfirmMapper.deleteMessageConfirmByMessageId(messageId);
+
+        List<MessageConfirm> messageConfirms = messageConfirmMapper.getMessageConfirmsByMessageId(messageId);
+
+        for (MessageConfirm messageConfirm : messageConfirms) {
+            messageConfirmMapper.deleteMessageConfirmById(messageConfirm.getId());
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.server.constant.MessageConstant;
 import com.reliable.message.server.feign.ClientMessageAdapter;
 import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
@@ -43,15 +44,16 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
 
         List<ServerMessageData> fetchServerMessageList = new ArrayList<>();
         for (ServerMessageData serverMessageData : serverMessageDataList) {
-            serverMessageData.getProducerMessageId();
             try {
                 // 可查询服务确认
-                ClientMessageData clientMessageData = clientMessageAdapter.getClientMessageDataByProducerMessageId(
+                String  transactionalFlag= clientMessageAdapter.getClientMessageDataByProducerMessageId(
                         serverMessageData.getProducerGroup(),serverMessageData.getProducerMessageId());
-                if(clientMessageData!=null){
+                if(MessageConstant.CLIENT_TRANSACTION_OK.equals(transactionalFlag)){
                     fetchServerMessageList.add(serverMessageData);
-                }else{
+                }else if(MessageConstant.CLIENT_TRANSACTION_ERROR.equals(transactionalFlag)){
                     messageService.deleteServerMessageDataById(serverMessageData.getId());
+                }else{
+                    logger.warn("服务{}未启动",serverMessageData.getProducerGroup());
                 }
             } catch (URISyntaxException e) {
                 logger.error(e.getMessage());

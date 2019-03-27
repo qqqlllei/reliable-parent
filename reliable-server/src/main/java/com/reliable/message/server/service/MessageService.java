@@ -15,11 +15,11 @@ public interface MessageService {
 
     void confirmAndSendMessage(String producerMessageId);
 
-    void directSendMessage(ServerMessageData messageData, String topic, String key);
+    void directSendMessage(String messageData, String topic, String key);
 
     void confirmReceiveMessage(String consumerGroup, String producerMessageId);
 
-    void confirmFinishMessage(String consumerGroup, String producerMessageId);
+    void confirmFinishMessage(String confirmId);
 
     ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId);
 

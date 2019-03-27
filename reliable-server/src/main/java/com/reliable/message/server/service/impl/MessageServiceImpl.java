@@ -60,7 +60,7 @@ public class MessageServiceImpl implements MessageService {
         message.setId(UUIDUtil.getId());
         message.setUpdateTime(now);
         message.setDelayLevel(clientMessageData.getDelayLevel());
-//        message.setSendTime(clientMessageData.getSendTime());
+        message.setSendTime(clientMessageData.getSendTime());
         message.setCreateTime(now);
         serverMessageMapper.insert(message);
     }
@@ -72,6 +72,7 @@ public class MessageServiceImpl implements MessageService {
         if (message == null) {
             throw new BusinessException(ExceptionCodeEnum.GET_SERVER_MSG_IS_NULL_BY_CLIENT_ID);
         }
+        System.out.println("=========================confirmAndSendMessage=========== messageId="+message.getId());
         List<MessageConfirm> confirmList = confirmAndSendMessage(message);
         if(confirmList.size() == 0) return;
         sendMessageToMessageQueue(confirmList,message);
@@ -79,11 +80,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void directSendMessage(ServerMessageData messageData, String topic, String key) {
+    public void directSendMessage(String messageData, String topic, String key) {
         if(StringUtils.isBlank(key)){
-            kafkaTemplate.send(topic, JSONObject.toJSONString(messageData));
+            kafkaTemplate.send(topic, messageData);
         }else {
-            kafkaTemplate.send(topic,key,JSONObject.toJSONString(messageData));
+            kafkaTemplate.send(topic,key,messageData);
         }
     }
 
@@ -95,8 +96,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void confirmFinishMessage(String consumerGroup, String producerMessageId) {
-        messageConfirmService.confirmFinishMessage(consumerGroup,producerMessageId);
+    public void confirmFinishMessage(String confirmId) {
+        messageConfirmService.confirmFinishMessage(confirmId);
     }
 
     @Override
@@ -128,13 +129,14 @@ public class MessageServiceImpl implements MessageService {
 
 
     private List<MessageConfirm>  confirmAndSendMessage(ServerMessageData message){
+
+
+        // 创建消费待确认列表
+        List<MessageConfirm> confirmList =  createMqConfirmListByTopic(message.getMessageTopic(), message.getId(),message.getProducerGroup(), message.getProducerMessageId());
         message.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
         message.setUpdateTime(new Date());
         message.setSendTime(TimeUtil.getAfterByMinuteTime(message.getDelayLevel()));
         serverMessageMapper.updateById(message);
-
-        // 创建消费待确认列表
-        List<MessageConfirm> confirmList =  createMqConfirmListByTopic(message.getMessageTopic(), message.getId(),message.getProducerGroup(), message.getProducerMessageId());
         return confirmList;
     }
 
@@ -157,6 +159,7 @@ public class MessageServiceImpl implements MessageService {
             list.add(messageConfirm);
         }
 
+        System.out.println("===================save confirm"+JSONObject.toJSONString(list));
         messageConfirmService.batchCreateMqConfirm(list);
         return list;
     }
@@ -170,7 +173,10 @@ public class MessageServiceImpl implements MessageService {
             if(StringUtils.isNotBlank(messageVersion)){
                 topic = message.getMessageTopic()+"_"+messageVersion+"_"+confirm.getConsumerGroup().toUpperCase();
             }
-            this.directSendMessage(message, topic, message.getMessageKey());
+            JSONObject messageBody =JSONObject.parseObject(JSONObject.toJSON(message).toString());
+            messageBody.put("confirmId",confirm.getId());
+
+            this.directSendMessage(messageBody.toJSONString(), topic, message.getMessageKey());
         }
     }
 
@@ -194,7 +200,7 @@ public class MessageServiceImpl implements MessageService {
                 topic = message.getMessageTopic()+"_"+messageVersion+"_"+consumer;
             }
 
-            this.directSendMessage(message,topic,message.getMessageKey());
+            this.directSendMessage(JSONObject.toJSON(message).toString(),topic,message.getMessageKey());
         }
     }
 
@@ -217,6 +223,7 @@ public class MessageServiceImpl implements MessageService {
     @Transactional
     public void clearFinishMessage(String messageId) {
         deleteServerMessageDataById(messageId);
+
         messageConfirmService.deleteMessageConfirmByMessageId(messageId);
     }
 

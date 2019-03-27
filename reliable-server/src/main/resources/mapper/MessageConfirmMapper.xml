@@ -68,7 +68,7 @@
   </update>
 
     <delete id="confirmFinishMessage" >
-        UPDATE message_confirm SET confirm_flag =1 WHERE consumer_group = #{consumerGroup} and producer_message_id = #{producerMessageId}
+        UPDATE message_confirm SET confirm_flag =1 WHERE id = #{id}
     </delete>
 
     <select id="getMessageConfirmCountByProducerMessageId" parameterType="java.lang.String" resultType="java.lang.Integer" >
@@ -87,11 +87,15 @@
     </update>
 
 
-    <delete id="deleteMessageConfirmByMessageId" parameterType="java.lang.String" >
+    <delete id="deleteMessageConfirmById" parameterType="java.lang.String" >
 
-        DELETE FROM message_confirm WHERE message_id = #{messageId}
+        DELETE FROM message_confirm WHERE id = #{id}
 
     </delete>
+
+    <select id="getMessageConfirmsByMessageId" parameterType="java.lang.String" resultMap="RM_MessageConfirm">
+        SELECT * FROM message_confirm WHERE message_id = #{messageId}
+    </select>
 
 
 
