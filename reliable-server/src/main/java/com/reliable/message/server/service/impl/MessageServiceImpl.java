@@ -60,7 +60,7 @@ public class MessageServiceImpl implements MessageService {
         message.setId(UUIDUtil.getId());
         message.setUpdateTime(now);
         message.setDelayLevel(clientMessageData.getDelayLevel());
-        message.setSendTime(clientMessageData.getSendTime());
+//        message.setSendTime(clientMessageData.getSendTime());
         message.setCreateTime(now);
         serverMessageMapper.insert(message);
     }
@@ -68,7 +68,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional
     public void confirmAndSendMessage(String clientMessageId) {
-        final ServerMessageData message = serverMessageMapper.getByProducerMessageId(clientMessageId);
+        ServerMessageData message = serverMessageMapper.getByProducerMessageId(clientMessageId);
         if (message == null) {
             throw new BusinessException(ExceptionCodeEnum.GET_SERVER_MSG_IS_NULL_BY_CLIENT_ID);
         }
@@ -128,11 +128,10 @@ public class MessageServiceImpl implements MessageService {
 
 
     private List<MessageConfirm>  confirmAndSendMessage(ServerMessageData message){
-        ServerMessageData update = new ServerMessageData();
-        update.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
-        update.setId(message.getId());
-        update.setUpdateTime(new Date());
-        serverMessageMapper.updateById(update);
+        message.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
+        message.setUpdateTime(new Date());
+        message.setSendTime(TimeUtil.getAfterByMinuteTime(message.getDelayLevel()));
+        serverMessageMapper.updateById(message);
 
         // 创建消费待确认列表
         List<MessageConfirm> confirmList =  createMqConfirmListByTopic(message.getMessageTopic(), message.getId(),message.getProducerGroup(), message.getProducerMessageId());

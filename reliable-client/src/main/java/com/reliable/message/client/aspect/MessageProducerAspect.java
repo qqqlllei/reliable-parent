@@ -89,12 +89,15 @@ public class MessageProducerAspect {
 		if(annotation.grayMessage().isGray()){
 			domain.setMessageVersion(serverVersion);
 		}
+
 		domain.setProducerGroup(producerGroup);
 
 		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
 			reliableMessageService.saveWaitConfirmMessage(domain);
 		}
+
 		result = joinPoint.proceed();
+
 		if (type == MessageSendTypeEnum.SAVE_AND_SEND) {
 			reliableMessageService.saveAndSendMessage(domain);
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
@@ -104,6 +107,7 @@ public class MessageProducerAspect {
 		} else{
 			reliableMessageService.confirmAndSendMessage(domain.getId());
 		}
+
 		return result;
 	}
 

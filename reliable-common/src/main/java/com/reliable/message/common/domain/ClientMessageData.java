@@ -109,13 +109,16 @@ public class ClientMessageData {
 	public void initParam(int delayLevel){
 
 		Date currentDate = new Date();
+
 		if(StringUtils.isBlank(this.getId())){
 			this.setId(UUIDUtil.getId());
 		}
+
 		this.setCreatedTime(currentDate);
 		this.setUpdateTime(currentDate);
 		this.setSendTime(currentDate);
 		this.setProducerMessageId(this.getId());
+
 		if (delayLevel != DelayLevelEnum.ZERO.delayLevel()) {
 			this.setDelayLevel(delayLevel);
 			this.setSendTime(TimeUtil.getAfterByMinuteTime(delayLevel));

@@ -45,6 +45,11 @@
                 status = #{status} ,
             </if>
 
+
+            <if test="sendTime != null">
+                send_time = #{sendTime} ,
+            </if>
+
             <if test="updateTime != null">
                 update_time = #{updateTime} ,
             </if>

@@ -16,16 +16,10 @@ public class TimeUtil {
         return simpleDateFormat.format(calendar.getTime());
     }
 
-
-
     public static Date getAfterByMinuteTime(int minute){
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.MINUTE,calendar.get(Calendar.MINUTE)+minute);
         return calendar.getTime();
-    }
-
-    public static void main(String[] args) {
-        System.out.println(getAfterByMinuteTime(10));
     }
 
 
