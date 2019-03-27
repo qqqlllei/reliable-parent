@@ -55,7 +55,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		if (wrapper == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_CONFIRM_AND_SEND_MESSAGE_ERROR);
 		}
-		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. producerMessageId={}", producerMessageId);
+		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. producerMessageId={} thread={}", producerMessageId,Thread.currentThread().getName());
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	@Override
 	public void confirmFinishMessage(String consumerGroup, String producerMessageId) {
 		Wrapper wrapper = messageFeign.confirmFinishMessage(consumerGroup, producerMessageId);
-		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={}", wrapper);
+		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={} Thread={}", wrapper,Thread.currentThread().getName());
 		if (wrapper == null) {
 			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_CONFIRM_FINISH_MESSAGE_ERROR);
 		}
