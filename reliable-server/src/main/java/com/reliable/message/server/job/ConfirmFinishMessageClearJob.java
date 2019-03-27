@@ -38,8 +38,6 @@ public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<Server
 
     @Override
     protected void processJobData(List<ServerMessageData> serverMessageDataList) {
-        logger.info("processJobData - serverMessageDataList={}", serverMessageDataList);
-
         for (ServerMessageData serverMessageData : serverMessageDataList) {
 
             int count = messageConfirmService.getMessageConfirmCountByProducerMessageId(serverMessageData.getProducerMessageId());
