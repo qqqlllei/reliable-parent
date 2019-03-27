@@ -6,7 +6,9 @@ import com.reliable.message.common.enums.GrayFlagEnum;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
 
 import java.lang.annotation.*;
-
+/**
+ * Created by 李雷
+ */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited

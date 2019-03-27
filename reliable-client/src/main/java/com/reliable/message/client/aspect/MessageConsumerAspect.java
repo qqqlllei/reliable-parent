@@ -21,7 +21,9 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
 
-
+/**
+ * Created by 李雷
+ */
 @Slf4j
 @Aspect
 public class MessageConsumerAspect {

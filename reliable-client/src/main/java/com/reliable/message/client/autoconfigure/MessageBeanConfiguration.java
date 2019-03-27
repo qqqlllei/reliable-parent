@@ -17,7 +17,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.DelayQueue;
 
-
+/**
+ * Created by 李雷
+ */
 @Configuration
 @EnableAsync
 public class MessageBeanConfiguration {

@@ -6,7 +6,9 @@ import com.reliable.message.common.domain.ClientMessageData;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-
+/**
+ * Created by 李雷
+ */
 public interface ClientMessageDataMapper {
 
     int insert(ClientMessageData mqMessageData);
