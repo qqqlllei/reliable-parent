@@ -98,8 +98,8 @@ sharding:
                 algorithmExpression: ds${Math.abs(message_id.hashCode() % 2)}
             tableStrategy:
               inline:
-                shardingColumn: id
-                algorithmExpression: message_confirm${Math.abs(id.hashCode() % 2)}
+                shardingColumn: producer_message_id
+                algorithmExpression: message_confirm${Math.abs(producer_message_id.hashCode() % 2)}
             keyGenerator:
               column: id
 #      props:
