@@ -1,12 +1,9 @@
 package com.reliable.message.server.netty;
 
-import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.common.netty.Message;
 import com.reliable.message.common.netty.RequestMessage;
 import com.reliable.message.common.netty.ResponseMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
@@ -32,7 +29,6 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-//        logger.info("========="+msg.toString()+msg.getClass());
         try {
            if(msg instanceof RequestMessage){
                RequestMessage requestMessage = (RequestMessage) msg;
@@ -50,8 +46,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
             ReferenceCountUtil.release(msg);
         }
     }
-    
-    //检测到空闲连接，触发
+
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object obj) throws Exception {
 

@@ -1,6 +1,5 @@
 package com.reliable.message.client.netty;
 
-import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.common.netty.Message;
 import com.reliable.message.common.netty.RequestMessage;
 import com.reliable.message.common.netty.ResponseMessage;
