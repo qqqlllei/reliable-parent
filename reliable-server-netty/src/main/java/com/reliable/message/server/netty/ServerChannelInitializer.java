@@ -1,5 +1,6 @@
 package com.reliable.message.server.netty;
 
+import com.reliable.message.common.netty.MessageCodecHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -24,9 +25,11 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast("idleStateHandler",
                 new IdleStateHandler(5, 0, 0, TimeUnit.SECONDS));
 
-        pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
-        pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
-        pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+//        pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+//        pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
+//        pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+
+        pipeline.addLast("messageCodec", new MessageCodecHandler());
 
         //自定义Hadler
         pipeline.addLast("handler",new TCPServerHandler());

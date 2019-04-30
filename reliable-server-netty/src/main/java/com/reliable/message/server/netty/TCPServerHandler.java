@@ -1,12 +1,14 @@
 package com.reliable.message.server.netty;
 
 import com.alibaba.fastjson.JSONObject;
-import io.netty.buffer.ByteBuf;
+import com.reliable.message.common.netty.Message;
+import com.reliable.message.common.netty.RequestMessage;
+import com.reliable.message.common.netty.ResponseMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +21,6 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
     /** 空闲次数 */
     private AtomicInteger idle_count = new AtomicInteger(1);
-    /** 发送次数 */
-    private AtomicInteger count = new AtomicInteger(1);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -32,16 +32,16 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
+//        logger.info("========="+msg.toString()+msg.getClass());
         try {
-           if(msg instanceof String){
-               String messageBody = (String) msg;
-               logger.info(messageBody);
-               JSONObject messageInfo = JSONObject.parseObject(messageBody);
-               if("request".equals(messageInfo.getString("type"))){
-                   messageInfo.put("type","response");
-                   messageInfo.put("code","success");
-                   ctx.channel().writeAndFlush(messageInfo+"\n");
-               }
+           if(msg instanceof RequestMessage){
+               RequestMessage requestMessage = (RequestMessage) msg;
+               logger.info(requestMessage.toString());
+
+               ResponseMessage responseMessage = new ResponseMessage();
+               responseMessage.setResultCode(200);
+               responseMessage.setId(requestMessage.getId());
+               ctx.writeAndFlush(responseMessage);
 
            }
         } catch (Exception e) {
@@ -49,7 +49,6 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
         } finally {
             ReferenceCountUtil.release(msg);
         }
-        count.getAndIncrement();
     }
     
     //检测到空闲连接，触发

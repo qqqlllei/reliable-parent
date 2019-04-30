@@ -1,5 +1,6 @@
 package com.reliable.message.client.netty;
 
+import com.reliable.message.common.netty.MessageCodecHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -33,9 +34,12 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
          * */
         //入参说明: 读超时时间、写超时时间、所有类型的超时时间、时间格式
         pipeline.addLast(new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS));
-        pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
-        pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
-        pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+//        pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+//        pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
+//        pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+        pipeline.addLast("messageCodec", new MessageCodecHandler());
+
+
 
         //业务逻辑实现类
         pipeline.addLast("nettyClientHandler",new NettyClientHandler(client));

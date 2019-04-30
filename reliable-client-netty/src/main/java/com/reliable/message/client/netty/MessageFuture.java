@@ -1,13 +1,13 @@
 package com.reliable.message.client.netty;
 
-import com.alibaba.fastjson.JSONObject;
+import com.reliable.message.common.netty.Message;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class MessageFuture {
-    private JSONObject requestMessage;
+    private Message messsage;
     private long timeout = 30 * 1000L;
     private long start = System.currentTimeMillis();
     private volatile Object resultMessage;
@@ -39,13 +39,13 @@ public class MessageFuture {
         latch.countDown();
     }
 
-    public JSONObject getRequestMessage() {
-        return requestMessage;
+    public Message getRequestMessage() {
+        return messsage;
     }
 
 
-    public void setRequestMessage(JSONObject requestMessage) {
-        this.requestMessage = requestMessage;
+    public void setRequestMessage(Message messsage) {
+        this.messsage = messsage;
     }
 
     public long getTimeout() {

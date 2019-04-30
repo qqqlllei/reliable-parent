@@ -1,7 +1,7 @@
 package com.reliable.message.client.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.client.netty.NettyClient;
+import com.reliable.message.common.netty.RequestMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,12 +22,11 @@ public class IndexController {
 
     @RequestMapping("/")
     public String sendMessage(){
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("type","request");
-        jsonObject.put("body","123");
-        jsonObject.put("id", UUID.randomUUID());
+        RequestMessage message = new RequestMessage();
+        message.setId(UUID.randomUUID().toString());
+        message.setMessageType(1);
         try {
-            Object response = nettyClient.getNettyClientHandler().sendMessage(jsonObject);
+            Object response = nettyClient.getNettyClientHandler().sendMessage(message);
            return response.toString();
         } catch (TimeoutException e) {
             e.printStackTrace();
