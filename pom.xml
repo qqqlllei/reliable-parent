@@ -7,6 +7,8 @@
         <module>reliable-client</module>
         <module>reliable-server</module>
         <module>reliable-common</module>
+        <module>reliable-server-netty</module>
+        <module>reliable-client-netty</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
