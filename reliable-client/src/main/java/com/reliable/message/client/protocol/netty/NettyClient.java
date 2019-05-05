@@ -92,6 +92,7 @@ public class NettyClient implements MessageProtocol{
     public void confirmFinishMessage(String confirmId) throws TimeoutException {
         ConfirmFinishRequest confirmFinishRequest = new ConfirmFinishRequest();
         confirmFinishRequest.setConfirmId(confirmId);
+        confirmFinishRequest.setSyncFlag(false);
         this.nettyClientHandler.sendMessage(confirmFinishRequest);
     }
 

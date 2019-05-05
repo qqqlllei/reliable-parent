@@ -80,8 +80,6 @@ public class MessageConsumerAspect {
 			if(consumed){
 
 				protocolManager.getMessageProtocol().confirmFinishMessage(messageData.getConfirmId());
-
-//				 reliableMessageService.confirmFinishMessage( messageData.getConfirmId());//原方法
 				log.info("processMessageConsumerJoinPoint - 线程id={} 已经消费producerId为{} 的消息", Thread.currentThread().getId(),messageData.getProducerMessageId());
 				return ;
 			}

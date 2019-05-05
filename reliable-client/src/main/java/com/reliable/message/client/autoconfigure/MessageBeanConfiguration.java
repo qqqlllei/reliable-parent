@@ -11,6 +11,7 @@ import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.client.service.impl.ReliableMessageServiceImpl;
 import com.reliable.message.client.web.ReliableController;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,7 @@ public class MessageBeanConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(name = "reliable.message.protocol",havingValue = "rpc",matchIfMissing = true)
+	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
 	public MessageProtocol messageProtocol() {
 		return new NettyClient();
 	}
