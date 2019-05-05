@@ -1,7 +1,10 @@
 package com.reliable.message.server.netty;
 
+import com.reliable.message.common.netty.ConfirmAndSendRequest;
 import com.reliable.message.common.netty.RequestMessage;
 import com.reliable.message.common.netty.ResponseMessage;
+import com.reliable.message.common.netty.WaitingConfirmRequest;
+import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
@@ -16,8 +19,20 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(TCPServerHandler.class);
 
+    private DataBaseManager dataBaseManager;
+
     /** 空闲次数 */
     private AtomicInteger idle_count = new AtomicInteger(1);
+
+
+    public TCPServerHandler(){
+
+    }
+
+    public TCPServerHandler(DataBaseManager dataBaseManager){
+        this.dataBaseManager = dataBaseManager;
+    }
+
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -31,15 +46,25 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
         try {
            if(msg instanceof RequestMessage){
-               RequestMessage requestMessage = (RequestMessage) msg;
-               logger.info(requestMessage.toString());
+               if(msg instanceof WaitingConfirmRequest){
+                   WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
+                   dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
 
-               ResponseMessage responseMessage = new ResponseMessage();
-               responseMessage.setResultCode(200);
-               responseMessage.setId(requestMessage.getId());
-               ctx.writeAndFlush(responseMessage);
+                   ResponseMessage responseMessage = new ResponseMessage();
+                   responseMessage.setResultCode(200);
+                   responseMessage.setId(waitingConfirmRequest.getId());
+                   ctx.writeAndFlush(responseMessage);
+               }
 
+               if(msg instanceof ConfirmAndSendRequest){
+                   ConfirmAndSendRequest confirmAndSendRequest = (ConfirmAndSendRequest) msg;
+                   dataBaseManager.confirmAndSendRequest(confirmAndSendRequest);
+
+
+               }
            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

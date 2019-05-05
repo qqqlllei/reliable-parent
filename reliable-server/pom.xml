@@ -47,12 +47,6 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-        </dependency>
-
-
         <!--数据库jar引入开始-->
         <dependency>
             <groupId>com.alibaba</groupId>

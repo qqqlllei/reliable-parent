@@ -1,6 +1,0 @@
-server:
-  port: 8086
-
-netty:
-  server:
-    port: 9999

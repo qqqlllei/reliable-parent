@@ -1,28 +1,29 @@
-package com.reliable.message.client.netty;
+package com.reliable.message.client.protocol.netty;
 
-import com.alibaba.fastjson.JSONObject;
+import com.reliable.message.client.protocol.MessageProtocol;
+import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.netty.ConfirmAndSendRequest;
+import com.reliable.message.common.netty.ConfirmFinishRequest;
+import com.reliable.message.common.netty.WaitingConfirmRequest;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.CharsetUtil;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by 李雷 on 2019/4/29.
  */
-@Service("nettyClient")
-public class NettyClient {
+public class NettyClient implements MessageProtocol{
 
     private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
     @Value("${netty.server.ip}")
@@ -79,5 +80,36 @@ public class NettyClient {
 
     public NettyClientHandler getNettyClientHandler() {
         return nettyClientHandler;
+    }
+
+    @Override
+    public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws TimeoutException {
+        WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(clientMessageData, WaitingConfirmRequest.class);
+        this.nettyClientHandler.sendMessage(waitingConfirmRequest);
+    }
+
+    @Override
+    public void confirmFinishMessage(String confirmId) throws TimeoutException {
+        ConfirmFinishRequest confirmFinishRequest = new ConfirmFinishRequest();
+        confirmFinishRequest.setConfirmId(confirmId);
+        this.nettyClientHandler.sendMessage(confirmFinishRequest);
+    }
+
+    @Override
+    public void confirmAndSendMessage(String producerMessageId) throws TimeoutException {
+        ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
+        confirmAndSendRequest.setProducerMessageId(producerMessageId);
+        confirmAndSendRequest.setSyncFlag(false);
+        this.nettyClientHandler.sendMessage(confirmAndSendRequest);
+    }
+
+    @Override
+    public void saveAndSendMessage(ClientMessageData clientMessageData) {
+
+    }
+
+    @Override
+    public void directSendMessage(ClientMessageData clientMessageData) {
+
     }
 }

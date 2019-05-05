@@ -30,17 +30,17 @@ import java.util.List;
 public class ReliableMessageServiceImpl implements ReliableMessageService {
 	@Autowired
 	private ClientMessageDataMapper mqMessageDataMapper;
-	@Autowired
-	private MessageFeign messageFeign;
+//	@Autowired
+//	private MessageFeign messageFeign;
 
-	@Override
-	public void saveWaitConfirmMessage(final ClientMessageData clientMessageData) {
-		//当前应用的本地消息存储
-		this.saveProducerMessage(clientMessageData);
-		//可靠消息服务远程接口
-		Wrapper wrapper = messageFeign.saveMessageWaitingConfirm(clientMessageData);
-		log.info("<== saveWaitConfirmMessage - 存储预发送消息成功. messageKey={}, wrapper={}", clientMessageData.getMessageKey(),wrapper.getCode());
-	}
+//	@Override
+//	public void saveWaitConfirmMessage(final ClientMessageData clientMessageData) {
+//		//当前应用的本地消息存储
+//		this.saveProducerMessage(clientMessageData);
+//		//可靠消息服务远程接口
+//		Wrapper wrapper = messageFeign.saveMessageWaitingConfirm(clientMessageData);
+//		log.info("<== saveWaitConfirmMessage - 存储预发送消息成功. messageKey={}, wrapper={}", clientMessageData.getMessageKey(),wrapper.getCode());
+//	}
 
 	@Override
 	public void saveProducerMessage(ClientMessageData mqMessageData) {
@@ -51,15 +51,15 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		mqMessageDataMapper.insert(mqMessageData);
 	}
 
-	@Async
-	@Override
-	public void confirmAndSendMessage(String producerMessageId) {
-		Wrapper wrapper = messageFeign.confirmAndSendMessage(producerMessageId);
-		if (wrapper == null) {
-			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_CONFIRM_AND_SEND_MESSAGE_ERROR);
-		}
-		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. producerMessageId={} thread={}", producerMessageId,Thread.currentThread().getName());
-	}
+//	@Async
+//	@Override
+//	public void confirmAndSendMessage(String producerMessageId) {
+//		Wrapper wrapper = messageFeign.confirmAndSendMessage(producerMessageId);
+//		if (wrapper == null) {
+//			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_CONFIRM_AND_SEND_MESSAGE_ERROR);
+//		}
+//		log.info("<== saveMqProducerMessage - 存储并发送消息给消息中心成功. producerMessageId={} thread={}", producerMessageId,Thread.currentThread().getName());
+//	}
 
 	@Override
 	public void confirmReceiveMessage(String consumerGroup, MessageData messageData) {
@@ -77,15 +77,15 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		mqMessageDataMapper.insert(clientMessageData);
 	}
 
-	@Async
-	@Override
-	public void confirmFinishMessage(String confirmId) {
-		Wrapper wrapper = messageFeign.confirmFinishMessage(confirmId);
-		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={} Thread={}", wrapper,Thread.currentThread().getName());
-		if (wrapper == null) {
-			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_CONFIRM_FINISH_MESSAGE_ERROR);
-		}
-	}
+//	@Async
+//	@Override
+//	public void confirmFinishMessage(String confirmId) {
+//		Wrapper wrapper = messageFeign.confirmFinishMessage(confirmId);
+//		log.info("tpcMqMessageFeignApi.confirmReceiveMessage result={} Thread={}", wrapper,Thread.currentThread().getName());
+//		if (wrapper == null) {
+//			throw new BusinessException(ExceptionCodeEnum.MSG_CONSUMER_CONFIRM_FINISH_MESSAGE_ERROR);
+//		}
+//	}
 
 	@Override
 	public boolean checkMessageStatus(String producerMessageId,int type) {
@@ -112,15 +112,15 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 		return mqMessageDataMapper.getClientMessageDataByProducerMessageId(producerMessageId);
 	}
 
-	@Override
-	public void directSendMessage(ClientMessageData clientMessageData) {
-		messageFeign.directSendMessage(clientMessageData);
-	}
+//	@Override
+//	public void directSendMessage(ClientMessageData clientMessageData) {
+//		messageFeign.directSendMessage(clientMessageData);
+//	}
 
-	@Override
-	public void saveAndSendMessage(ClientMessageData clientMessageData) {
-		messageFeign.saveAndSendMessage(clientMessageData);
-	}
+//	@Override
+//	public void saveAndSendMessage(ClientMessageData clientMessageData) {
+//		messageFeign.saveAndSendMessage(clientMessageData);
+//	}
 
 
 	private void checkMessage(ClientMessageData mqMessageData) {

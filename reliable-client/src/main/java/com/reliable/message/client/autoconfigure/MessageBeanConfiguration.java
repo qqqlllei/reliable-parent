@@ -5,12 +5,17 @@ import com.reliable.message.client.aspect.MessageProducerAspect;
 import com.reliable.message.client.delay.DelayMessageRegictedExecutionHandler;
 import com.reliable.message.client.delay.DelayMessageTask;
 import com.reliable.message.client.job.ClientMessageDataflow;
+import com.reliable.message.client.protocol.MessageProtocol;
+import com.reliable.message.client.protocol.ProtocolManager;
+import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.client.service.impl.ReliableMessageServiceImpl;
 import com.reliable.message.client.web.ReliableController;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -29,6 +34,22 @@ public class MessageBeanConfiguration {
 	public MessageProducerAspect messageProducerStoreAspect() {
 		return new MessageProducerAspect();
 	}
+
+
+
+	@Bean
+	@ConditionalOnProperty(name = "reliable.message.protocol",havingValue = "rpc",matchIfMissing = true)
+	public MessageProtocol messageProtocol() {
+		return new NettyClient();
+	}
+
+
+	@Bean
+	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
+	public ProtocolManager protocolManager(){
+		return new ProtocolManager(messageProtocol());
+	}
+
 
 
 	@Bean

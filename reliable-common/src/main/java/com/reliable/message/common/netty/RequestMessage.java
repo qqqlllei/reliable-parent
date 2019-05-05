@@ -24,4 +24,6 @@ public class RequestMessage extends Message {
     private Date sendTime;
     private Date createTime;
     private Date updateTime;
+
+    private boolean syncFlag = true;
 }

@@ -1,12 +1,15 @@
 server:
   port: 8086
+netty:
+  server:
+    port: 9999
 spring:
   cloud:
     nacos:
       discovery:
         metadata: {"version":@version@}
   kafka:
-    bootstrap-servers: 127.0.0.1:9092
+    bootstrap-servers: 10.33.80.101:9092
 
 feign:
   hystrix:
@@ -31,12 +34,12 @@ mybatis:
 elastic:
   job:
     zookeeper:
-      addressList: 10.33.80.103:2181
+      addressList: 10.33.80.101:2181
       namespace: elastic-job-${spring.application.name}
     cron:
-      confirmFinishMessageClearCron: 0 0/1 * * * ? *
-      waitConfirmMessageJobCron: 30 * * * * ? *
-      sendingMessageCron: 0 0/1 * * * ? *
+      confirmFinishMessageClearCron: 0 0 0 * * ? *
+      waitConfirmMessageJobCron: 0 0 0 * * ? *
+      sendingMessageCron: 0 0 0 * * ? *
 
 
 

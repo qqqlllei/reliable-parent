@@ -1,4 +1,4 @@
-package com.reliable.message.client.netty;
+package com.reliable.message.client.protocol.netty;
 
 import com.reliable.message.common.netty.Message;
 

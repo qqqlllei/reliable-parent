@@ -45,7 +45,7 @@ public class DelayMessageTask implements Runnable, Delayed{
     public void run() {
         try {
             DelayMessageTask delayMessageTask = delayMessageQueue.take();
-            reliableMessageService.confirmAndSendMessage(delayMessageTask.getClientMessageData().getProducerMessageId());
+//            reliableMessageService.confirmAndSendMessage(delayMessageTask.getClientMessageData().getProducerMessageId());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

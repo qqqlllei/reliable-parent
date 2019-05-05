@@ -1,8 +1,9 @@
-package com.reliable.message.client.netty;
+package com.reliable.message.client.protocol.netty;
 
 import com.reliable.message.common.netty.Message;
 import com.reliable.message.common.netty.RequestMessage;
 import com.reliable.message.common.netty.ResponseMessage;
+import com.reliable.message.common.wrapper.Wrapper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -98,7 +99,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
             break;
         }
 
-        if (channel != null) {
+        if (channel != null && message.isSyncFlag()) {
             final MessageFuture messageFuture = new MessageFuture();
             messageFuture.setRequestMessage(message);
             futures.put(message.getId(), messageFuture);
@@ -112,7 +113,6 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
                     }
                 }
             });
-
             try {
                 return messageFuture.get(30 * 1000L, TimeUnit.MILLISECONDS);
             } catch (Exception exx) {
@@ -123,10 +123,10 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
                     throw new RuntimeException(exx);
                 }
             }
-
+        }else {
+            channel.writeAndFlush(message);
+            return Wrapper.ok();
         }
-
-        return null;
     }
 
 

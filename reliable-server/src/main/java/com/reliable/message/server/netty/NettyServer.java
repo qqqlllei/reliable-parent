@@ -1,5 +1,6 @@
 package com.reliable.message.server.netty;
 
+import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -8,6 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +23,11 @@ import java.net.InetSocketAddress;
 @Component
 public class NettyServer {
 
-
     private static Logger logger = LoggerFactory.getLogger(NettyServer.class);
+
+
+    @Autowired
+    private DataBaseManager dataBaseManager;
 
 
     /**
@@ -58,7 +63,7 @@ public class NettyServer {
                 //将小的数据包包装成更大的帧进行传送，提高网络的负载,即TCP延迟传输
                 .childOption(ChannelOption.TCP_NODELAY, true)
 
-                .childHandler(new ServerChannelInitializer());
+                .childHandler(new ServerChannelInitializer(dataBaseManager));
         ChannelFuture future = bootstrap.bind().sync();
         if (future.isSuccess()) {
             logger.info("启动 Netty Server");
