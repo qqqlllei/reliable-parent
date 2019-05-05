@@ -26,4 +26,9 @@ public class DataBaseManager {
     public void confirmAndSendRequest(ConfirmAndSendRequest confirmAndSendRequest) {
         messageService.confirmAndSendMessage(confirmAndSendRequest.getProducerMessageId());
     }
+
+    public void confirmFinishRequest(String confirmId) {
+
+        messageService.confirmFinishMessage(confirmId);
+    }
 }

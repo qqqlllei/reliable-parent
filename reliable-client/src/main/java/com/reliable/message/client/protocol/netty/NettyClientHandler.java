@@ -1,5 +1,6 @@
 package com.reliable.message.client.protocol.netty;
 
+import com.reliable.message.common.netty.ClientRegisterRequest;
 import com.reliable.message.common.netty.Message;
 import com.reliable.message.common.netty.RequestMessage;
 import com.reliable.message.common.netty.ResponseMessage;
@@ -50,6 +51,14 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         logger.info("建立连接时：" + new Date()+"clientChannelActive==="+ctx.channel().remoteAddress());
         channels.put(ctx.channel().remoteAddress().toString(),ctx.channel());
+
+
+        ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
+        clientRegisterRequest.setApplicationId(nettyClient.getApplicationId());
+        clientRegisterRequest.setSyncFlag(true);
+
+        ctx.writeAndFlush(clientRegisterRequest);
+
         ctx.fireChannelActive();
     }
 

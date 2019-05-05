@@ -32,6 +32,9 @@ public class NettyClient implements MessageProtocol{
     @Value("${netty.server.port}")
     private Integer port;
 
+    @Value("${spring.application.name}")
+    private String applicationId;
+
     /**唯一标记 */
     private boolean initFalg = true;
 
@@ -112,5 +115,9 @@ public class NettyClient implements MessageProtocol{
     @Override
     public void directSendMessage(ClientMessageData clientMessageData) {
 
+    }
+
+    public String getApplicationId(){
+        return applicationId;
     }
 }

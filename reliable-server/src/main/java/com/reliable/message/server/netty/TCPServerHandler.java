@@ -1,10 +1,8 @@
 package com.reliable.message.server.netty;
 
-import com.reliable.message.common.netty.ConfirmAndSendRequest;
-import com.reliable.message.common.netty.RequestMessage;
-import com.reliable.message.common.netty.ResponseMessage;
-import com.reliable.message.common.netty.WaitingConfirmRequest;
+import com.reliable.message.common.netty.*;
 import com.reliable.message.server.datasource.DataBaseManager;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
@@ -13,11 +11,16 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(TCPServerHandler.class);
+
+
+    private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
 
     private DataBaseManager dataBaseManager;
 
@@ -36,7 +39,6 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
         logger.info("连接的客户端地址:" + ctx.channel().remoteAddress());
         super.channelActive(ctx);
     }
@@ -46,6 +48,15 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
         try {
            if(msg instanceof RequestMessage){
+
+               if(msg instanceof ClientRegisterRequest){
+                   ClientRegisterRequest clientRegisterRequest = (ClientRegisterRequest) msg;
+                   channels.put(clientRegisterRequest.getApplicationId(),ctx.channel());
+                   return;
+               }
+
+
+
                if(msg instanceof WaitingConfirmRequest){
                    WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
                    dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
@@ -59,7 +70,11 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
                if(msg instanceof ConfirmAndSendRequest){
                    ConfirmAndSendRequest confirmAndSendRequest = (ConfirmAndSendRequest) msg;
                    dataBaseManager.confirmAndSendRequest(confirmAndSendRequest);
+               }
 
+               if(msg instanceof ConfirmFinishRequest){
+                   ConfirmFinishRequest confirmFinishRequest =  (ConfirmFinishRequest) msg;
+                   dataBaseManager.confirmFinishRequest(confirmFinishRequest.getConfirmId());
 
                }
            }

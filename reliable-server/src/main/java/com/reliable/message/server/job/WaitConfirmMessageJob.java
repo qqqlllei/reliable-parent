@@ -7,6 +7,7 @@ import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.constant.MessageConstant;
 import com.reliable.message.server.feign.ClientMessageAdapter;
+//import com.reliable.message.server.netty.ProtocolManager;
 import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,9 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
     @Autowired
     private ClientMessageAdapter clientMessageAdapter;
 
+//    @Autowired
+//    private ProtocolManager protocolManager;
+
 
     @Override
     protected List<ServerMessageData> fetchJobData(JSONObject jobTaskParameter) {
@@ -46,8 +50,20 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
         for (ServerMessageData serverMessageData : serverMessageDataList) {
             try {
                 // 可查询服务确认
+
+
+//                String  transactionalFlag= protocolManager.getMessageProtocolByType(serverMessageData.getMessageVersion()).
+//                        getClientMessageDataByProducerMessageId(serverMessageData.getProducerGroup(),
+//                                serverMessageData.getProducerMessageId());
+
                 String  transactionalFlag= clientMessageAdapter.getClientMessageDataByProducerMessageId(
                         serverMessageData.getProducerGroup(),serverMessageData.getProducerMessageId());
+
+
+
+
+
+
                 if(MessageConstant.CLIENT_TRANSACTION_OK.equals(transactionalFlag)){
                     fetchServerMessageList.add(serverMessageData);
                 }else if(MessageConstant.CLIENT_TRANSACTION_ERROR.equals(transactionalFlag)){
@@ -55,7 +71,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
                 }else{
                     logger.warn("服务{}未启动",serverMessageData.getProducerGroup());
                 }
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage());
             }
         }

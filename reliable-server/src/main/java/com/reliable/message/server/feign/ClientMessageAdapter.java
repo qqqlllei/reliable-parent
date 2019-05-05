@@ -2,6 +2,7 @@ package com.reliable.message.server.feign;
 
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.server.constant.MessageConstant;
+import com.reliable.message.server.netty.MessageProtocol;
 import feign.Feign;
 import feign.Target;
 import feign.codec.Decoder;
@@ -24,7 +25,7 @@ import java.util.Random;
  */
 @Component
 @Import(FeignClientsConfiguration.class)
-public class ClientMessageAdapter {
+public class ClientMessageAdapter implements MessageProtocol {
 
 
 
@@ -45,6 +46,7 @@ public class ClientMessageAdapter {
         return clientMessageFeign.getClientMessageData(new URI(baseUri), messageIds);
     }
 
+    @Override
     public String getClientMessageDataByProducerMessageId(String consumerGroup,String producerMessageId) throws URISyntaxException {
 
         int serverCount = discoveryClient.getInstances(consumerGroup).size();
