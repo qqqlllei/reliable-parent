@@ -1,5 +1,6 @@
-package com.reliable.message.common.netty;
+package com.reliable.message.common.netty.message;
 
+import com.reliable.message.common.netty.message.Message;
 import lombok.Data;
 
 import java.util.Date;

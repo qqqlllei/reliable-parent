@@ -42,7 +42,9 @@ public class MessageBeanConfiguration {
 	@ConditionalOnProperty(name = "reliable.message.protocol",havingValue = "rpc",matchIfMissing = true)
 	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
 	public MessageProtocol messageProtocol() {
-		return new NettyClient();
+		NettyClient nettyClient = new NettyClient();
+		nettyClient.setReliableMessageService(reliableMessageService());
+		return nettyClient;
 	}
 
 

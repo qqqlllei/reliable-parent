@@ -1,8 +1,9 @@
 package com.reliable.message.server.datasource;
 
 import com.reliable.message.common.domain.ClientMessageData;
-import com.reliable.message.common.netty.ConfirmAndSendRequest;
-import com.reliable.message.common.netty.WaitingConfirmRequest;
+import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
+import com.reliable.message.common.netty.message.WaitingConfirmRequest;
+import com.reliable.message.server.netty.NettyServer;
 import com.reliable.message.server.service.MessageService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DataBaseManager {
+
+
+    private NettyServer nettyServer;
 
     @Autowired
     private MessageService messageService;

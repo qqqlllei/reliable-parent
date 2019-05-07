@@ -16,5 +16,8 @@ public enum MessageSendTypeEnum {
 	/**
 	 * 直接发送
 	 */
-	DIRECT_SEND
+	DIRECT_SEND,
+
+
+	PING
 }

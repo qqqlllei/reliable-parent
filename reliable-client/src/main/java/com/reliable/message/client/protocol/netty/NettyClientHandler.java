@@ -1,64 +1,49 @@
 package com.reliable.message.client.protocol.netty;
 
-import com.reliable.message.common.netty.ClientRegisterRequest;
-import com.reliable.message.common.netty.Message;
-import com.reliable.message.common.netty.RequestMessage;
-import com.reliable.message.common.netty.ResponseMessage;
+import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.enums.MessageSendTypeEnum;
+import com.reliable.message.common.netty.message.ClientRegisterRequest;
+import com.reliable.message.common.netty.message.Message;
+import com.reliable.message.common.netty.message.ResponseMessage;
+import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
+import com.reliable.message.common.netty.rpc.AbstractRpcHandler;
 import com.reliable.message.common.wrapper.Wrapper;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by 李雷 on 2019/4/29.
  */
 @Sharable
-public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
+public class NettyClientHandler extends AbstractRpcHandler {
     private static Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
     private NettyClient nettyClient;
 
-
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
-    protected final ConcurrentHashMap<String, MessageFuture> futures = new ConcurrentHashMap<>();
-
-
-    public NettyClientHandler(){
-
-    }
 
     public NettyClientHandler(NettyClient nettyClient){
         this.nettyClient = nettyClient;
         nettyClient.setNettyClientHandler(this);
     }
 
-
-    /** 循环次数 */
-    private AtomicInteger fcount = new AtomicInteger(1);
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("建立连接时：" + new Date()+"clientChannelActive==="+ctx.channel().remoteAddress());
         channels.put(ctx.channel().remoteAddress().toString(),ctx.channel());
-
-
         ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
         clientRegisterRequest.setApplicationId(nettyClient.getApplicationId());
         clientRegisterRequest.setSyncFlag(true);
-
         ctx.writeAndFlush(clientRegisterRequest);
-
         ctx.fireChannelActive();
     }
 
@@ -70,6 +55,14 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
         super.channelInactive(ctx);
     }
 
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.info(cause.getMessage()+"--"+ctx.channel().toString());
+        ctx.disconnect();
+        ctx.close();
+    }
+
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object obj) throws Exception {
         if (obj instanceof IdleStateEvent) {
@@ -77,67 +70,32 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Message> {
             // 如果写通道处于空闲状态,就发送心跳命令
             if (IdleState.WRITER_IDLE.equals(event.state())) {
                 Message message = new Message();
-                message.setMessageType(0);
+                message.setMessageType(MessageSendTypeEnum.PING);
                 ctx.channel().writeAndFlush(message);
-                fcount.getAndIncrement();
             }
         }
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx,
-                             Message msg) throws Exception {
-        if(msg instanceof ResponseMessage){
-            ResponseMessage responseMessage = (ResponseMessage) msg;
-            MessageFuture messageFuture = futures.remove(responseMessage.getId());
-            if(messageFuture !=null){
-                messageFuture.setResultMessage(responseMessage);
+    public void channelRead(ChannelHandlerContext ctx,
+                             Object msg) throws Exception {
+
+        if(msg instanceof WaitConfirmCheckRequest){
+            WaitConfirmCheckRequest waitConfirmCheckRequest = (WaitConfirmCheckRequest) msg;
+            ClientMessageData clientMessageData =nettyClient.getReliableMessageService().
+                    getClientMessageDataByProducerMessageId(waitConfirmCheckRequest.getId());
+            if(clientMessageData !=null){
+                ResponseMessage responseMessage = new ResponseMessage();
+                responseMessage.setId(clientMessageData.getId());
+                responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
+                responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
+                ctx.writeAndFlush(responseMessage);
             }
+
+            return;
+
         }
+        super.channelRead(ctx,msg);
 
     }
-
-
-    public Object sendMessage(RequestMessage message) throws TimeoutException {
-        Channel channel = null;
-        Iterator<String> channelIterator = channels.keySet().iterator();
-
-        while (channelIterator.hasNext()) {
-            String channelKey = channelIterator.next();
-            channel = channels.get(channelKey);
-            break;
-        }
-
-        if (channel != null && message.isSyncFlag()) {
-            final MessageFuture messageFuture = new MessageFuture();
-            messageFuture.setRequestMessage(message);
-            futures.put(message.getId(), messageFuture);
-            ChannelFuture future;
-            future = channel.writeAndFlush(message);
-            future.addListener((ChannelFutureListener) future1 -> {
-                if (!future1.isSuccess()) {
-                    MessageFuture messageFuture1 = futures.remove(message.getId());
-                    if (messageFuture1 != null) {
-                        messageFuture1.setResultMessage(future1.cause());
-                    }
-                }
-            });
-            try {
-                return messageFuture.get(30 * 1000L, TimeUnit.MILLISECONDS);
-            } catch (Exception exx) {
-                logger.error("wait response error:" + exx.getMessage() + ",ip:" + "127" + ",request:" + message);
-                if (exx instanceof TimeoutException) {
-                    throw (TimeoutException) exx;
-                } else {
-                    throw new RuntimeException(exx);
-                }
-            }
-        }else {
-            channel.writeAndFlush(message);
-            return Wrapper.ok();
-        }
-    }
-
-
-
 }

@@ -1,7 +1,6 @@
 package com.reliable.message.server.netty;
 
 import com.reliable.message.common.netty.MessageCodecHandler;
-import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -14,14 +13,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private DataBaseManager dataBaseManager;
+    private TCPServerHandler tcpServerHandler;
 
     public ServerChannelInitializer(){
 
     }
 
-    public ServerChannelInitializer(DataBaseManager dataBaseManager){
-        this.dataBaseManager = dataBaseManager;
+    public ServerChannelInitializer(TCPServerHandler tcpServerHandler){
+        this.tcpServerHandler = tcpServerHandler;
     }
 
     @Override
@@ -32,6 +31,6 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
                 new IdleStateHandler(5, 0, 0, TimeUnit.SECONDS));
         pipeline.addLast("messageCodec", new MessageCodecHandler());
 
-        pipeline.addLast("handler",new TCPServerHandler(dataBaseManager));
+        pipeline.addLast("handler",tcpServerHandler);
     }
 }

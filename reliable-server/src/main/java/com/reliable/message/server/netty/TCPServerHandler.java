@@ -1,63 +1,77 @@
 package com.reliable.message.server.netty;
 
-import com.reliable.message.common.netty.*;
+import com.reliable.message.common.netty.RoundRobinLoadBalance;
+import com.reliable.message.common.netty.message.*;
+import com.reliable.message.common.netty.rpc.AbstractRpcHandler;
 import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class TCPServerHandler extends ChannelInboundHandlerAdapter {
+@Sharable
+public class TCPServerHandler extends AbstractRpcHandler {
 
     private static Logger logger = LoggerFactory.getLogger(TCPServerHandler.class);
 
 
-    private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
-
     private DataBaseManager dataBaseManager;
 
-    /** 空闲次数 */
-    private AtomicInteger idle_count = new AtomicInteger(1);
+    private RoundRobinLoadBalance roundRobinLoadBalance;
 
+    private NettyServer nettyServer;
 
-    public TCPServerHandler(){
-
-    }
-
-    public TCPServerHandler(DataBaseManager dataBaseManager){
-        this.dataBaseManager = dataBaseManager;
+    public TCPServerHandler(NettyServer nettyServer){
+        this.nettyServer = nettyServer;
+        this.dataBaseManager = nettyServer.getDataBaseManager();
+        nettyServer.setTcpServerHandler(this);
+        this.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("连接的客户端地址:" + ctx.channel().remoteAddress());
+        System.out.println("连接的客户端地址:" + ctx.channel().remoteAddress());
         super.channelActive(ctx);
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx,
+                             Object msg) throws Exception {
 
         try {
-           if(msg instanceof RequestMessage){
+            if(msg instanceof ClientRegisterRequest){
+                ClientRegisterRequest clientRegisterRequest = (ClientRegisterRequest) msg;
+                ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = nettyServer.getChannels();
+                ConcurrentMap<String,Channel>  channelGroup = channels.get(clientRegisterRequest.getApplicationId());
+                Channel channel = ctx.channel();
 
-               if(msg instanceof ClientRegisterRequest){
-                   ClientRegisterRequest clientRegisterRequest = (ClientRegisterRequest) msg;
-                   channels.put(clientRegisterRequest.getApplicationId(),ctx.channel());
-                   return;
-               }
+                if(channelGroup == null){
+                    channelGroup= new ConcurrentHashMap<>();
+                    channelGroup.put(channel.remoteAddress().toString(),channel);
+                    channels.put(clientRegisterRequest.getApplicationId(),channelGroup);
+                    return;
+                }
 
 
+                if(!channelGroup.containsKey(channel.remoteAddress().toString())){
+                    channelGroup.put(channel.remoteAddress().toString(),channel);
+                }
+                return;
+            }
 
-               if(msg instanceof WaitingConfirmRequest){
+
+            if(msg instanceof RequestMessage){
+
+                if(msg instanceof WaitingConfirmRequest){
                    WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
                    dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
 
@@ -65,19 +79,28 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
                    responseMessage.setResultCode(200);
                    responseMessage.setId(waitingConfirmRequest.getId());
                    ctx.writeAndFlush(responseMessage);
-               }
+
+                   return;
+                }
 
                if(msg instanceof ConfirmAndSendRequest){
                    ConfirmAndSendRequest confirmAndSendRequest = (ConfirmAndSendRequest) msg;
                    dataBaseManager.confirmAndSendRequest(confirmAndSendRequest);
+
+                   return;
                }
 
                if(msg instanceof ConfirmFinishRequest){
                    ConfirmFinishRequest confirmFinishRequest =  (ConfirmFinishRequest) msg;
                    dataBaseManager.confirmFinishRequest(confirmFinishRequest.getConfirmId());
-
+                   return;
                }
-           }
+            }
+
+
+            super.channelRead(ctx,msg);
+
+
 
 
         } catch (Exception e) {
@@ -89,18 +112,13 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object obj) throws Exception {
-
-        logger.info("===========================userEventTriggered============================"+this.getClass()+"======="+Thread.currentThread().getName());
         if (obj instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) obj;
             // 如果读通道处于空闲状态，说明没有接收到心跳命令
             if (IdleState.READER_IDLE.equals(event.state())) {
-                logger.info("已经5秒没有接收到客户端的信息了");
-                if (idle_count.get() > 1) {
-                    logger.info("关闭这个不活跃的channel");
-                    ctx.channel().close();
-                }
-                idle_count.getAndIncrement();
+                logger.warn("已经5秒没有接收到客户端的信息了");
+                ctx.disconnect();
+                ctx.close();
             }
         } else {
             super.userEventTriggered(ctx, obj);
@@ -109,7 +127,28 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+        logger.info(cause.getMessage()+"--"+ctx.channel().toString());
+        ctx.disconnect();
         ctx.close();
+    }
+
+
+
+
+    public Channel getChannel(String applicationId){
+        Channel channel;
+        ConcurrentMap<String,Channel>  channelGroup = this.nettyServer.getChannels().get(applicationId);
+
+        Collection<Channel> channelList = channelGroup.values();
+        while (channelList.size()>0){
+            channel = roundRobinLoadBalance.doSelect(new ArrayList<>(channelList));
+
+            if(channel.isActive()){
+                return channel;
+            }
+
+            channelList.remove(channel);
+        }
+        return null;
     }
 }

@@ -3,18 +3,16 @@ package com.reliable.message.server.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
-import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.constant.MessageConstant;
 import com.reliable.message.server.feign.ClientMessageAdapter;
-//import com.reliable.message.server.netty.ProtocolManager;
+import com.reliable.message.server.netty.ProtocolManager;
 import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +33,8 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
     @Autowired
     private ClientMessageAdapter clientMessageAdapter;
 
-//    @Autowired
-//    private ProtocolManager protocolManager;
+    @Autowired
+    private ProtocolManager protocolManager;
 
 
     @Override
@@ -50,20 +48,9 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
         for (ServerMessageData serverMessageData : serverMessageDataList) {
             try {
                 // 可查询服务确认
-
-
-//                String  transactionalFlag= protocolManager.getMessageProtocolByType(serverMessageData.getMessageVersion()).
-//                        getClientMessageDataByProducerMessageId(serverMessageData.getProducerGroup(),
-//                                serverMessageData.getProducerMessageId());
-
-                String  transactionalFlag= clientMessageAdapter.getClientMessageDataByProducerMessageId(
-                        serverMessageData.getProducerGroup(),serverMessageData.getProducerMessageId());
-
-
-
-
-
-
+                String  transactionalFlag= protocolManager.getMessageProtocolByType(serverMessageData.getMessageVersion()).
+                        getClientMessageDataByProducerMessageId(serverMessageData.getProducerGroup(),
+                                serverMessageData.getProducerMessageId());
                 if(MessageConstant.CLIENT_TRANSACTION_OK.equals(transactionalFlag)){
                     fetchServerMessageList.add(serverMessageData);
                 }else if(MessageConstant.CLIENT_TRANSACTION_ERROR.equals(transactionalFlag)){

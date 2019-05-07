@@ -1,6 +1,6 @@
-package com.reliable.message.client.protocol.netty;
+package com.reliable.message.common.netty;
 
-import com.reliable.message.common.netty.Message;
+import com.reliable.message.common.netty.message.Message;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

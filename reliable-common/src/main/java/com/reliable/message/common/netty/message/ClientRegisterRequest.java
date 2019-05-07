@@ -1,4 +1,4 @@
-package com.reliable.message.common.netty;
+package com.reliable.message.common.netty.message;
 
 import lombok.Data;
 

@@ -1,10 +1,11 @@
 package com.reliable.message.client.protocol.netty;
 
 import com.reliable.message.client.protocol.MessageProtocol;
+import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.domain.ClientMessageData;
-import com.reliable.message.common.netty.ConfirmAndSendRequest;
-import com.reliable.message.common.netty.ConfirmFinishRequest;
-import com.reliable.message.common.netty.WaitingConfirmRequest;
+import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
+import com.reliable.message.common.netty.message.ConfirmFinishRequest;
+import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -43,6 +44,8 @@ public class NettyClient implements MessageProtocol{
 
     private EventLoopGroup group;
     private ChannelFuture f;
+
+    private ReliableMessageService reliableMessageService;
 
 
     @PostConstruct
@@ -88,7 +91,7 @@ public class NettyClient implements MessageProtocol{
     @Override
     public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws TimeoutException {
         WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(clientMessageData, WaitingConfirmRequest.class);
-        this.nettyClientHandler.sendMessage(waitingConfirmRequest);
+        this.nettyClientHandler.sendMessage(waitingConfirmRequest,f.channel());
     }
 
     @Override
@@ -96,7 +99,7 @@ public class NettyClient implements MessageProtocol{
         ConfirmFinishRequest confirmFinishRequest = new ConfirmFinishRequest();
         confirmFinishRequest.setConfirmId(confirmId);
         confirmFinishRequest.setSyncFlag(false);
-        this.nettyClientHandler.sendMessage(confirmFinishRequest);
+        this.nettyClientHandler.sendMessage(confirmFinishRequest,f.channel());
     }
 
     @Override
@@ -104,7 +107,7 @@ public class NettyClient implements MessageProtocol{
         ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
         confirmAndSendRequest.setProducerMessageId(producerMessageId);
         confirmAndSendRequest.setSyncFlag(false);
-        this.nettyClientHandler.sendMessage(confirmAndSendRequest);
+        this.nettyClientHandler.sendMessage(confirmAndSendRequest,f.channel());
     }
 
     @Override
@@ -119,5 +122,13 @@ public class NettyClient implements MessageProtocol{
 
     public String getApplicationId(){
         return applicationId;
+    }
+
+    public ReliableMessageService getReliableMessageService() {
+        return reliableMessageService;
+    }
+
+    public void setReliableMessageService(ReliableMessageService reliableMessageService) {
+        this.reliableMessageService = reliableMessageService;
     }
 }

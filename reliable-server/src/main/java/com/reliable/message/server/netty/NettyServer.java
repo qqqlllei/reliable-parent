@@ -1,7 +1,12 @@
 package com.reliable.message.server.netty;
 
+import com.reliable.message.common.netty.message.ResponseMessage;
+import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
+import com.reliable.message.common.wrapper.Wrapper;
+import com.reliable.message.server.constant.MessageConstant;
 import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -16,18 +21,26 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by 李雷 on 2019/4/29.
  */
 @Component
-public class NettyServer {
+public class NettyServer implements MessageProtocol{
 
     private static Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
 
     @Autowired
     private DataBaseManager dataBaseManager;
+
+
+    private TCPServerHandler tcpServerHandler;
+
+
+    private final ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = new ConcurrentHashMap<>();
 
 
     /**
@@ -37,7 +50,7 @@ public class NettyServer {
     /**
      * work 线程组用于数据处理
      */
-    private EventLoopGroup work = new NioEventLoopGroup();
+    private EventLoopGroup work = new NioEventLoopGroup(6);
     @Value("${netty.server.port}")
     private Integer port;
     /**
@@ -48,6 +61,7 @@ public class NettyServer {
     @PostConstruct
     public void start() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap();
+        tcpServerHandler = new TCPServerHandler(this);
         bootstrap.group(boss, work)
                 // 指定Channel
                 .channel(NioServerSocketChannel.class)
@@ -63,7 +77,7 @@ public class NettyServer {
                 //将小的数据包包装成更大的帧进行传送，提高网络的负载,即TCP延迟传输
                 .childOption(ChannelOption.TCP_NODELAY, true)
 
-                .childHandler(new ServerChannelInitializer(dataBaseManager));
+                .childHandler(new ServerChannelInitializer(tcpServerHandler));
         ChannelFuture future = bootstrap.bind().sync();
         if (future.isSuccess()) {
             logger.info("启动 Netty Server");
@@ -75,5 +89,39 @@ public class NettyServer {
         boss.shutdownGracefully().sync();
         work.shutdownGracefully().sync();
         logger.info("关闭Netty");
+    }
+
+    public DataBaseManager getDataBaseManager() {
+        return dataBaseManager;
+    }
+
+    public TCPServerHandler getTcpServerHandler() {
+        return tcpServerHandler;
+    }
+
+    public void setTcpServerHandler(TCPServerHandler tcpServerHandler) {
+        this.tcpServerHandler = tcpServerHandler;
+    }
+
+    @Override
+    public String getClientMessageDataByProducerMessageId(String producerGroup, String producerMessageId) throws Exception {
+        WaitConfirmCheckRequest waitConfirmCheckRequest = new WaitConfirmCheckRequest();
+        waitConfirmCheckRequest.setProducerGroup(producerGroup);
+        waitConfirmCheckRequest.setId(producerMessageId);
+        Channel channel = tcpServerHandler.getChannel(producerGroup);
+        if(channel == null){
+            logger.error("服务："+producerGroup+" 没有启动");
+            return MessageConstant.CLIENT_SERVER_DOWN;
+        }
+        ResponseMessage object = (ResponseMessage) tcpServerHandler.sendMessage(waitConfirmCheckRequest,channel);
+        if(Wrapper.SUCCESS_CODE == object.getResultCode()){
+            return MessageConstant.CLIENT_TRANSACTION_OK;
+        }
+
+        return MessageConstant.CLIENT_TRANSACTION_ERROR;
+    }
+
+    public ConcurrentMap<String, ConcurrentMap<String, Channel>> getChannels() {
+        return channels;
     }
 }
