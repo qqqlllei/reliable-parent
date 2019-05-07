@@ -25,11 +25,6 @@ public class NacosRegistryServiceImpl implements RegistryService<EventListener> 
     private NacosRegistryServiceImpl() {
     }
 
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
     static NacosRegistryServiceImpl getInstance() {
         if (null == instance) {
             synchronized (NacosRegistryServiceImpl.class) {
@@ -95,12 +90,6 @@ public class NacosRegistryServiceImpl implements RegistryService<EventListener> 
         }
     }
 
-    /**
-     * Gets naming instance.
-     *
-     * @return the naming instance
-     * @throws Exception the exception
-     */
     public static NamingService getNamingInstance() throws Exception {
         if (null == naming) {
             synchronized (NacosRegistryServiceImpl.class) {
