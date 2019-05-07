@@ -15,6 +15,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,22 +81,33 @@ public class NettyClientHandler extends AbstractRpcHandler {
     public void channelRead(ChannelHandlerContext ctx,
                              Object msg) throws Exception {
 
-        if(msg instanceof WaitConfirmCheckRequest){
-            WaitConfirmCheckRequest waitConfirmCheckRequest = (WaitConfirmCheckRequest) msg;
-            ClientMessageData clientMessageData =nettyClient.getReliableMessageService().
-                    getClientMessageDataByProducerMessageId(waitConfirmCheckRequest.getId());
-            if(clientMessageData !=null){
-                ResponseMessage responseMessage = new ResponseMessage();
-                responseMessage.setId(clientMessageData.getId());
-                responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
-                responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
-                ctx.writeAndFlush(responseMessage);
+        try {
+
+            if(msg instanceof WaitConfirmCheckRequest){
+                WaitConfirmCheckRequest waitConfirmCheckRequest = (WaitConfirmCheckRequest) msg;
+                ClientMessageData clientMessageData =nettyClient.getReliableMessageService().
+                        getClientMessageDataByProducerMessageId(waitConfirmCheckRequest.getId());
+                if(clientMessageData !=null){
+                    ResponseMessage responseMessage = new ResponseMessage();
+                    responseMessage.setId(clientMessageData.getId());
+                    responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
+                    responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
+                    ctx.writeAndFlush(responseMessage);
+                }
+
+                return;
+
             }
+            super.channelRead(ctx,msg);
 
-            return;
 
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            ReferenceCountUtil.release(msg);
         }
-        super.channelRead(ctx,msg);
+
+
 
     }
 }

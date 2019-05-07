@@ -1,5 +1,6 @@
 package com.reliable.message.client.feign;
 
+import com.reliable.message.client.protocol.MessageProtocol;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.wrapper.Wrapper;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -14,24 +15,24 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Component
 @FeignClient(value = "reliable-server")
-public interface MessageFeign {
+public interface MessageFeign extends MessageProtocol {
 
 
     @RequestMapping(value = "/message/saveMessageWaitingConfirm",method = RequestMethod.POST)
-    Wrapper saveMessageWaitingConfirm(@RequestBody ClientMessageData clientMessageData);
+    void saveMessageWaitingConfirm(@RequestBody ClientMessageData clientMessageData);
 
     @RequestMapping(value = "/message/confirmAndSendMessage",method = RequestMethod.POST)
-    Wrapper confirmAndSendMessage(@RequestParam("producerMessageId") String producerMessageId);
+    void confirmAndSendMessage(@RequestParam("producerMessageId") String producerMessageId);
 
     @RequestMapping(value = "/message/confirmFinishMessage",method = RequestMethod.POST)
-    Wrapper confirmFinishMessage(@RequestParam("confirmId") String confirmId);
+    void confirmFinishMessage(@RequestParam("confirmId") String confirmId);
 
     @RequestMapping(value = "/message/checkServerMessageIsExist",method = RequestMethod.POST)
-    Wrapper checkServerMessageIsExist(@RequestParam("producerMessageId") String producerMessageId);
+    void checkServerMessageIsExist(@RequestParam("producerMessageId") String producerMessageId);
 
     @RequestMapping(value = "/message/directSendMessage",method = RequestMethod.POST)
-    Wrapper directSendMessage(ClientMessageData clientMessageData);
+    void directSendMessage(ClientMessageData clientMessageData);
 
     @RequestMapping(value = "/message/saveAndSendMessage",method = RequestMethod.POST)
-    Wrapper saveAndSendMessage(ClientMessageData clientMessageData);
+    void saveAndSendMessage(ClientMessageData clientMessageData);
 }

@@ -1,6 +1,7 @@
 package com.reliable.message.client.protocol;
 
 import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.wrapper.Wrapper;
 
 import java.util.concurrent.TimeoutException;
 

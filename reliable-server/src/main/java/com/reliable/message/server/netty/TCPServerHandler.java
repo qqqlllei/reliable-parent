@@ -53,7 +53,6 @@ public class TCPServerHandler extends AbstractRpcHandler {
                 ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = nettyServer.getChannels();
                 ConcurrentMap<String,Channel>  channelGroup = channels.get(clientRegisterRequest.getApplicationId());
                 Channel channel = ctx.channel();
-
                 if(channelGroup == null){
                     channelGroup= new ConcurrentHashMap<>();
                     channelGroup.put(channel.remoteAddress().toString(),channel);
@@ -61,20 +60,17 @@ public class TCPServerHandler extends AbstractRpcHandler {
                     return;
                 }
 
-
                 if(!channelGroup.containsKey(channel.remoteAddress().toString())){
                     channelGroup.put(channel.remoteAddress().toString(),channel);
                 }
                 return;
             }
 
-
             if(msg instanceof RequestMessage){
 
                 if(msg instanceof WaitingConfirmRequest){
                    WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
                    dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
-
                    ResponseMessage responseMessage = new ResponseMessage();
                    responseMessage.setResultCode(200);
                    responseMessage.setId(waitingConfirmRequest.getId());
@@ -96,13 +92,7 @@ public class TCPServerHandler extends AbstractRpcHandler {
                    return;
                }
             }
-
-
             super.channelRead(ctx,msg);
-
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -114,7 +104,6 @@ public class TCPServerHandler extends AbstractRpcHandler {
     public void userEventTriggered(ChannelHandlerContext ctx, Object obj) throws Exception {
         if (obj instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) obj;
-            // 如果读通道处于空闲状态，说明没有接收到心跳命令
             if (IdleState.READER_IDLE.equals(event.state())) {
                 logger.warn("已经5秒没有接收到客户端的信息了");
                 ctx.disconnect();
@@ -131,8 +120,6 @@ public class TCPServerHandler extends AbstractRpcHandler {
         ctx.disconnect();
         ctx.close();
     }
-
-
 
 
     public Channel getChannel(String applicationId){

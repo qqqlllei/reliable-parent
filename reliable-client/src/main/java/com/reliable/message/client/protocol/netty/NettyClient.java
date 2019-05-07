@@ -6,6 +6,7 @@ import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
 import com.reliable.message.common.netty.message.ConfirmFinishRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
+import com.reliable.message.common.wrapper.Wrapper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
