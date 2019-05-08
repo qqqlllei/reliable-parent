@@ -13,14 +13,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private TCPServerHandler tcpServerHandler;
+    private ServerRpcHandler serverRpcHandler;
 
-    public ServerChannelInitializer(){
-
-    }
-
-    public ServerChannelInitializer(TCPServerHandler tcpServerHandler){
-        this.tcpServerHandler = tcpServerHandler;
+    public ServerChannelInitializer(ServerRpcHandler serverRpcHandler){
+        this.serverRpcHandler = serverRpcHandler;
     }
 
     @Override
@@ -31,6 +27,6 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
                 new IdleStateHandler(5, 0, 0, TimeUnit.SECONDS));
         pipeline.addLast("messageCodec", new MessageCodecHandler());
 
-        pipeline.addLast("handler",tcpServerHandler);
+        pipeline.addLast("handler", serverRpcHandler);
     }
 }

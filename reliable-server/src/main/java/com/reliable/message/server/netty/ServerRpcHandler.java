@@ -14,25 +14,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 @Sharable
-public class TCPServerHandler extends AbstractRpcHandler {
+public class ServerRpcHandler extends AbstractRpcHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(TCPServerHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(ServerRpcHandler.class);
 
     private final ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = new ConcurrentHashMap<>();
     private DataBaseManager dataBaseManager;
 
-
-
-    private NettyServer nettyServer;
-
-    public TCPServerHandler(NettyServer nettyServer){
-        this.nettyServer = nettyServer;
+    public ServerRpcHandler(NettyServer nettyServer){
         this.dataBaseManager = nettyServer.getDataBaseManager();
-        nettyServer.setTcpServerHandler(this);
+        nettyServer.setServerRpcHandler(this);
         super.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
 

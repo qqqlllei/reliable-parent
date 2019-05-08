@@ -7,10 +7,10 @@ import com.reliable.message.common.discovery.nacos.NacosRegistryProvider;
  */
 public class RegistryFactory {
 
-    private static final String NACOS_REGISTER="nacos_register";
+    public static final String DEFAULT_REGISTER="nacos_register";
 
 
-    private static final String ZOOKEEPER_REGISTER="zookeeper_register";
+    public static final String ZOOKEEPER_REGISTER="zookeeper_register";
 
     public static RegistryService getInstance(String registerType){
 

@@ -22,8 +22,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by 李雷 on 2019/4/29.
@@ -34,7 +32,7 @@ public class NettyServer implements MessageProtocol{
     private static Logger logger = LoggerFactory.getLogger(NettyServer.class);
     @Autowired
     private DataBaseManager dataBaseManager;
-    private TCPServerHandler tcpServerHandler;
+    private ServerRpcHandler serverRpcHandler;
     /**
      * boss 线程组用于处理连接工作
      */
@@ -56,7 +54,7 @@ public class NettyServer implements MessageProtocol{
     @PostConstruct
     public void start() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        tcpServerHandler = new TCPServerHandler(this);
+        serverRpcHandler = new ServerRpcHandler(this);
         InetSocketAddress inetSocketAddress = new InetSocketAddress(ip,port);
         bootstrap.group(boss, work)
                 // 指定Channel
@@ -73,13 +71,13 @@ public class NettyServer implements MessageProtocol{
                 //将小的数据包包装成更大的帧进行传送，提高网络的负载,即TCP延迟传输
                 .childOption(ChannelOption.TCP_NODELAY, true)
 
-                .childHandler(new ServerChannelInitializer(tcpServerHandler));
+                .childHandler(new ServerChannelInitializer(serverRpcHandler));
         try {
             ChannelFuture future = bootstrap.bind().sync();
             if (future.isSuccess()) {
                 logger.info("启动 Netty Server");
             }
-            RegistryFactory.getInstance("nacos_register").register(inetSocketAddress);
+            RegistryFactory.getInstance(RegistryFactory.DEFAULT_REGISTER).register(inetSocketAddress);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -96,12 +94,8 @@ public class NettyServer implements MessageProtocol{
         return dataBaseManager;
     }
 
-    public TCPServerHandler getTcpServerHandler() {
-        return tcpServerHandler;
-    }
-
-    public void setTcpServerHandler(TCPServerHandler tcpServerHandler) {
-        this.tcpServerHandler = tcpServerHandler;
+    public void setServerRpcHandler(ServerRpcHandler serverRpcHandler) {
+        this.serverRpcHandler = serverRpcHandler;
     }
 
     @Override
@@ -109,12 +103,12 @@ public class NettyServer implements MessageProtocol{
         WaitConfirmCheckRequest waitConfirmCheckRequest = new WaitConfirmCheckRequest();
         waitConfirmCheckRequest.setProducerGroup(producerGroup);
         waitConfirmCheckRequest.setId(producerMessageId);
-        Channel channel = tcpServerHandler.getChannel(producerGroup);
+        Channel channel = serverRpcHandler.getChannel(producerGroup);
         if(channel == null){
             logger.error("服务："+producerGroup+" 没有启动");
             return MessageConstant.CLIENT_SERVER_DOWN;
         }
-        ResponseMessage object = (ResponseMessage) tcpServerHandler.sendMessage(waitConfirmCheckRequest,channel);
+        ResponseMessage object = (ResponseMessage) serverRpcHandler.sendMessage(waitConfirmCheckRequest,channel);
         if(Wrapper.SUCCESS_CODE == object.getResultCode()){
             return MessageConstant.CLIENT_TRANSACTION_OK;
         }

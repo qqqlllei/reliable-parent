@@ -26,15 +26,15 @@ import java.util.concurrent.ConcurrentMap;
  * Created by 李雷 on 2019/4/29.
  */
 @Sharable
-public class NettyClientHandler extends AbstractRpcHandler {
-    private static Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
+public class ClientRpcHandler extends AbstractRpcHandler {
+    private static Logger logger = LoggerFactory.getLogger(ClientRpcHandler.class);
     private NettyClient nettyClient;
     private RoundRobinLoadBalance roundRobinLoadBalance;
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
 
-    public NettyClientHandler(NettyClient nettyClient){
+    public ClientRpcHandler(NettyClient nettyClient){
         this.nettyClient = nettyClient;
-        nettyClient.setNettyClientHandler(this);
+        nettyClient.setClientRpcHandler(this);
         this.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
 

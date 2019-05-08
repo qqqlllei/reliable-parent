@@ -8,13 +8,13 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
 
-public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
+public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
 
 
-    private NettyClientHandler nettyClientHandler;
+    private ClientRpcHandler clientRpcHandler;
 
-    public NettyClientInitializer(NettyClientHandler nettyClientHandler){
-        this.nettyClientHandler = nettyClientHandler;
+    public ClientChannelInitializer(ClientRpcHandler clientRpcHandler){
+        this.clientRpcHandler = clientRpcHandler;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS));
         pipeline.addLast("messageCodec", new MessageCodecHandler());
-        pipeline.addLast("nettyClientHandler",nettyClientHandler);
+        pipeline.addLast("nettyClientHandler", clientRpcHandler);
 
     }
 }

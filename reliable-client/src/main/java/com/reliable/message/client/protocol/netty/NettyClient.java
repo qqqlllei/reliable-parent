@@ -47,7 +47,7 @@ public class NettyClient implements MessageProtocol{
     private String applicationId;
 
 
-    private NettyClientHandler nettyClientHandler;
+    private ClientRpcHandler clientRpcHandler;
 
     private EventLoopGroup group;
     private Bootstrap bootstrap;
@@ -60,12 +60,12 @@ public class NettyClient implements MessageProtocol{
     public void init() {
         group = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
-        nettyClientHandler = new NettyClientHandler(this);
+        clientRpcHandler = new ClientRpcHandler(this);
         if (bootstrap != null) {
             bootstrap.group(group);
             bootstrap.channel(NioSocketChannel.class);
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-            bootstrap.handler(new NettyClientInitializer(nettyClientHandler));
+            bootstrap.handler(new ClientChannelInitializer(clientRpcHandler));
         }
 
         try {
@@ -99,7 +99,7 @@ public class NettyClient implements MessageProtocol{
             } else {
                 Channel channel = f.channel();
 
-                nettyClientHandler.getChannels().put(channel.remoteAddress().toString(),channel);
+                clientRpcHandler.getChannels().put(channel.remoteAddress().toString(),channel);
                 ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
                 clientRegisterRequest.setApplicationId(applicationId);
                 clientRegisterRequest.setSyncFlag(true);
@@ -110,19 +110,19 @@ public class NettyClient implements MessageProtocol{
         }
     }
 
-    public void setNettyClientHandler(NettyClientHandler nettyClientHandler) {
-        this.nettyClientHandler = nettyClientHandler;
+    public void setClientRpcHandler(ClientRpcHandler clientRpcHandler) {
+        this.clientRpcHandler = clientRpcHandler;
     }
 
-    public NettyClientHandler getNettyClientHandler() {
-        return nettyClientHandler;
+    public ClientRpcHandler getClientRpcHandler() {
+        return clientRpcHandler;
     }
 
     @Override
     public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws Exception {
         WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(clientMessageData, WaitingConfirmRequest.class);
 
-        this.nettyClientHandler.sendMessage(waitingConfirmRequest,nettyClientHandler.getChannel(null));
+        this.clientRpcHandler.sendMessage(waitingConfirmRequest, clientRpcHandler.getChannel(null));
     }
 
     @Override
@@ -130,7 +130,7 @@ public class NettyClient implements MessageProtocol{
         ConfirmFinishRequest confirmFinishRequest = new ConfirmFinishRequest();
         confirmFinishRequest.setConfirmId(confirmId);
         confirmFinishRequest.setSyncFlag(false);
-        this.nettyClientHandler.sendMessage(confirmFinishRequest,nettyClientHandler.getChannel(null));
+        this.clientRpcHandler.sendMessage(confirmFinishRequest, clientRpcHandler.getChannel(null));
     }
 
     @Override
@@ -138,7 +138,7 @@ public class NettyClient implements MessageProtocol{
         ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
         confirmAndSendRequest.setProducerMessageId(producerMessageId);
         confirmAndSendRequest.setSyncFlag(false);
-        this.nettyClientHandler.sendMessage(confirmAndSendRequest,nettyClientHandler.getChannel(null));
+        this.clientRpcHandler.sendMessage(confirmAndSendRequest, clientRpcHandler.getChannel(null));
     }
 
     @Override
