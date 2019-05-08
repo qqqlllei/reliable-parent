@@ -39,12 +39,12 @@ public class ClientMessageDataflow extends AbstractBaseDataflowJob<ClientMessage
 
         //查询服务端消息状态，该消息是否已经消费成功（从消息服务段查询不到该消息）
         for (ClientMessageData clientMessageData : clientMessageDatas) {
-            Wrapper wrapper = messageFeign.checkServerMessageIsExist(clientMessageData.getId());
-            boolean deleteFlag = (boolean) wrapper.getResult();
-            if(deleteFlag){
-                //主动清清除
-                reliableMessageService.deleteMessageByProducerMessageId(clientMessageData.getId());
-            }
+//            Wrapper wrapper = messageFeign.checkServerMessageIsExist(clientMessageData.getId());
+//            boolean deleteFlag = (boolean) wrapper.getResult();
+//            if(deleteFlag){
+//                //主动清清除
+//                reliableMessageService.deleteMessageByProducerMessageId(clientMessageData.getId());
+//            }
         }
     }
 }

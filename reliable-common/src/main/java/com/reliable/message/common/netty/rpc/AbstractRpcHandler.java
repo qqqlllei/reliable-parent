@@ -1,6 +1,7 @@
 package com.reliable.message.common.netty.rpc;
 
 import com.reliable.message.common.netty.MessageFuture;
+import com.reliable.message.common.netty.RoundRobinLoadBalance;
 import com.reliable.message.common.netty.message.RequestMessage;
 import com.reliable.message.common.netty.message.ResponseMessage;
 import com.reliable.message.common.wrapper.Wrapper;
@@ -8,7 +9,10 @@ import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -19,10 +23,10 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(AbstractRpcHandler.class);
     protected final ConcurrentHashMap<String, MessageFuture> futures = new ConcurrentHashMap<>();
-
+    protected RoundRobinLoadBalance roundRobinLoadBalance;
 
     public Object sendMessage(RequestMessage requestMessage, Channel channel) throws TimeoutException {
-
+        logger.info("================="+this.getClass()+"===sendMessage"+"  channel "+channel.toString());
         if(requestMessage.isSyncFlag()){
             final MessageFuture messageFuture = new MessageFuture();
             messageFuture.setRequestMessage(requestMessage);
@@ -68,5 +72,21 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
 
 
 
+    }
+
+    public abstract ArrayList<Channel> getChannels(String applicationId);
+
+    public Channel getChannel(String applicationId){
+        Channel channel;
+
+        ArrayList<Channel> channelList = getChannels(applicationId);
+        while (channelList.size()>0){
+            channel = roundRobinLoadBalance.doSelect(channelList);
+            if(channel.isActive()){
+                return channel;
+            }
+            channelList.remove(channel);
+        }
+        return null;
     }
 }

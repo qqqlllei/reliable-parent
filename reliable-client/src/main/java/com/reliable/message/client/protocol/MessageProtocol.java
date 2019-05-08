@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 public interface MessageProtocol {
 
 
-    void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws TimeoutException;
+    void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws Exception;
 
     void confirmFinishMessage(String confirmId) throws TimeoutException;
 

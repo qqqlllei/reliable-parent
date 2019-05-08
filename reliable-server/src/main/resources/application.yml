@@ -3,7 +3,10 @@ server:
 netty:
   server:
     port: 9999
+    ip: 127.0.0.1
 spring:
+  application:
+    name: reliable-server
   cloud:
     nacos:
       discovery:

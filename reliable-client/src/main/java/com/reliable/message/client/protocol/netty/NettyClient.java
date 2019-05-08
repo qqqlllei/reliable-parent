@@ -1,16 +1,18 @@
 package com.reliable.message.client.protocol.netty;
 
+import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.reliable.message.client.protocol.MessageProtocol;
 import com.reliable.message.client.service.ReliableMessageService;
+import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.netty.message.ClientRegisterRequest;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
 import com.reliable.message.common.netty.message.ConfirmFinishRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
-import com.reliable.message.common.wrapper.Wrapper;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -18,7 +20,10 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
 import javax.annotation.PostConstruct;
+import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -28,6 +33,10 @@ import java.util.concurrent.TimeoutException;
 public class NettyClient implements MessageProtocol{
 
     private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
+
+    private static final int connectTimeoutMillis = 10000;
+
+
     @Value("${netty.server.ip}")
     private String host;
 
@@ -37,48 +46,68 @@ public class NettyClient implements MessageProtocol{
     @Value("${spring.application.name}")
     private String applicationId;
 
-    /**唯一标记 */
-    private boolean initFalg = true;
-
 
     private NettyClientHandler nettyClientHandler;
 
     private EventLoopGroup group;
-    private ChannelFuture f;
+    private Bootstrap bootstrap;
 
     private ReliableMessageService reliableMessageService;
+
 
 
     @PostConstruct
     public void init() {
         group = new NioEventLoopGroup();
-        doConnect(new Bootstrap(), group);
-    }
+        bootstrap = new Bootstrap();
+        nettyClientHandler = new NettyClientHandler(this);
+        if (bootstrap != null) {
+            bootstrap.group(group);
+            bootstrap.channel(NioSocketChannel.class);
+            bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+            bootstrap.handler(new NettyClientInitializer(nettyClientHandler));
+        }
 
-    public void doConnect(Bootstrap bootstrap, EventLoopGroup eventLoopGroup) {
         try {
-            if (bootstrap != null) {
-                bootstrap.group(eventLoopGroup);
-                bootstrap.channel(NioSocketChannel.class);
-                bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-                bootstrap.handler(new NettyClientInitializer(this));
-                bootstrap.remoteAddress(host, port);
-                f = bootstrap.connect().addListener((ChannelFuture futureListener) -> {
-                    final EventLoop eventLoop = futureListener.channel().eventLoop();
-                    if (!futureListener.isSuccess()) {
-                        logger.info("与服务端断开连接!在10s之后准备尝试重连!");
-                        eventLoop.schedule(() -> doConnect(new Bootstrap(), eventLoop), 10, TimeUnit.SECONDS);
-                    }
-                });
-                if(initFalg){
-                    logger.info("Netty客户端启动成功!");
-                    initFalg=false;
+            List<InetSocketAddress> inetSocketAddresses =  RegistryFactory.getInstance("nacos_register").lookup("");
+            if(CollectionUtils.isEmpty(inetSocketAddresses)){
+                logger.error("no available server to connect.");
+                return;
+            }
+
+            for (InetSocketAddress serverAddress : inetSocketAddresses) {
+                try {
+                    doConnect(serverAddress);
+                } catch (Exception e) {
+                    logger.error("can not connect to " + serverAddress + " cause:" + e.getMessage(), e);
                 }
             }
         } catch (Exception e) {
-            logger.info("客户端连接失败!"+e.getMessage());
+            e.printStackTrace();
         }
+    }
 
+    public void doConnect(InetSocketAddress serverAddress) {
+        try {
+            ChannelFuture f = this.bootstrap.connect(serverAddress);
+            f.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+
+            if (f.isCancelled()) {
+                throw new RuntimeException("connect cancelled, can not connect to services-server.",f.cause());
+            } else if (!f.isSuccess()) {
+                throw new RuntimeException("connect failed, can not connect to services-server.",f.cause());
+            } else {
+                Channel channel = f.channel();
+
+                nettyClientHandler.getChannels().put(channel.remoteAddress().toString(),channel);
+                ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
+                clientRegisterRequest.setApplicationId(applicationId);
+                clientRegisterRequest.setSyncFlag(true);
+                channel.writeAndFlush(clientRegisterRequest);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("connect failed, can not connect to services-server.",e.getCause());
+        }
     }
 
     public void setNettyClientHandler(NettyClientHandler nettyClientHandler) {
@@ -90,9 +119,10 @@ public class NettyClient implements MessageProtocol{
     }
 
     @Override
-    public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws TimeoutException {
+    public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws Exception {
         WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(clientMessageData, WaitingConfirmRequest.class);
-        this.nettyClientHandler.sendMessage(waitingConfirmRequest,f.channel());
+
+        this.nettyClientHandler.sendMessage(waitingConfirmRequest,nettyClientHandler.getChannel(null));
     }
 
     @Override
@@ -100,7 +130,7 @@ public class NettyClient implements MessageProtocol{
         ConfirmFinishRequest confirmFinishRequest = new ConfirmFinishRequest();
         confirmFinishRequest.setConfirmId(confirmId);
         confirmFinishRequest.setSyncFlag(false);
-        this.nettyClientHandler.sendMessage(confirmFinishRequest,f.channel());
+        this.nettyClientHandler.sendMessage(confirmFinishRequest,nettyClientHandler.getChannel(null));
     }
 
     @Override
@@ -108,7 +138,7 @@ public class NettyClient implements MessageProtocol{
         ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
         confirmAndSendRequest.setProducerMessageId(producerMessageId);
         confirmAndSendRequest.setSyncFlag(false);
-        this.nettyClientHandler.sendMessage(confirmAndSendRequest,f.channel());
+        this.nettyClientHandler.sendMessage(confirmAndSendRequest,nettyClientHandler.getChannel(null));
     }
 
     @Override

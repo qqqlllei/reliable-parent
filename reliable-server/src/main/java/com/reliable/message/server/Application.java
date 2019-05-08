@@ -12,8 +12,8 @@ import org.springframework.kafka.annotation.EnableKafka;
  */
 
 @SpringBootApplication
-@EnableDiscoveryClient
-@EnableFeignClients
+//@EnableDiscoveryClient
+//@EnableFeignClients
 @MapperScan(basePackages = {"com.reliable.message.server.dao"})
 @EnableKafka
 public class Application {

@@ -22,10 +22,10 @@ public class TCPServerHandler extends AbstractRpcHandler {
 
     private static Logger logger = LoggerFactory.getLogger(TCPServerHandler.class);
 
-
+    private final ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = new ConcurrentHashMap<>();
     private DataBaseManager dataBaseManager;
 
-    private RoundRobinLoadBalance roundRobinLoadBalance;
+
 
     private NettyServer nettyServer;
 
@@ -33,7 +33,7 @@ public class TCPServerHandler extends AbstractRpcHandler {
         this.nettyServer = nettyServer;
         this.dataBaseManager = nettyServer.getDataBaseManager();
         nettyServer.setTcpServerHandler(this);
-        this.roundRobinLoadBalance = new RoundRobinLoadBalance();
+        super.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
 
 
@@ -50,13 +50,12 @@ public class TCPServerHandler extends AbstractRpcHandler {
         try {
             if(msg instanceof ClientRegisterRequest){
                 ClientRegisterRequest clientRegisterRequest = (ClientRegisterRequest) msg;
-                ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = nettyServer.getChannels();
-                ConcurrentMap<String,Channel>  channelGroup = channels.get(clientRegisterRequest.getApplicationId());
+                ConcurrentMap<String,Channel>  channelGroup = this.channels.get(clientRegisterRequest.getApplicationId());
                 Channel channel = ctx.channel();
                 if(channelGroup == null){
                     channelGroup= new ConcurrentHashMap<>();
                     channelGroup.put(channel.remoteAddress().toString(),channel);
-                    channels.put(clientRegisterRequest.getApplicationId(),channelGroup);
+                    this.channels.put(clientRegisterRequest.getApplicationId(),channelGroup);
                     return;
                 }
 
@@ -101,6 +100,12 @@ public class TCPServerHandler extends AbstractRpcHandler {
     }
 
     @Override
+    public ArrayList<Channel> getChannels(String applicationId) {
+        ConcurrentMap<String,Channel>  channelGroup = this.channels.get(applicationId);
+        return new ArrayList<>(channelGroup.values());
+    }
+
+    @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object obj) throws Exception {
         if (obj instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) obj;
@@ -119,23 +124,5 @@ public class TCPServerHandler extends AbstractRpcHandler {
         logger.info(cause.getMessage()+"--"+ctx.channel().toString());
         ctx.disconnect();
         ctx.close();
-    }
-
-
-    public Channel getChannel(String applicationId){
-        Channel channel;
-        ConcurrentMap<String,Channel>  channelGroup = this.nettyServer.getChannels().get(applicationId);
-
-        Collection<Channel> channelList = channelGroup.values();
-        while (channelList.size()>0){
-            channel = roundRobinLoadBalance.doSelect(new ArrayList<>(channelList));
-
-            if(channel.isActive()){
-                return channel;
-            }
-
-            channelList.remove(channel);
-        }
-        return null;
     }
 }

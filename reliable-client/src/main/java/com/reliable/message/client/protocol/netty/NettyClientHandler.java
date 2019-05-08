@@ -2,23 +2,22 @@ package com.reliable.message.client.protocol.netty;
 
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
-import com.reliable.message.common.netty.message.ClientRegisterRequest;
+import com.reliable.message.common.netty.RoundRobinLoadBalance;
 import com.reliable.message.common.netty.message.Message;
 import com.reliable.message.common.netty.message.ResponseMessage;
 import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
 import com.reliable.message.common.netty.rpc.AbstractRpcHandler;
 import com.reliable.message.common.wrapper.Wrapper;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoop;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -30,29 +29,21 @@ import java.util.concurrent.ConcurrentMap;
 public class NettyClientHandler extends AbstractRpcHandler {
     private static Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
     private NettyClient nettyClient;
-
+    private RoundRobinLoadBalance roundRobinLoadBalance;
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
 
     public NettyClientHandler(NettyClient nettyClient){
         this.nettyClient = nettyClient;
         nettyClient.setNettyClientHandler(this);
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        channels.put(ctx.channel().remoteAddress().toString(),ctx.channel());
-        ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
-        clientRegisterRequest.setApplicationId(nettyClient.getApplicationId());
-        clientRegisterRequest.setSyncFlag(true);
-        ctx.writeAndFlush(clientRegisterRequest);
-        ctx.fireChannelActive();
+        this.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.info("关闭连接时：" + new Date());
-        final EventLoop eventLoop = ctx.channel().eventLoop();
-        nettyClient.doConnect(new Bootstrap(), eventLoop);
+//        final EventLoop eventLoop = ctx.channel().eventLoop();
+//
+//        nettyClient.doConnect(ctx.channel().remoteAddress());
         super.channelInactive(ctx);
     }
 
@@ -107,7 +98,14 @@ public class NettyClientHandler extends AbstractRpcHandler {
             ReferenceCountUtil.release(msg);
         }
 
+    }
 
+    @Override
+    public ArrayList<Channel> getChannels(String applicationId) {
+        return new ArrayList<>(channels.values());
+    }
 
+    public ConcurrentMap<String, Channel> getChannels() {
+        return channels;
     }
 }

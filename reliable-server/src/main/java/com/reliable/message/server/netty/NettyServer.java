@@ -1,5 +1,6 @@
 package com.reliable.message.server.netty;
 
+import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.netty.message.ResponseMessage;
 import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
 import com.reliable.message.common.wrapper.Wrapper;
@@ -31,18 +32,9 @@ import java.util.concurrent.ConcurrentMap;
 public class NettyServer implements MessageProtocol{
 
     private static Logger logger = LoggerFactory.getLogger(NettyServer.class);
-
-
     @Autowired
     private DataBaseManager dataBaseManager;
-
-
     private TCPServerHandler tcpServerHandler;
-
-
-    private final ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = new ConcurrentHashMap<>();
-
-
     /**
      * boss 线程组用于处理连接工作
      */
@@ -53,6 +45,9 @@ public class NettyServer implements MessageProtocol{
     private EventLoopGroup work = new NioEventLoopGroup(6);
     @Value("${netty.server.port}")
     private Integer port;
+
+    @Value("${netty.server.ip}")
+    private String ip;
     /**
      * 启动Netty Server
      *
@@ -62,11 +57,12 @@ public class NettyServer implements MessageProtocol{
     public void start() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap();
         tcpServerHandler = new TCPServerHandler(this);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(ip,port);
         bootstrap.group(boss, work)
                 // 指定Channel
                 .channel(NioServerSocketChannel.class)
                 //使用指定的端口设置套接字地址
-                .localAddress(new InetSocketAddress(port))
+                .localAddress(inetSocketAddress)
 
                 //服务端可连接队列数,对应TCP/IP协议listen函数中backlog参数
                 .option(ChannelOption.SO_BACKLOG, 1024)
@@ -78,9 +74,14 @@ public class NettyServer implements MessageProtocol{
                 .childOption(ChannelOption.TCP_NODELAY, true)
 
                 .childHandler(new ServerChannelInitializer(tcpServerHandler));
-        ChannelFuture future = bootstrap.bind().sync();
-        if (future.isSuccess()) {
-            logger.info("启动 Netty Server");
+        try {
+            ChannelFuture future = bootstrap.bind().sync();
+            if (future.isSuccess()) {
+                logger.info("启动 Netty Server");
+            }
+            RegistryFactory.getInstance("nacos_register").register(inetSocketAddress);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -119,9 +120,5 @@ public class NettyServer implements MessageProtocol{
         }
 
         return MessageConstant.CLIENT_TRANSACTION_ERROR;
-    }
-
-    public ConcurrentMap<String, ConcurrentMap<String, Channel>> getChannels() {
-        return channels;
     }
 }

@@ -11,14 +11,10 @@ import java.util.concurrent.TimeUnit;
 public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
 
 
-    private NettyClient client;
+    private NettyClientHandler nettyClientHandler;
 
-    public NettyClientInitializer(){
-
-    }
-
-    public NettyClientInitializer(NettyClient nettyClient){
-        this.client = nettyClient;
+    public NettyClientInitializer(NettyClientHandler nettyClientHandler){
+        this.nettyClientHandler = nettyClientHandler;
     }
 
     @Override
@@ -26,7 +22,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS));
         pipeline.addLast("messageCodec", new MessageCodecHandler());
-        pipeline.addLast("nettyClientHandler",new NettyClientHandler(client));
+        pipeline.addLast("nettyClientHandler",nettyClientHandler);
 
     }
 }
