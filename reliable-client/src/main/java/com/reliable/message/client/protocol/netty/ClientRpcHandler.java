@@ -29,13 +29,12 @@ import java.util.concurrent.ConcurrentMap;
 public class ClientRpcHandler extends AbstractRpcHandler {
     private static Logger logger = LoggerFactory.getLogger(ClientRpcHandler.class);
     private NettyClient nettyClient;
-    private RoundRobinLoadBalance roundRobinLoadBalance;
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
 
     public ClientRpcHandler(NettyClient nettyClient){
         this.nettyClient = nettyClient;
         nettyClient.setClientRpcHandler(this);
-        this.roundRobinLoadBalance = new RoundRobinLoadBalance();
+        super.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
 
     @Override

@@ -3,10 +3,8 @@ package com.reliable.message.client.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
-import com.reliable.message.client.feign.MessageFeign;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.domain.ClientMessageData;
-import com.reliable.message.common.wrapper.Wrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +20,6 @@ public class ClientMessageDataflow extends AbstractBaseDataflowJob<ClientMessage
 
     @Autowired
     private ReliableMessageService reliableMessageService;
-
-    @Autowired
-    private MessageFeign messageFeign;
 
     @Override
     protected List<ClientMessageData> fetchJobData(final JSONObject jobTaskParameter) {

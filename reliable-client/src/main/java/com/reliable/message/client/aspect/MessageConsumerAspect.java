@@ -2,7 +2,7 @@ package com.reliable.message.client.aspect;
 
 
 import com.reliable.message.client.annotation.MessageConsumer;
-import com.reliable.message.client.protocol.ProtocolManager;
+import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.dto.MessageData;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
@@ -34,7 +34,7 @@ public class MessageConsumerAspect {
 
 
 	@Resource
-	private ProtocolManager protocolManager;
+	private NettyClient nettyClient;
 
 	@Value("${spring.application.name}")
 	private String appName;
@@ -79,7 +79,7 @@ public class MessageConsumerAspect {
 			boolean consumed = reliableMessageService.checkMessageStatus(producerMessageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
 
-				protocolManager.getMessageProtocol().confirmFinishMessage(messageData.getConfirmId());
+				nettyClient.confirmFinishMessage(messageData.getConfirmId());
 				log.info("processMessageConsumerJoinPoint - 线程id={} 已经消费producerId为{} 的消息", Thread.currentThread().getId(),messageData.getProducerMessageId());
 				return ;
 			}
@@ -88,7 +88,7 @@ public class MessageConsumerAspect {
 		String methodName = joinPoint.getSignature().getName();
 		try {
 			joinPoint.proceed();
-			protocolManager.getMessageProtocol().confirmFinishMessage( messageData.getConfirmId());
+			nettyClient.confirmFinishMessage( messageData.getConfirmId());
 			log.info("processMessageConsumerJoinPoint - 线程id={} 消费producerId为{} 的消息", Thread.currentThread().getId(),messageData.getProducerMessageId());
 		} catch (Exception e) {
 			log.error("发送可靠消息, 目标方法[{}], 出现异常={}", methodName, e.getMessage(), e);

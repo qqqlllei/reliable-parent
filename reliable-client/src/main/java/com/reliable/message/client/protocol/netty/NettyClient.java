@@ -1,7 +1,6 @@
 package com.reliable.message.client.protocol.netty;
 
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
-import com.reliable.message.client.protocol.MessageProtocol;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.domain.ClientMessageData;
@@ -30,7 +29,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Created by 李雷 on 2019/4/29.
  */
-public class NettyClient implements MessageProtocol{
+public class NettyClient {
 
     private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
@@ -118,14 +117,14 @@ public class NettyClient implements MessageProtocol{
         return clientRpcHandler;
     }
 
-    @Override
+
     public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws Exception {
         WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(clientMessageData, WaitingConfirmRequest.class);
 
         this.clientRpcHandler.sendMessage(waitingConfirmRequest, clientRpcHandler.getChannel(null));
     }
 
-    @Override
+
     public void confirmFinishMessage(String confirmId) throws TimeoutException {
         ConfirmFinishRequest confirmFinishRequest = new ConfirmFinishRequest();
         confirmFinishRequest.setConfirmId(confirmId);
@@ -133,7 +132,7 @@ public class NettyClient implements MessageProtocol{
         this.clientRpcHandler.sendMessage(confirmFinishRequest, clientRpcHandler.getChannel(null));
     }
 
-    @Override
+
     public void confirmAndSendMessage(String producerMessageId) throws TimeoutException {
         ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
         confirmAndSendRequest.setProducerMessageId(producerMessageId);
@@ -141,12 +140,12 @@ public class NettyClient implements MessageProtocol{
         this.clientRpcHandler.sendMessage(confirmAndSendRequest, clientRpcHandler.getChannel(null));
     }
 
-    @Override
+
     public void saveAndSendMessage(ClientMessageData clientMessageData) {
 
     }
 
-    @Override
+
     public void directSendMessage(ClientMessageData clientMessageData) {
 
     }

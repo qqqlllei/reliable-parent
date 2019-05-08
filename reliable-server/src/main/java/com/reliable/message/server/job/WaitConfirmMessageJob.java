@@ -4,10 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
 import com.reliable.message.common.domain.ServerMessageData;
-import com.reliable.message.server.constant.MessageConstant;
-import com.reliable.message.server.feign.ClientMessageAdapter;
-import com.reliable.message.server.netty.ProtocolManager;
+import com.reliable.message.common.netty.message.ResponseMessage;
+import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
+import com.reliable.message.common.wrapper.Wrapper;
+import com.reliable.message.server.netty.NettyServer;
+import com.reliable.message.server.netty.ServerRpcHandler;
 import com.reliable.message.server.service.MessageService;
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +34,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
     private MessageService messageService;
 
     @Autowired
-    private ClientMessageAdapter clientMessageAdapter;
-
-    @Autowired
-    private ProtocolManager protocolManager;
+    private NettyServer nettyServer;
 
 
     @Override
@@ -47,16 +47,22 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
         List<ServerMessageData> fetchServerMessageList = new ArrayList<>();
         for (ServerMessageData serverMessageData : serverMessageDataList) {
             try {
-                // 可查询服务确认
-                String  transactionalFlag= protocolManager.getMessageProtocolByType(serverMessageData.getMessageVersion()).
-                        getClientMessageDataByProducerMessageId(serverMessageData.getProducerGroup(),
-                                serverMessageData.getProducerMessageId());
-                if(MessageConstant.CLIENT_TRANSACTION_OK.equals(transactionalFlag)){
-                    fetchServerMessageList.add(serverMessageData);
-                }else if(MessageConstant.CLIENT_TRANSACTION_ERROR.equals(transactionalFlag)){
-                    messageService.deleteServerMessageDataById(serverMessageData.getId());
-                }else{
+                WaitConfirmCheckRequest waitConfirmCheckRequest = new WaitConfirmCheckRequest();
+                waitConfirmCheckRequest.setProducerGroup(serverMessageData.getProducerGroup());
+                waitConfirmCheckRequest.setId(serverMessageData.getProducerMessageId());
+                ServerRpcHandler serverRpcHandler = nettyServer.getServerRpcHandler();
+                Channel channel = serverRpcHandler.getChannel(serverMessageData.getProducerGroup());
+                if(channel == null){
                     logger.warn("服务{}未启动",serverMessageData.getProducerGroup());
+                    continue;
+                }
+
+                ResponseMessage object = (ResponseMessage) serverRpcHandler.sendMessage(waitConfirmCheckRequest,channel);
+
+                if(Wrapper.SUCCESS_CODE == object.getResultCode()){
+                    fetchServerMessageList.add(serverMessageData);
+                }else{
+                    messageService.deleteServerMessageDataById(serverMessageData.getId());
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage());

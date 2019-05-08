@@ -1,13 +1,8 @@
 package com.reliable.message.server.netty;
 
 import com.reliable.message.common.discovery.RegistryFactory;
-import com.reliable.message.common.netty.message.ResponseMessage;
-import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
-import com.reliable.message.common.wrapper.Wrapper;
-import com.reliable.message.server.constant.MessageConstant;
 import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -27,7 +22,7 @@ import java.net.InetSocketAddress;
  * Created by 李雷 on 2019/4/29.
  */
 @Component
-public class NettyServer implements MessageProtocol{
+public class NettyServer {
 
     private static Logger logger = LoggerFactory.getLogger(NettyServer.class);
     @Autowired
@@ -98,21 +93,7 @@ public class NettyServer implements MessageProtocol{
         this.serverRpcHandler = serverRpcHandler;
     }
 
-    @Override
-    public String getClientMessageDataByProducerMessageId(String producerGroup, String producerMessageId) throws Exception {
-        WaitConfirmCheckRequest waitConfirmCheckRequest = new WaitConfirmCheckRequest();
-        waitConfirmCheckRequest.setProducerGroup(producerGroup);
-        waitConfirmCheckRequest.setId(producerMessageId);
-        Channel channel = serverRpcHandler.getChannel(producerGroup);
-        if(channel == null){
-            logger.error("服务："+producerGroup+" 没有启动");
-            return MessageConstant.CLIENT_SERVER_DOWN;
-        }
-        ResponseMessage object = (ResponseMessage) serverRpcHandler.sendMessage(waitConfirmCheckRequest,channel);
-        if(Wrapper.SUCCESS_CODE == object.getResultCode()){
-            return MessageConstant.CLIENT_TRANSACTION_OK;
-        }
-
-        return MessageConstant.CLIENT_TRANSACTION_ERROR;
+    public ServerRpcHandler getServerRpcHandler() {
+        return serverRpcHandler;
     }
 }

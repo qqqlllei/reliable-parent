@@ -1,5 +1,3 @@
-server:
-  port: 8086
 netty:
   server:
     port: 9999
@@ -7,20 +5,8 @@ netty:
 spring:
   application:
     name: reliable-server
-  cloud:
-    nacos:
-      discovery:
-        metadata: {"version":@version@}
   kafka:
     bootstrap-servers: 10.33.80.101:9092
-
-feign:
-  hystrix:
-    enabled: true #默认feign是不开启hystrix的，所以要设置该配置为true
-
-management:
-  security:
-    enabled: false
 
 info:
   version: "@project.version@"

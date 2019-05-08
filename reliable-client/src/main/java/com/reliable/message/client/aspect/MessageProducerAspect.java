@@ -2,7 +2,7 @@ package com.reliable.message.client.aspect;
 
 import com.reliable.message.client.annotation.MessageProducer;
 import com.reliable.message.client.delay.DelayMessageTask;
-import com.reliable.message.client.protocol.ProtocolManager;
+import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.enums.DelayLevelEnum;
@@ -37,7 +37,7 @@ public class MessageProducerAspect {
 	private ReliableMessageService reliableMessageService;
 
 	@Resource
-	private ProtocolManager protocolManager;
+	private NettyClient nettyClient;
 
 	@Value("${spring.application.name}")
 	private String appName;
@@ -100,20 +100,19 @@ public class MessageProducerAspect {
 
 		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
 			reliableMessageService.saveProducerMessage(domain);
-			protocolManager.getMessageProtocol().saveMessageWaitingConfirm(domain);
+			nettyClient.saveMessageWaitingConfirm(domain);
 		}
 
 		result = joinPoint.proceed();
 
 		if (type == MessageSendTypeEnum.SAVE_AND_SEND) {
-			protocolManager.getMessageProtocol().saveAndSendMessage(domain);
+			nettyClient.saveAndSendMessage(domain);
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
-
-			protocolManager.getMessageProtocol().directSendMessage(domain);
+			nettyClient.directSendMessage(domain);
 		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
 			messageTaskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,reliableMessageService));
 		} else{
-			protocolManager.getMessageProtocol().confirmAndSendMessage(domain.getId());
+			nettyClient.confirmAndSendMessage(domain.getId());
 		}
 
 		return result;
