@@ -5,13 +5,12 @@
     <parent>
         <artifactId>reliable-parent</artifactId>
         <groupId>com.reliable.message</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.reliable.message</groupId>
     <artifactId>reliable-client</artifactId>
-    <version>1.0.1</version>
     <build>
         <plugins>
             <plugin>
@@ -34,22 +33,10 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-data-redis</artifactId>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
-
-
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.cloud</groupId>-->
-            <!--<artifactId>spring-cloud-starter-openfeign</artifactId>-->
-        <!--</dependency>-->
 
 
         <!--mybatis-->
@@ -71,7 +58,7 @@
         <dependency>
             <groupId>com.reliable.message</groupId>
             <artifactId>reliable-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
 
