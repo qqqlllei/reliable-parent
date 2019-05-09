@@ -74,14 +74,15 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    public abstract ArrayList<Channel> getChannels(String applicationId);
+    public abstract Collection<Channel> getChannels(String applicationId);
 
     public Channel getChannel(String applicationId){
         Channel channel;
 
-        ArrayList<Channel> channelList = getChannels(applicationId);
+        Collection<Channel> channelList = getChannels(applicationId);
         while (channelList.size()>0){
-            channel = roundRobinLoadBalance.doSelect(channelList);
+
+            channel = roundRobinLoadBalance.doSelect(new ArrayList<>(channelList));
             if(channel.isActive()){
                 return channel;
             }

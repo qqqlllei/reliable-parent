@@ -14,7 +14,7 @@ import java.util.List;
  * Created by 李雷
  */
 @ElasticJobConfig(cron = "elastic.job.cron.clientMessageDataflowCron", jobParameter = "{'fetchNum':200,'taskType':'SENDING_MESSAGE'}",description="生产者消息清理")
-public class ClientMessageDataflow extends AbstractBaseDataflowJob<ClientMessageData> {
+public class ClientMessageDataflow extends AbstractBaseDataflowJob<String> {
 
     private Logger logger = LoggerFactory.getLogger(ClientMessageDataflow.class);
 
@@ -22,18 +22,18 @@ public class ClientMessageDataflow extends AbstractBaseDataflowJob<ClientMessage
     private ReliableMessageService reliableMessageService;
 
     @Override
-    protected List<ClientMessageData> fetchJobData(final JSONObject jobTaskParameter) {
+    protected List<String> fetchJobData(final JSONObject jobTaskParameter) {
         logger.info("fetchJobData - jobTaskParameter={}", jobTaskParameter);
-        List<ClientMessageData> clientMessageData = reliableMessageService.getProducerMessage(jobTaskParameter);
-        return clientMessageData;
+        List<String> clientMessageIds = reliableMessageService.getProducerMessage(jobTaskParameter);
+        return clientMessageIds;
     }
 
     @Override
-    protected void processJobData(final List<ClientMessageData> clientMessageDatas) {
-        logger.info("processJobData - clientMessageDatas={}", clientMessageDatas);
+    protected void processJobData(final List<String> clientMessageIds) {
+        logger.info("processJobData - clientMessageIds={}", clientMessageIds);
 
         //查询服务端消息状态，该消息是否已经消费成功（从消息服务段查询不到该消息）
-        for (ClientMessageData clientMessageData : clientMessageDatas) {
+        for (String id : clientMessageIds) {
 //            Wrapper wrapper = messageFeign.checkServerMessageIsExist(clientMessageData.getId());
 //            boolean deleteFlag = (boolean) wrapper.getResult();
 //            if(deleteFlag){

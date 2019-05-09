@@ -118,9 +118,7 @@ public class NettyClient {
     }
 
 
-    public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) throws Exception {
-        WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(clientMessageData, WaitingConfirmRequest.class);
-
+    public void saveMessageWaitingConfirm(WaitingConfirmRequest waitingConfirmRequest) throws Exception {
         this.clientRpcHandler.sendMessage(waitingConfirmRequest, clientRpcHandler.getChannel(null));
     }
 

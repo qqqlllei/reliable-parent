@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 @Sharable
@@ -94,9 +95,9 @@ public class ServerRpcHandler extends AbstractRpcHandler {
     }
 
     @Override
-    public ArrayList<Channel> getChannels(String applicationId) {
+    public Collection<Channel> getChannels(String applicationId) {
         ConcurrentMap<String,Channel>  channelGroup = this.channels.get(applicationId);
-        return new ArrayList<>(channelGroup.values());
+        return channelGroup.values();
     }
 
     @Override

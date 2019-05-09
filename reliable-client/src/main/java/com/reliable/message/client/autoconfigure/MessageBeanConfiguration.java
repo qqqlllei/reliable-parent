@@ -8,21 +8,30 @@ import com.reliable.message.client.job.ClientMessageDataflow;
 import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.client.service.impl.ReliableMessageServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import javax.sql.DataSource;
 import java.util.concurrent.DelayQueue;
 
 /**
  * Created by 李雷
  */
 @Configuration
+@ConditionalOnClass(DataSource.class)
 @EnableAsync
 public class MessageBeanConfiguration {
+
+	@Autowired
+	private DataSource dataSource;
 
 	@Bean
 	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
@@ -38,6 +47,14 @@ public class MessageBeanConfiguration {
 		NettyClient nettyClient = new NettyClient();
 		nettyClient.setReliableMessageService(reliableMessageService());
 		return nettyClient;
+	}
+
+	@Bean
+	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
+	public JdbcTemplate jdbcTemplate(){
+		JdbcTemplate jdbcTemplate = new JdbcTemplate();
+		jdbcTemplate.setDataSource(dataSource);
+		return jdbcTemplate;
 	}
 
 

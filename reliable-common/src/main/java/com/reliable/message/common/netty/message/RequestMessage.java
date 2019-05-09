@@ -1,7 +1,8 @@
 package com.reliable.message.common.netty.message;
 
-import com.reliable.message.common.netty.message.Message;
+import com.reliable.message.common.netty.rpc.AbstractRpcHandler;
 import lombok.Data;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Date;
 
@@ -9,7 +10,7 @@ import java.util.Date;
  * Created by 李雷 on 2019/4/30.
  */
 @Data
-public class RequestMessage extends Message {
+public abstract class RequestMessage extends Message {
 
     private String id;
     private Integer version;
@@ -25,4 +26,6 @@ public class RequestMessage extends Message {
     private Date sendTime;
     private Date createTime;
     private Date updateTime;
+
+    public abstract void executeSql(JdbcTemplate jdbcTemplate);
 }

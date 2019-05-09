@@ -9,6 +9,7 @@ import com.reliable.message.common.enums.DelayLevelEnum;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
 import com.reliable.message.common.exception.BusinessException;
+import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -17,6 +18,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
@@ -42,18 +44,14 @@ public class MessageProducerAspect {
 	@Value("${spring.application.name}")
 	private String appName;
 
-
 	@Value("${info.version}")
 	private String serverVersion;
-
 
 	@Resource(name = "messageTaskExecutor")
 	private TaskExecutor messageTaskExecutor;
 
 	@Autowired
 	private DelayQueue<DelayMessageTask> delayMessageQueue;
-
-
 
 	@Value("${reliable.message.producerGroup:}")
 	private String producerGroup;
@@ -99,8 +97,12 @@ public class MessageProducerAspect {
 		domain.setProducerGroup(producerGroup);
 
 		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
-			reliableMessageService.saveProducerMessage(domain);
-			nettyClient.saveMessageWaitingConfirm(domain);
+
+            WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(domain, WaitingConfirmRequest.class);
+
+			reliableMessageService.saveMessage(waitingConfirmRequest);
+
+			nettyClient.saveMessageWaitingConfirm(waitingConfirmRequest);
 		}
 
 		result = joinPoint.proceed();

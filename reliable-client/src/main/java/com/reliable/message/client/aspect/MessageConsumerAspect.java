@@ -76,7 +76,7 @@ public class MessageConsumerAspect {
 		boolean isStore = annotation.storageStatus();
 		if (isStore) {
 			// 重复消费检查
-			boolean consumed = reliableMessageService.checkMessageStatus(producerMessageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
+			boolean consumed = reliableMessageService.hasConsumedMessage(producerMessageId, MessageTypeEnum.CONSUMER_MESSAGE.messageType());
 			if(consumed){
 
 				nettyClient.confirmFinishMessage(messageData.getConfirmId());

@@ -1,6 +1,5 @@
 package com.reliable.message.client.protocol.netty;
 
-import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
 import com.reliable.message.common.netty.RoundRobinLoadBalance;
 import com.reliable.message.common.netty.message.Message;
@@ -17,7 +16,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -75,16 +74,13 @@ public class ClientRpcHandler extends AbstractRpcHandler {
 
             if(msg instanceof WaitConfirmCheckRequest){
                 WaitConfirmCheckRequest waitConfirmCheckRequest = (WaitConfirmCheckRequest) msg;
-                ClientMessageData clientMessageData =nettyClient.getReliableMessageService().
-                        getClientMessageDataByProducerMessageId(waitConfirmCheckRequest.getId());
-                if(clientMessageData !=null){
-                    ResponseMessage responseMessage = new ResponseMessage();
-                    responseMessage.setId(clientMessageData.getId());
+                ResponseMessage responseMessage = new ResponseMessage();
+                responseMessage.setId(waitConfirmCheckRequest.getId());
+                responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
+                if(nettyClient.getReliableMessageService().hasProducedMessage(waitConfirmCheckRequest.getId())){
                     responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
-                    responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
-                    ctx.writeAndFlush(responseMessage);
                 }
-
+                ctx.writeAndFlush(responseMessage);
                 return;
 
             }
@@ -100,8 +96,8 @@ public class ClientRpcHandler extends AbstractRpcHandler {
     }
 
     @Override
-    public ArrayList<Channel> getChannels(String applicationId) {
-        return new ArrayList<>(channels.values());
+    public Collection<Channel> getChannels(String applicationId) {
+        return channels.values();
     }
 
     public ConcurrentMap<String, Channel> getChannels() {
