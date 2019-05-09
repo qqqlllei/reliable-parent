@@ -110,7 +110,7 @@ public class MessageProducerAspect {
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			nettyClient.directSendMessage(domain);
 		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
-			messageTaskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,reliableMessageService));
+			messageTaskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,nettyClient));
 		} else{
 			nettyClient.confirmAndSendMessage(domain.getId());
 		}

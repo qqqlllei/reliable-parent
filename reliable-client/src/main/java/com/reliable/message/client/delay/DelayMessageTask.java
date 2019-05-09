@@ -1,6 +1,6 @@
 package com.reliable.message.client.delay;
 
-import com.reliable.message.client.service.ReliableMessageService;
+import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.common.domain.ClientMessageData;
 import lombok.Data;
 import org.apache.commons.logging.Log;
@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by 李雷 on 2019/3/26.
@@ -20,13 +21,13 @@ public class DelayMessageTask implements Runnable, Delayed{
     private long executeTime;
     private ClientMessageData clientMessageData;
     private DelayQueue<DelayMessageTask> delayMessageQueue;
-    private ReliableMessageService reliableMessageService;
+    private NettyClient nettyClient;
 
-    public DelayMessageTask(ClientMessageData clientMessageData,DelayQueue delayMessageQueue,ReliableMessageService reliableMessageService){
+    public DelayMessageTask(ClientMessageData clientMessageData,DelayQueue delayMessageQueue,NettyClient nettyClient){
         this.clientMessageData = clientMessageData;
         this.executeTime = clientMessageData.getSendTime().getTime();
         this.delayMessageQueue = delayMessageQueue;
-        this.reliableMessageService = reliableMessageService;
+        this.nettyClient = nettyClient;
         this.delayMessageQueue.add(this);
     }
 
@@ -45,8 +46,11 @@ public class DelayMessageTask implements Runnable, Delayed{
     public void run() {
         try {
             DelayMessageTask delayMessageTask = delayMessageQueue.take();
-//            reliableMessageService.confirmAndSendMessage(delayMessageTask.getClientMessageData().getProducerMessageId());
+
+            nettyClient.confirmAndSendMessage(delayMessageTask.getClientMessageData().getProducerMessageId());
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
             e.printStackTrace();
         }
     }
