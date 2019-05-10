@@ -107,7 +107,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject) {
         jsonObject.put("status", MessageSendStatusEnum.SENDING.sendStatus());
-        jsonObject.put("clearTime", TimeUtil.getBeforeByHourTime(1));
+        jsonObject.put("clearTime", TimeUtil.getAfterByMinuteTime(3));
         return serverMessageMapper.getServerMessageDataByParams(jsonObject);
     }
 

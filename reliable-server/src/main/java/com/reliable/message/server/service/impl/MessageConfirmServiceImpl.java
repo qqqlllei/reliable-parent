@@ -27,6 +27,8 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
     @Override
     public void confirmFinishMessage(String confirmId) {
         messageConfirmMapper.confirmFinishMessage(confirmId);
+
+
     }
 
     @Override

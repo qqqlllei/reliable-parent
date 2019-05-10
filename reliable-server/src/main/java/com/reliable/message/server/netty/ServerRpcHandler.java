@@ -75,7 +75,6 @@ public class ServerRpcHandler extends AbstractRpcHandler {
                         ResponseMessage responseMessage = new ResponseMessage();
                         responseMessage.setResultCode(200);
                         responseMessage.setId(waitingConfirmRequest.getId());
-                        logger.info(Thread.currentThread().getName()+"========WaitingConfirmRequest========="+this.getClass()+"===WaitingConfirmRequest");
                         ctx.writeAndFlush(responseMessage);
 
                         return;
@@ -104,7 +103,7 @@ public class ServerRpcHandler extends AbstractRpcHandler {
     }
 
     @Override
-    public Collection<Channel> getChannels(String applicationId) {
+    public Collection<Channel> getAllChannels(String applicationId) {
         ConcurrentMap<String,Channel>  channelGroup = this.channels.get(applicationId);
         return channelGroup.values();
     }

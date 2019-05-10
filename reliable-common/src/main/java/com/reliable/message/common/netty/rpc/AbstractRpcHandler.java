@@ -25,7 +25,7 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
     protected RoundRobinLoadBalance roundRobinLoadBalance;
 
     public Object sendMessage(RequestMessage requestMessage, Channel channel) throws TimeoutException {
-        logger.info(Thread.currentThread().getName()+"================="+this.getClass()+"===sendMessage"+"  channel "+channel.toString()+" futures size = "+futures.size());
+
         if(requestMessage.isSyncFlag()){
             final MessageFuture messageFuture = new MessageFuture();
             messageFuture.setRequestMessage(requestMessage);
@@ -41,7 +41,7 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
                 }
             });
             try {
-                logger.info("====================messageFuture get begin================"+requestMessage);
+
                 return messageFuture.get(3 * 1000L, TimeUnit.MILLISECONDS);
             } catch (Exception exx) {
                 logger.error("wait response error:" + exx.getMessage() + ",ip:" + "127" + ",request:" + requestMessage);
@@ -74,14 +74,13 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    public abstract Collection<Channel> getChannels(String applicationId);
+    public abstract Collection<Channel> getAllChannels(String applicationId);
 
     public Channel getChannel(String applicationId){
         Channel channel;
 
-        Collection<Channel> channelList = getChannels(applicationId);
+        Collection<Channel> channelList = getAllChannels(applicationId);
         while (channelList.size()>0){
-
             channel = roundRobinLoadBalance.doSelect(new ArrayList<>(channelList));
             if(channel.isActive()){
                 return channel;

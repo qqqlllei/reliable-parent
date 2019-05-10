@@ -16,6 +16,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,10 +44,7 @@ public class ClientRpcHandler extends AbstractRpcHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.info("关闭连接时：" + new Date());
-//        final EventLoop eventLoop = ctx.channel().eventLoop();
-//
-//        nettyClient.doConnect(ctx.channel().remoteAddress());
-        super.channelInactive(ctx);
+        nettyClient.doConnect((InetSocketAddress) ctx.channel().remoteAddress());
     }
 
 
@@ -103,8 +101,13 @@ public class ClientRpcHandler extends AbstractRpcHandler {
     }
 
     @Override
-    public Collection<Channel> getChannels(String applicationId) {
-        return channels.values();
+    public Collection<Channel> getAllChannels(String applicationId) {
+        Collection<Channel> channelCollection = channels.values();
+        if(channelCollection.size() == 0){
+            this.nettyClient.connect();
+            return channels.values();
+        }
+        return channelCollection;
     }
 
     public ConcurrentMap<String, Channel> getChannels() {

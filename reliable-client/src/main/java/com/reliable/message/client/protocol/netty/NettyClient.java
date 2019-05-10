@@ -4,6 +4,7 @@ import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.dto.MessageData;
 import com.reliable.message.common.netty.NamedThreadFactory;
 import com.reliable.message.common.netty.message.ClientRegisterRequest;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
@@ -76,7 +77,10 @@ public class NettyClient {
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
             bootstrap.handler(new ClientChannelInitializer(clientRpcHandler));
         }
+        connect();
+    }
 
+    public void connect(){
         try {
             List<InetSocketAddress> inetSocketAddresses =  RegistryFactory.getInstance("nacos_register").lookup("");
             if(CollectionUtils.isEmpty(inetSocketAddresses)){
@@ -97,6 +101,12 @@ public class NettyClient {
     }
 
     public void doConnect(InetSocketAddress serverAddress) {
+        Channel channel;
+        channel = clientRpcHandler.getChannels().get(serverAddress.toString());
+        if(channel.isActive()){
+            return;
+        }
+
         try {
             ChannelFuture f = this.bootstrap.connect(serverAddress);
             f.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
@@ -106,8 +116,7 @@ public class NettyClient {
             } else if (!f.isSuccess()) {
                 throw new RuntimeException("connect failed, can not connect to services-server.",f.cause());
             } else {
-                Channel channel = f.channel();
-
+                channel = f.channel();
                 clientRpcHandler.getChannels().put(channel.remoteAddress().toString(),channel);
                 ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
                 clientRegisterRequest.setApplicationId(applicationId);

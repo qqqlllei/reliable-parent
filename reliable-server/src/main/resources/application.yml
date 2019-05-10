@@ -1,6 +1,6 @@
 netty:
   server:
-    port: 9999
+    port: 9998
     ip: 127.0.0.1
 spring:
   application:
