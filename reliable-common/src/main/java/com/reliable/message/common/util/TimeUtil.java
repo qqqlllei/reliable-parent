@@ -16,6 +16,15 @@ public class TimeUtil {
         return simpleDateFormat.format(calendar.getTime());
     }
 
+
+
+    public static String getBeforeByMinuteTime(int minute){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MINUTE,calendar.get(Calendar.MINUTE)-minute);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return simpleDateFormat.format(calendar.getTime());
+    }
+
     public static Date getAfterByMinuteTime(int minute){
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.MINUTE,calendar.get(Calendar.MINUTE)+minute);
