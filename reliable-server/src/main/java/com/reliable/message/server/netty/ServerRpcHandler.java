@@ -17,16 +17,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 @Sharable
 public class ServerRpcHandler extends AbstractRpcHandler {
 
     private static Logger logger = LoggerFactory.getLogger(ServerRpcHandler.class);
-
     private final ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = new ConcurrentHashMap<>();
+
     private DataBaseManager dataBaseManager;
 
-    public ServerRpcHandler(NettyServer nettyServer){
+    private ThreadPoolExecutor messageExecutor;
+
+    public ServerRpcHandler(NettyServer nettyServer,ThreadPoolExecutor messageExecutor){
         this.dataBaseManager = nettyServer.getDataBaseManager();
+        this.messageExecutor = messageExecutor;
         nettyServer.setServerRpcHandler(this);
         super.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
@@ -61,30 +67,33 @@ public class ServerRpcHandler extends AbstractRpcHandler {
             }
 
             if(msg instanceof RequestMessage){
+                // 耗时操作放在业务线程处理
+                messageExecutor.execute(() -> {
+                    if(msg instanceof WaitingConfirmRequest){
+                        WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
+                        dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
+                        ResponseMessage responseMessage = new ResponseMessage();
+                        responseMessage.setResultCode(200);
+                        responseMessage.setId(waitingConfirmRequest.getId());
+                        logger.info(Thread.currentThread().getName()+"========WaitingConfirmRequest========="+this.getClass()+"===WaitingConfirmRequest");
+                        ctx.writeAndFlush(responseMessage);
 
-                if(msg instanceof WaitingConfirmRequest){
-                   WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
-                   dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
-                   ResponseMessage responseMessage = new ResponseMessage();
-                   responseMessage.setResultCode(200);
-                   responseMessage.setId(waitingConfirmRequest.getId());
-                   ctx.writeAndFlush(responseMessage);
+                        return;
+                    }
 
-                   return;
-                }
+                    if(msg instanceof ConfirmAndSendRequest){
+                        ConfirmAndSendRequest confirmAndSendRequest = (ConfirmAndSendRequest) msg;
+                        dataBaseManager.confirmAndSendRequest(confirmAndSendRequest);
 
-               if(msg instanceof ConfirmAndSendRequest){
-                   ConfirmAndSendRequest confirmAndSendRequest = (ConfirmAndSendRequest) msg;
-                   dataBaseManager.confirmAndSendRequest(confirmAndSendRequest);
+                        return;
+                    }
 
-                   return;
-               }
-
-               if(msg instanceof ConfirmFinishRequest){
-                   ConfirmFinishRequest confirmFinishRequest =  (ConfirmFinishRequest) msg;
-                   dataBaseManager.confirmFinishRequest(confirmFinishRequest.getConfirmId());
-                   return;
-               }
+                    if(msg instanceof ConfirmFinishRequest){
+                        ConfirmFinishRequest confirmFinishRequest =  (ConfirmFinishRequest) msg;
+                        dataBaseManager.confirmFinishRequest(confirmFinishRequest.getConfirmId());
+                        return;
+                    }
+                });
             }
             super.channelRead(ctx,msg);
         } catch (Exception e) {

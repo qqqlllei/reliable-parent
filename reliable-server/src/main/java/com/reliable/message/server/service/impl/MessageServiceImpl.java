@@ -72,7 +72,6 @@ public class MessageServiceImpl implements MessageService {
         if (message == null) {
             throw new BusinessException(ExceptionCodeEnum.GET_SERVER_MSG_IS_NULL_BY_CLIENT_ID);
         }
-        System.out.println("=========================confirmAndSendMessage=========== messageId="+message.getId());
         List<MessageConfirm> confirmList = confirmAndSendMessage(message);
         if(confirmList.size() == 0) return;
         sendMessageToMessageQueue(confirmList,message);
@@ -159,7 +158,6 @@ public class MessageServiceImpl implements MessageService {
             list.add(messageConfirm);
         }
 
-        System.out.println("===================save confirm"+JSONObject.toJSONString(list));
         messageConfirmService.batchCreateMqConfirm(list);
         return list;
     }

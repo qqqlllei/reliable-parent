@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by 李雷 on 2019/4/29.
@@ -30,8 +31,11 @@ public class ClientRpcHandler extends AbstractRpcHandler {
     private NettyClient nettyClient;
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
 
-    public ClientRpcHandler(NettyClient nettyClient){
+    private ThreadPoolExecutor messageExecutor;
+
+    public ClientRpcHandler(NettyClient nettyClient,ThreadPoolExecutor messageExecutor){
         this.nettyClient = nettyClient;
+        this.messageExecutor = messageExecutor;
         nettyClient.setClientRpcHandler(this);
         super.roundRobinLoadBalance = new RoundRobinLoadBalance();
     }
@@ -73,14 +77,17 @@ public class ClientRpcHandler extends AbstractRpcHandler {
         try {
 
             if(msg instanceof WaitConfirmCheckRequest){
-                WaitConfirmCheckRequest waitConfirmCheckRequest = (WaitConfirmCheckRequest) msg;
-                ResponseMessage responseMessage = new ResponseMessage();
-                responseMessage.setId(waitConfirmCheckRequest.getId());
-                responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
-                if(nettyClient.getReliableMessageService().hasProducedMessage(waitConfirmCheckRequest.getId())){
-                    responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
-                }
-                ctx.writeAndFlush(responseMessage);
+
+                messageExecutor.execute(() -> {
+                    WaitConfirmCheckRequest waitConfirmCheckRequest = (WaitConfirmCheckRequest) msg;
+                    ResponseMessage responseMessage = new ResponseMessage();
+                    responseMessage.setId(waitConfirmCheckRequest.getId());
+                    responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
+                    if(nettyClient.getReliableMessageService().hasProducedMessage(waitConfirmCheckRequest.getId())){
+                        responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
+                    }
+                    ctx.writeAndFlush(responseMessage);
+                });
                 return;
 
             }

@@ -21,11 +21,13 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.task.TaskExecutor;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.concurrent.DelayQueue;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -33,6 +35,7 @@ import java.util.concurrent.DelayQueue;
  */
 @Slf4j
 @Aspect
+@Order
 public class MessageProducerAspect {
 
 	@Autowired
@@ -101,8 +104,12 @@ public class MessageProducerAspect {
             WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(domain, WaitingConfirmRequest.class);
 
 			reliableMessageService.saveMessage(waitingConfirmRequest);
+			try {
+                nettyClient.saveMessageWaitingConfirm(waitingConfirmRequest);
+            }catch (TimeoutException e){
+			    throw new RuntimeException(e.getCause());
+            }
 
-			nettyClient.saveMessageWaitingConfirm(waitingConfirmRequest);
 		}
 
 		result = joinPoint.proceed();

@@ -23,6 +23,10 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline pipeline = socketChannel.pipeline();
 
+
+
+        // seata 设置15 秒
+
         pipeline.addLast("idleStateHandler",
                 new IdleStateHandler(5, 0, 0, TimeUnit.SECONDS));
         pipeline.addLast("messageCodec", new MessageCodecHandler());

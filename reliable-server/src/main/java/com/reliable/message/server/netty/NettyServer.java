@@ -1,6 +1,7 @@
 package com.reliable.message.server.netty;
 
 import com.reliable.message.common.discovery.RegistryFactory;
+import com.reliable.message.common.netty.NamedThreadFactory;
 import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -17,6 +18,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetSocketAddress;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by 李雷 on 2019/4/29.
@@ -31,11 +35,28 @@ public class NettyServer {
     /**
      * boss 线程组用于处理连接工作
      */
-    private EventLoopGroup boss = new NioEventLoopGroup(1);
+    private EventLoopGroup boss = new NioEventLoopGroup(1,
+            new NamedThreadFactory("NettyBoss", 1));
     /**
      * work 线程组用于数据处理
      */
-    private EventLoopGroup work = new NioEventLoopGroup(6);
+    private EventLoopGroup work =  new NioEventLoopGroup(6,
+            new NamedThreadFactory("NettyServerNIOWorker", 6));
+
+
+
+
+    private static final int MIN_SERVER_POOL_SIZE = 100;
+    private static final int MAX_SERVER_POOL_SIZE = 500;
+    private static final int MAX_TASK_QUEUE_SIZE = 20000;
+    private static final int KEEP_ALIVE_TIME = 500;
+    private static final ThreadPoolExecutor WORKING_THREADS = new ThreadPoolExecutor(MIN_SERVER_POOL_SIZE,
+            MAX_SERVER_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
+            new LinkedBlockingQueue(MAX_TASK_QUEUE_SIZE),
+            new NamedThreadFactory("ServerHandlerThread", MAX_SERVER_POOL_SIZE), new ThreadPoolExecutor.CallerRunsPolicy());
+
+
+
     @Value("${netty.server.port}")
     private Integer port;
 
@@ -49,7 +70,7 @@ public class NettyServer {
     @PostConstruct
     public void start() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        serverRpcHandler = new ServerRpcHandler(this);
+        serverRpcHandler = new ServerRpcHandler(this,WORKING_THREADS);
         InetSocketAddress inetSocketAddress = new InetSocketAddress(ip,port);
         bootstrap.group(boss, work)
                 // 指定Channel

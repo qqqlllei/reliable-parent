@@ -4,6 +4,7 @@ import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.netty.NamedThreadFactory;
 import com.reliable.message.common.netty.message.ClientRegisterRequest;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
 import com.reliable.message.common.netty.message.ConfirmFinishRequest;
@@ -15,7 +16,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -34,6 +36,14 @@ public class NettyClient {
     private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
     private static final int connectTimeoutMillis = 10000;
+    private static final int MIN_SERVER_POOL_SIZE = 10;
+    private static final int MAX_SERVER_POOL_SIZE = 50;
+    private static final int MAX_TASK_QUEUE_SIZE = 2000;
+    private static final int KEEP_ALIVE_TIME = 500;
+    private static final ThreadPoolExecutor WORKING_THREADS = new ThreadPoolExecutor(MIN_SERVER_POOL_SIZE,
+            MAX_SERVER_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
+            new LinkedBlockingQueue(MAX_TASK_QUEUE_SIZE),
+            new NamedThreadFactory("ClientHandlerThread", MAX_SERVER_POOL_SIZE), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
     @Value("${netty.server.ip}")
@@ -59,7 +69,7 @@ public class NettyClient {
     public void init() {
         group = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
-        clientRpcHandler = new ClientRpcHandler(this);
+        clientRpcHandler = new ClientRpcHandler(this,WORKING_THREADS);
         if (bootstrap != null) {
             bootstrap.group(group);
             bootstrap.channel(NioSocketChannel.class);
@@ -118,7 +128,7 @@ public class NettyClient {
     }
 
 
-    public void saveMessageWaitingConfirm(WaitingConfirmRequest waitingConfirmRequest) throws Exception {
+    public void saveMessageWaitingConfirm(WaitingConfirmRequest waitingConfirmRequest) throws TimeoutException {
         this.clientRpcHandler.sendMessage(waitingConfirmRequest, clientRpcHandler.getChannel(null));
     }
 
