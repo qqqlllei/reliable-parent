@@ -102,10 +102,19 @@ public class ServerRpcHandler extends AbstractRpcHandler {
         }
     }
 
-    @Override
-    public Collection<Channel> getAllChannels(String applicationId) {
+
+    public Channel getClientChannel(String applicationId){
+        Channel channel;
         ConcurrentMap<String,Channel>  channelGroup = this.channels.get(applicationId);
-        return channelGroup.values();
+        Collection<Channel> channelList = channelGroup.values();
+        while (channelList.size()>0){
+            channel = roundRobinLoadBalance.doSelect(new ArrayList<>(channelList));
+            if(channel.isActive()){
+                return channel;
+            }
+            channelList.remove(channel);
+        }
+        return null;
     }
 
     @Override

@@ -115,6 +115,8 @@ public class NacosRegistryServiceImpl implements RegistryService<EventListener> 
                         }
                     }
                     CLUSTER_ADDRESS_MAP.put(DEFAULT_CLUSTER, newAddressList);
+
+
                 }
             });
         }

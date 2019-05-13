@@ -9,8 +9,6 @@ import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -70,23 +68,5 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-
-
-    }
-
-    public abstract Collection<Channel> getAllChannels(String applicationId);
-
-    public Channel getChannel(String applicationId){
-        Channel channel;
-
-        Collection<Channel> channelList = getAllChannels(applicationId);
-        while (channelList.size()>0){
-            channel = roundRobinLoadBalance.doSelect(new ArrayList<>(channelList));
-            if(channel.isActive()){
-                return channel;
-            }
-            channelList.remove(channel);
-        }
-        return null;
     }
 }

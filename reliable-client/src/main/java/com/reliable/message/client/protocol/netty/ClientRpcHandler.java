@@ -1,5 +1,6 @@
 package com.reliable.message.client.protocol.netty;
 
+import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
 import com.reliable.message.common.netty.RoundRobinLoadBalance;
 import com.reliable.message.common.netty.message.Message;
@@ -17,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -100,17 +101,23 @@ public class ClientRpcHandler extends AbstractRpcHandler {
 
     }
 
-    @Override
-    public Collection<Channel> getAllChannels(String applicationId) {
-        Collection<Channel> channelCollection = channels.values();
-        if(channelCollection.size() == 0){
-            this.nettyClient.connect();
-            return channels.values();
-        }
-        return channelCollection;
+    public ConcurrentMap<String, Channel> getChannels() {
+
+        logger.info("===========================clientChannels size = " + channels.size());
+        return channels;
     }
 
-    public ConcurrentMap<String, Channel> getChannels() {
-        return channels;
+
+    public InetSocketAddress loadBalance(){
+        InetSocketAddress address;
+        try {
+            List<InetSocketAddress> inetSocketAddresses =  RegistryFactory.getInstance("nacos_register").
+                    lookup("");
+            address = roundRobinLoadBalance.doSelect(inetSocketAddresses);
+            return address;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

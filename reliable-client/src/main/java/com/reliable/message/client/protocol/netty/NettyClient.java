@@ -36,6 +36,7 @@ public class NettyClient {
 
     private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
+    private static final int MAX_CHECK_ALIVE_RETRY = 3;
     private static final int connectTimeoutMillis = 10000;
     private static final int MIN_SERVER_POOL_SIZE = 10;
     private static final int MAX_SERVER_POOL_SIZE = 50;
@@ -100,11 +101,11 @@ public class NettyClient {
         }
     }
 
-    public void doConnect(InetSocketAddress serverAddress) {
+    public Channel doConnect(InetSocketAddress serverAddress) {
         Channel channel;
         channel = clientRpcHandler.getChannels().get(serverAddress.toString());
-        if(channel.isActive()){
-            return;
+        if(channel !=null && channel.isActive()){
+            return channel;
         }
 
         try {
@@ -122,8 +123,13 @@ public class NettyClient {
                 clientRegisterRequest.setApplicationId(applicationId);
                 clientRegisterRequest.setSyncFlag(true);
                 channel.writeAndFlush(clientRegisterRequest);
+                return channel;
             }
         } catch (Exception e) {
+            if(channel !=null){
+                channel.close();
+            }
+            clientRpcHandler.getChannels().remove(serverAddress.toString());
             throw new RuntimeException("connect failed, can not connect to services-server.",e.getCause());
         }
     }
@@ -138,7 +144,7 @@ public class NettyClient {
 
 
     public void saveMessageWaitingConfirm(WaitingConfirmRequest waitingConfirmRequest) throws TimeoutException {
-        this.clientRpcHandler.sendMessage(waitingConfirmRequest, clientRpcHandler.getChannel(null));
+        this.clientRpcHandler.sendMessage(waitingConfirmRequest,getExistAliveChannel());
     }
 
 
@@ -146,7 +152,7 @@ public class NettyClient {
         ConfirmFinishRequest confirmFinishRequest = new ConfirmFinishRequest();
         confirmFinishRequest.setConfirmId(confirmId);
         confirmFinishRequest.setSyncFlag(false);
-        this.clientRpcHandler.sendMessage(confirmFinishRequest, clientRpcHandler.getChannel(null));
+        this.clientRpcHandler.sendMessage(confirmFinishRequest, getExistAliveChannel());
     }
 
 
@@ -154,7 +160,7 @@ public class NettyClient {
         ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
         confirmAndSendRequest.setProducerMessageId(producerMessageId);
         confirmAndSendRequest.setSyncFlag(false);
-        this.clientRpcHandler.sendMessage(confirmAndSendRequest, clientRpcHandler.getChannel(null));
+        this.clientRpcHandler.sendMessage(confirmAndSendRequest, getExistAliveChannel());
     }
 
 
@@ -177,5 +183,22 @@ public class NettyClient {
 
     public void setReliableMessageService(ReliableMessageService reliableMessageService) {
         this.reliableMessageService = reliableMessageService;
+    }
+
+
+    private Channel getExistAliveChannel(){
+        Channel channel=null;
+        int i = 0;
+        for (; i < MAX_CHECK_ALIVE_RETRY; i++) {
+            try{
+                channel =  doConnect(clientRpcHandler.loadBalance());
+                return channel;
+            }catch (Exception e){
+               if(i == MAX_CHECK_ALIVE_RETRY){
+                   logger.info("all server is down");
+               }
+            }
+        }
+        return channel;
     }
 }

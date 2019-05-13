@@ -51,7 +51,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
                 waitConfirmCheckRequest.setProducerGroup(serverMessageData.getProducerGroup());
                 waitConfirmCheckRequest.setId(serverMessageData.getProducerMessageId());
                 ServerRpcHandler serverRpcHandler = nettyServer.getServerRpcHandler();
-                Channel channel = serverRpcHandler.getChannel(serverMessageData.getProducerGroup());
+                Channel channel = serverRpcHandler.getClientChannel(serverMessageData.getProducerGroup());
                 if(channel == null){
                     logger.warn("服务{}未启动",serverMessageData.getProducerGroup());
                     continue;

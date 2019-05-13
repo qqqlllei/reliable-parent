@@ -2,6 +2,7 @@ package com.reliable.message.common.netty;
 
 import io.netty.channel.Channel;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,13 +14,15 @@ public class RoundRobinLoadBalance implements ChannelLoadBalance {
 
     private static AtomicInteger index = new AtomicInteger(0);
     @Override
-    public Channel doSelect(List<Channel> channels) {
+    public <T> T doSelect(List<T> list) {
 
-        if (index.get() >= channels.size()) {
+        if (index.get() >= list.size()) {
             index = new AtomicInteger(0);
         }
-        Channel channel = channels.get(index.get());
+        int a = index.get();
+        System.out.println("=============index = "+ a);
+        T obj = list.get(a);
         index.incrementAndGet();
-        return channel;
+        return obj;
     }
 }

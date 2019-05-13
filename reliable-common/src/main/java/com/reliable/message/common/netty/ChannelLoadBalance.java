@@ -1,7 +1,5 @@
 package com.reliable.message.common.netty;
 
-import io.netty.channel.Channel;
-
 import java.util.List;
 
 /**
@@ -10,5 +8,5 @@ import java.util.List;
 public interface ChannelLoadBalance {
 
 
-    Channel doSelect(List<Channel> channels);
+    <T> T doSelect(List<T> channels);
 }
