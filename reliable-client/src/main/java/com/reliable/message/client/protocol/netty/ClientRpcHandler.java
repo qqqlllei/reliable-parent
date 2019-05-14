@@ -45,7 +45,8 @@ public class ClientRpcHandler extends AbstractRpcHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.info("关闭连接时：" + new Date());
-        nettyClient.doConnect((InetSocketAddress) ctx.channel().remoteAddress());
+        ctx.disconnect();
+        ctx.close();
     }
 
 
@@ -84,6 +85,8 @@ public class ClientRpcHandler extends AbstractRpcHandler {
                     responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
                     if(nettyClient.getReliableMessageService().hasProducedMessage(waitConfirmCheckRequest.getId())){
                         responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
+                    }else{
+                        responseMessage.setResultCode(Wrapper.WITHOUT_MESSAGE);
                     }
                     ctx.writeAndFlush(responseMessage);
                 });
