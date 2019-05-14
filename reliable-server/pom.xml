@@ -86,7 +86,7 @@
                     <forceTags>true</forceTags>
                     <baseImage>java:openjdk-8-jdk-alpine</baseImage>
                     <env>
-                        <JAVA_OPTS>"-server -Xms1024M -Xmx1024M"</JAVA_OPTS>
+                        <JAVA_OPTS>"-server -Xms1024M -Xmx1024M -Dfile.encoding=UTF8  -Duser.timezone=GMT+08"</JAVA_OPTS>
                     </env>
                     <entryPoint>["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /${project.build.finalName}.jar"]</entryPoint>
                     <resources>

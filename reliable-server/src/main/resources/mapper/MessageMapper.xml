@@ -107,7 +107,7 @@
 
     <select id="getServerMessageDataByParams" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData" >
         SELECT * FROM message WHERE status = #{status} AND send_time &lt; #{clearTime}
-        AND MOD(id, #{shardingTotalCount}) = #{shardingItem}ORDER BY update_time ASC Limit 0, #{fetchNum}
+        AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 
 
@@ -117,13 +117,13 @@
 
 
     <select id="getWaitConfirmServerMessageData" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData" >
-        SELECT * FROM message WHERE status = 10 AND send_time &lt; DATE_SUB(CURRENT_TIMESTAMP(),INTERVAL 1 MINUTE)
+        SELECT * FROM message WHERE status = 10 AND send_time &lt; #{scanTime}
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 
 
     <select id="getSendingMessageData" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData">
-        SELECT * FROM message WHERE status = 20 AND send_time &lt; DATE_SUB(CURRENT_TIMESTAMP(),INTERVAL 1 MINUTE)
+        SELECT * FROM message WHERE status = 20 AND send_time &lt; #{scanTime}
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 

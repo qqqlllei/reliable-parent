@@ -62,6 +62,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
                 if(Wrapper.SUCCESS_CODE == object.getResultCode()){
                     fetchServerMessageList.add(serverMessageData);
                 }else if(Wrapper.WITHOUT_MESSAGE == object.getResultCode()){
+                    logger.info("=======================WITHOUT_MESSAGE =========================="+serverMessageData.getProducerMessageId());
                     messageService.deleteServerMessageDataById(serverMessageData.getId());
                 }
             } catch (Exception e) {

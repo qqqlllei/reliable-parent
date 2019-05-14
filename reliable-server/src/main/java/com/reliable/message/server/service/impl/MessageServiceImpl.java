@@ -118,11 +118,14 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter) {
+
+        jobTaskParameter.put("scanTime",TimeUtil.getBeforeByMinuteTime(1));
         return serverMessageMapper.getWaitConfirmServerMessageData(jobTaskParameter);
     }
 
     @Override
     public List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter) {
+        jobTaskParameter.put("scanTime",TimeUtil.getBeforeByMinuteTime(1));
         return serverMessageMapper.getSendingMessageData(jobTaskParameter);
     }
 

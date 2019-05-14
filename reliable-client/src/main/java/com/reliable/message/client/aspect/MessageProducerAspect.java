@@ -121,7 +121,12 @@ public class MessageProducerAspect {
 		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
 			messageTaskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,nettyClient));
 		} else{
-			nettyClient.confirmAndSendMessage(domain.getId());
+			try{
+				nettyClient.confirmAndSendMessage(domain.getId());
+			}catch (Exception e){
+				log.warn("processMessageProducerJoinPoint - 线程id={}", Thread.currentThread().getId()+" confirmAndSendMessage 异常");
+			}
+
 		}
 
 		return result;

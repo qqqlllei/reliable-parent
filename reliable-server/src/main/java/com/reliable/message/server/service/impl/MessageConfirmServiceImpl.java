@@ -1,10 +1,10 @@
 package com.reliable.message.server.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.reliable.message.common.util.TimeUtil;
 import com.reliable.message.server.dao.MessageConfirmMapper;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
-import com.reliable.message.server.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +58,7 @@ public class MessageConfirmServiceImpl implements MessageConfirmService {
 
     @Override
     public List<MessageConfirm> getUnConfirmMessage(JSONObject jobTaskParameter) {
+        jobTaskParameter.put("scanTime", TimeUtil.getBeforeByMinuteTime(1));
         return messageConfirmMapper.getUnConfirmMessage(jobTaskParameter);
     }
 }
