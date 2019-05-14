@@ -71,7 +71,7 @@ public class NettyServer {
     public void start() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap();
         serverRpcHandler = new ServerRpcHandler(this,WORKING_THREADS);
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(ip,port);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(port);
         bootstrap.group(boss, work)
                 // 指定Channel
                 .channel(NioServerSocketChannel.class)
@@ -93,7 +93,7 @@ public class NettyServer {
             if (future.isSuccess()) {
                 logger.info("启动 Netty Server");
             }
-            RegistryFactory.getInstance(RegistryFactory.DEFAULT_REGISTER).register(inetSocketAddress);
+            RegistryFactory.getInstance(RegistryFactory.DEFAULT_REGISTER).register(ip,port);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

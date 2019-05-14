@@ -45,15 +45,15 @@ public class NacosRegistryServiceImpl implements RegistryService<EventListener> 
     }
 
     @Override
-    public void register(InetSocketAddress address) throws Exception {
-        validAddress(address);
-        getNamingInstance().registerInstance(APPLICATION_NAME, address.getAddress().getHostAddress(), address.getPort(), getClusterName());
+    public void register(String ip, int port) throws Exception {
+        validAddress(ip,port);
+        getNamingInstance().registerInstance(APPLICATION_NAME,ip, port, getClusterName());
     }
 
     @Override
-    public void unregister(InetSocketAddress address) throws Exception {
-        validAddress(address);
-        getNamingInstance().deregisterInstance(APPLICATION_NAME, address.getAddress().getHostAddress(), address.getPort(), getClusterName());
+    public void unregister(String ip,int port ) throws Exception {
+        validAddress(ip,port);
+        getNamingInstance().deregisterInstance(APPLICATION_NAME, ip, port, getClusterName());
     }
 
     @Override
@@ -128,9 +128,9 @@ public class NacosRegistryServiceImpl implements RegistryService<EventListener> 
 
     }
 
-    private void validAddress(InetSocketAddress address) {
-        if (null == address.getHostName() || 0 == address.getPort()) {
-            throw new IllegalArgumentException("invalid address:" + address);
+    private void validAddress(String ip,int port ) {
+        if (null == ip || 0 == port) {
+            throw new IllegalArgumentException("invalid address:" + ip+" "+port);
         }
     }
 

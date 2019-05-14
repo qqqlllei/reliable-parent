@@ -24,10 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * Created by 李雷 on 2019/4/29.
@@ -46,13 +43,7 @@ public class NettyClient {
             MAX_SERVER_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
             new LinkedBlockingQueue(MAX_TASK_QUEUE_SIZE),
             new NamedThreadFactory("ClientHandlerThread", MAX_SERVER_POOL_SIZE), new ThreadPoolExecutor.CallerRunsPolicy());
-
-
-    @Value("${netty.server.ip}")
-    private String host;
-
-    @Value("${netty.server.port}")
-    private Integer port;
+    private final ConcurrentMap<String, Object> channelLocks = new ConcurrentHashMap<>();
 
     @Value("${spring.application.name}")
     private String applicationId;
@@ -102,35 +93,44 @@ public class NettyClient {
     }
 
     public Channel doConnect(InetSocketAddress serverAddress) {
-        Channel channel;
-        channel = clientRpcHandler.getChannels().get(serverAddress.toString());
-        if(channel !=null && channel.isActive()){
-            return channel;
-        }
 
-        try {
-            ChannelFuture f = this.bootstrap.connect(serverAddress);
-            f.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+        String serverLockString = serverAddress.toString();
 
-            if (f.isCancelled()) {
-                throw new RuntimeException("connect cancelled, can not connect to services-server.",f.cause());
-            } else if (!f.isSuccess()) {
-                throw new RuntimeException("connect failed, can not connect to services-server.",f.cause());
-            } else {
-                channel = f.channel();
-                clientRpcHandler.getChannels().put(channel.remoteAddress().toString(),channel);
-                ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
-                clientRegisterRequest.setApplicationId(applicationId);
-                clientRegisterRequest.setSyncFlag(true);
-                channel.writeAndFlush(clientRegisterRequest);
+        channelLocks.putIfAbsent(serverLockString, new Object());
+        Object connectLock = channelLocks.get(serverLockString);
+
+        synchronized (connectLock) {
+            Channel channel;
+            logger.info("================channels=============="+clientRpcHandler.getChannels());
+            channel = clientRpcHandler.getChannels().get(serverAddress.toString());
+            if(channel !=null && channel.isActive()){
                 return channel;
             }
-        } catch (Exception e) {
-            if(channel !=null){
-                channel.close();
+
+            try {
+                ChannelFuture f = this.bootstrap.connect(serverAddress);
+                f.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+
+                if (f.isCancelled()) {
+                    throw new RuntimeException("connect cancelled, can not connect to services-server.",f.cause());
+                } else if (!f.isSuccess()) {
+                    throw new RuntimeException("connect failed, can not connect to services-server.",f.cause());
+                } else {
+                    channel = f.channel();
+                    clientRpcHandler.getChannels().put(channel.remoteAddress().toString(),channel);
+                    ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
+                    clientRegisterRequest.setApplicationId(applicationId);
+                    clientRegisterRequest.setSyncFlag(true);
+                    channel.writeAndFlush(clientRegisterRequest);
+                    return channel;
+                }
+            } catch (Exception e) {
+                if(channel !=null){
+                    channel.close();
+                }
+                clientRpcHandler.getChannels().remove(serverAddress.toString());
+                throw new RuntimeException("connect failed, can not connect to services-server.",e.getCause());
             }
-            clientRpcHandler.getChannels().remove(serverAddress.toString());
-            throw new RuntimeException("connect failed, can not connect to services-server.",e.getCause());
         }
     }
 
