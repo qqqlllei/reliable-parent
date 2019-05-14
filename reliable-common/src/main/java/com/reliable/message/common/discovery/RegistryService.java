@@ -8,9 +8,9 @@ import java.util.List;
  */
 public interface RegistryService<T> {
 
-    void register(InetSocketAddress address) throws Exception;
+    void register(String ip,int port) throws Exception;
 
-    void unregister(InetSocketAddress address) throws Exception;
+    void unregister(String ip,int port) throws Exception;
 
     void subscribe(String cluster, T listener) throws Exception;
 
