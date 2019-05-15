@@ -8,7 +8,9 @@ import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.enums.DelayLevelEnum;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
+import com.reliable.message.common.enums.MessageTypeEnum;
 import com.reliable.message.common.exception.BusinessException;
+import com.reliable.message.common.netty.message.SaveAndSendRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -97,12 +99,13 @@ public class MessageProducerAspect {
 			domain.setMessageVersion(serverVersion);
 		}
 
+		domain.setMessageType(MessageTypeEnum.PRODUCER_MESSAGE.messageType());
+
 		domain.setProducerGroup(producerGroup);
 
 		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
 
             WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(domain, WaitingConfirmRequest.class);
-
 			reliableMessageService.saveMessage(waitingConfirmRequest);
 			try {
                 nettyClient.saveMessageWaitingConfirm(waitingConfirmRequest);
@@ -115,18 +118,15 @@ public class MessageProducerAspect {
 		result = joinPoint.proceed();
 
 		if (type == MessageSendTypeEnum.SAVE_AND_SEND) {
-			nettyClient.saveAndSendMessage(domain);
+			SaveAndSendRequest saveAndSendRequest = new ModelMapper().map(domain, SaveAndSendRequest.class);
+			reliableMessageService.saveMessage(saveAndSendRequest);
+			nettyClient.saveAndSendMessage(saveAndSendRequest);
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			nettyClient.directSendMessage(domain);
 		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
 			messageTaskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,nettyClient));
 		} else{
-			try{
-				nettyClient.confirmAndSendMessage(domain.getId());
-			}catch (Exception e){
-				log.warn("processMessageProducerJoinPoint - 线程id={}", Thread.currentThread().getId()+" confirmAndSendMessage 异常");
-			}
-
+			nettyClient.confirmAndSendMessage(domain.getId());
 		}
 
 		return result;

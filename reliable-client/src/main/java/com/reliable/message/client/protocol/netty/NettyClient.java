@@ -4,12 +4,8 @@ import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.domain.ClientMessageData;
-import com.reliable.message.common.dto.MessageData;
 import com.reliable.message.common.netty.NamedThreadFactory;
-import com.reliable.message.common.netty.message.ClientRegisterRequest;
-import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
-import com.reliable.message.common.netty.message.ConfirmFinishRequest;
-import com.reliable.message.common.netty.message.WaitingConfirmRequest;
+import com.reliable.message.common.netty.message.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -156,16 +152,25 @@ public class NettyClient {
     }
 
 
-    public void confirmAndSendMessage(String producerMessageId) throws TimeoutException {
+    public void confirmAndSendMessage(String producerMessageId)  {
         ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
         confirmAndSendRequest.setProducerMessageId(producerMessageId);
         confirmAndSendRequest.setSyncFlag(false);
-        this.clientRpcHandler.sendMessage(confirmAndSendRequest, getExistAliveChannel());
+        try {
+            this.clientRpcHandler.sendMessage(confirmAndSendRequest, getExistAliveChannel());
+        } catch (TimeoutException e) {
+            logger.warn("confirmAndSendMessage error - 生产者 消息id={}", producerMessageId);
+        }
     }
 
 
-    public void saveAndSendMessage(ClientMessageData clientMessageData) {
-
+    public void saveAndSendMessage(SaveAndSendRequest saveAndSendRequest)  {
+        saveAndSendRequest.setSyncFlag(false);
+        try {
+            this.clientRpcHandler.sendMessage(saveAndSendRequest,getExistAliveChannel());
+        } catch (TimeoutException e) {
+            logger.warn("saveAndSendMessage error - 生产者 消息id={}", saveAndSendRequest.getId());
+        }
     }
 
 

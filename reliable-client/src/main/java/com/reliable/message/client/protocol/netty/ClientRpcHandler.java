@@ -64,7 +64,6 @@ public class ClientRpcHandler extends AbstractRpcHandler {
             // 如果写通道处于空闲状态,就发送心跳命令
             if (IdleState.WRITER_IDLE.equals(event.state())) {
                 Message message = new Message();
-                message.setMessageType(MessageSendTypeEnum.PING);
                 ctx.channel().writeAndFlush(message);
             }
         }
@@ -82,7 +81,6 @@ public class ClientRpcHandler extends AbstractRpcHandler {
                     WaitConfirmCheckRequest waitConfirmCheckRequest = (WaitConfirmCheckRequest) msg;
                     ResponseMessage responseMessage = new ResponseMessage();
                     responseMessage.setId(waitConfirmCheckRequest.getId());
-                    responseMessage.setMessageType(MessageSendTypeEnum.WAIT_CONFIRM);
                     if(nettyClient.getReliableMessageService().hasProducedMessage(waitConfirmCheckRequest.getId())){
                         responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
                     }else{

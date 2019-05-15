@@ -1,4 +1,4 @@
-package com.reliable.message.server.enums;
+package com.reliable.message.common.enums;
 
 public enum MessageSendStatusEnum {
 	/**

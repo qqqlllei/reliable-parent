@@ -2,9 +2,8 @@ package com.reliable.message.server.datasource;
 
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
-import com.reliable.message.common.netty.message.ConfirmFinishRequest;
+import com.reliable.message.common.netty.message.SaveAndSendRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
-import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +30,10 @@ public class DataBaseManager {
     public void confirmFinishRequest(String confirmId) {
         messageService.confirmFinishMessage(confirmId);
 
+    }
+
+    public void saveAndSendMessage(SaveAndSendRequest saveAndSendRequest){
+        ClientMessageData clientMessageData = new ModelMapper().map(saveAndSendRequest, ClientMessageData.class);
+        messageService.saveAndSendMessage(clientMessageData);
     }
 }

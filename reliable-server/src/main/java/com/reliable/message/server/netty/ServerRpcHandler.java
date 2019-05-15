@@ -87,6 +87,12 @@ public class ServerRpcHandler extends AbstractRpcHandler {
                         return;
                     }
 
+                    if(msg instanceof SaveAndSendRequest){
+                        SaveAndSendRequest saveAndSendRequest = (SaveAndSendRequest) msg;
+                        dataBaseManager.saveAndSendMessage(saveAndSendRequest);
+                        return;
+                    }
+
                     if(msg instanceof ConfirmFinishRequest){
                         ConfirmFinishRequest confirmFinishRequest =  (ConfirmFinishRequest) msg;
                         dataBaseManager.confirmFinishRequest(confirmFinishRequest.getConfirmId());

@@ -21,6 +21,7 @@ public abstract class RequestMessage extends Message {
     private String messageKey;
     private Integer status;
     private String messageBody;
+    private Integer messageType;
     private String messageVersion;
     private int delayLevel;
     private Date sendTime;

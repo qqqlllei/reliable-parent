@@ -50,8 +50,6 @@ public class DelayMessageTask implements Runnable, Delayed{
             nettyClient.confirmAndSendMessage(delayMessageTask.getClientMessageData().getProducerMessageId());
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
         }
     }
 

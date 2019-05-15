@@ -10,7 +10,7 @@ import com.reliable.message.server.dao.ServerMessageMapper;
 import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.enums.MessageConfirmEnum;
-import com.reliable.message.server.enums.MessageSendStatusEnum;
+import com.reliable.message.common.enums.MessageSendStatusEnum;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageConsumerService;
 import com.reliable.message.server.service.MessageService;
@@ -55,7 +55,7 @@ public class MessageServiceImpl implements MessageService {
 
         Date now = new Date();
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        message.setStatus(MessageSendStatusEnum.WAIT_CONFIRM.sendStatus());
+        message.setStatus(clientMessageData.getStatus());
         message.setProducerMessageId(clientMessageData.getId());
         message.setId(UUIDUtil.getId());
         message.setUpdateTime(now);
@@ -209,7 +209,6 @@ public class MessageServiceImpl implements MessageService {
     @Transactional
     public void saveAndSendMessage(ClientMessageData clientMessageData) {
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        message.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
         Date now = new Date();
         message.setProducerMessageId(clientMessageData.getId());
         message.setId(UUIDUtil.getId());
