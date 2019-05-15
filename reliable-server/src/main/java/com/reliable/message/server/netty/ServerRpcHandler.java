@@ -69,6 +69,7 @@ public class ServerRpcHandler extends AbstractRpcHandler {
             if(msg instanceof RequestMessage){
                 // 耗时操作放在业务线程处理
                 messageExecutor.execute(() -> {
+
                     if(msg instanceof WaitingConfirmRequest){
                         WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
                         dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
@@ -84,6 +85,12 @@ public class ServerRpcHandler extends AbstractRpcHandler {
                         ConfirmAndSendRequest confirmAndSendRequest = (ConfirmAndSendRequest) msg;
                         dataBaseManager.confirmAndSendRequest(confirmAndSendRequest);
 
+                        return;
+                    }
+
+                    if(msg instanceof DirectSendRequest){
+                        DirectSendRequest directSendRequest =  (DirectSendRequest) msg;
+                        dataBaseManager.directSendMessage(directSendRequest);
                         return;
                     }
 

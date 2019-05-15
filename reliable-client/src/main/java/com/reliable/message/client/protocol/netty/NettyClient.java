@@ -174,8 +174,9 @@ public class NettyClient {
     }
 
 
-    public void directSendMessage(ClientMessageData clientMessageData) {
-
+    public void directSendMessage(DirectSendRequest directSendRequest) throws TimeoutException {
+        directSendRequest.setSyncFlag(false);
+        this.clientRpcHandler.sendMessage(directSendRequest,getExistAliveChannel());
     }
 
     public String getApplicationId(){

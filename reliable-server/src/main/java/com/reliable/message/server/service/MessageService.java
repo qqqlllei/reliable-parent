@@ -3,6 +3,7 @@ package com.reliable.message.server.service;
 import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.server.domain.MessageConfirm;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public interface MessageService {
 
     void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ServerMessageData message );
 
-    void directSendMessage(ClientMessageData clientMessageData);
+    void directSendMessage(DirectSendRequest directSendRequest);
 
     void saveAndSendMessage(ClientMessageData clientMessageData);
 

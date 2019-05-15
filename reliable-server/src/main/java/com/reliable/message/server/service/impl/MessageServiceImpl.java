@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
 import com.reliable.message.common.exception.BusinessException;
+import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.common.util.TimeUtil;
 import com.reliable.message.common.util.UUIDUtil;
 import com.reliable.message.server.dao.ServerMessageMapper;
@@ -55,7 +56,6 @@ public class MessageServiceImpl implements MessageService {
 
         Date now = new Date();
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        message.setStatus(clientMessageData.getStatus());
         message.setProducerMessageId(clientMessageData.getId());
         message.setId(UUIDUtil.getId());
         message.setUpdateTime(now);
@@ -182,26 +182,20 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void directSendMessage(ClientMessageData clientMessageData) {
-        ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        List<String> consumerGroupList;
-
-        if(clientMessageData.getConsumerList().size() >0){
-            consumerGroupList=clientMessageData.getConsumerList();
-        }else{
-            consumerGroupList= messageConsumerService.listConsumerGroupByTopic(message.getMessageTopic());
-        }
+    public void directSendMessage(DirectSendRequest directSendRequest) {
+        String messageTopic = directSendRequest.getMessageTopic();
+        List<String> consumerGroupList= messageConsumerService.listConsumerGroupByTopic(messageTopic);
 
         for (String consumer : consumerGroupList) {
 
-            String topic= message.getMessageTopic()+"_"+consumer;
+            String topic= messageTopic+"_"+consumer.toUpperCase();
 
-            String messageVersion = message.getMessageVersion();
+            String messageVersion = directSendRequest.getMessageVersion();
             if(StringUtils.isNotBlank(messageVersion)){
-                topic = message.getMessageTopic()+"_"+messageVersion+"_"+consumer;
+                topic = directSendRequest.getMessageTopic()+"_"+messageVersion+"_"+consumer.toUpperCase();
             }
 
-            this.directSendMessage(JSONObject.toJSON(message).toString(),topic,message.getMessageKey());
+            this.directSendMessage(JSONObject.toJSON(directSendRequest).toString(),topic,directSendRequest.getMessageKey());
         }
     }
 
@@ -209,6 +203,7 @@ public class MessageServiceImpl implements MessageService {
     @Transactional
     public void saveAndSendMessage(ClientMessageData clientMessageData) {
         ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
+        message.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
         Date now = new Date();
         message.setProducerMessageId(clientMessageData.getId());
         message.setId(UUIDUtil.getId());

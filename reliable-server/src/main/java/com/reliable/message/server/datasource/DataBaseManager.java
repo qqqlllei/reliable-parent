@@ -2,6 +2,7 @@ package com.reliable.message.server.datasource;
 
 import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
+import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.common.netty.message.SaveAndSendRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import com.reliable.message.server.service.MessageService;
@@ -35,5 +36,9 @@ public class DataBaseManager {
     public void saveAndSendMessage(SaveAndSendRequest saveAndSendRequest){
         ClientMessageData clientMessageData = new ModelMapper().map(saveAndSendRequest, ClientMessageData.class);
         messageService.saveAndSendMessage(clientMessageData);
+    }
+
+    public void directSendMessage(DirectSendRequest directSendRequest){
+        messageService.directSendMessage(directSendRequest);
     }
 }

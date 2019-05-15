@@ -10,6 +10,7 @@ import com.reliable.message.common.enums.ExceptionCodeEnum;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
 import com.reliable.message.common.enums.MessageTypeEnum;
 import com.reliable.message.common.exception.BusinessException;
+import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.common.netty.message.SaveAndSendRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -122,7 +123,8 @@ public class MessageProducerAspect {
 			reliableMessageService.saveMessage(saveAndSendRequest);
 			nettyClient.saveAndSendMessage(saveAndSendRequest);
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
-			nettyClient.directSendMessage(domain);
+			DirectSendRequest directSendRequest = new ModelMapper().map(domain, DirectSendRequest.class);
+			nettyClient.directSendMessage(directSendRequest);
 		} else if(type == MessageSendTypeEnum.WAIT_CONFIRM && !delayLevelEnum.equals(DelayLevelEnum.ZERO)) {
 			messageTaskExecutor.execute(new DelayMessageTask(domain,delayMessageQueue,nettyClient));
 		} else{
