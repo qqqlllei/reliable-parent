@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.dto.MessageData;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
+import com.reliable.message.common.enums.MessageSendStatusEnum;
 import com.reliable.message.common.enums.MessageTypeEnum;
 import com.reliable.message.common.exception.BusinessException;
 import com.reliable.message.common.netty.message.RequestMessage;
+import com.reliable.message.common.util.TimeUtil;
 import com.reliable.message.common.util.UUIDUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by 李雷
@@ -85,24 +88,52 @@ public class ReliableMessageServiceImpl implements ReliableMessageService {
 	@Override
 	public List<String> getProducerMessage(JSONObject jobTaskParameter) {
 
-
+		String scanTime = TimeUtil.getBeforeByMinuteTime(1);
 		String sql = "SELECT id FROM client_message_data " +
-				"WHERE message_type= ? AND send_time < DATE_SUB(CURDATE(),INTERVAL 1 DAY) AND " +
-				"MOD(id, ?) = ? Limit 0, ?";
+				"WHERE message_type= ? and status = ? and send_time < ? ORDER BY send_time ASC Limit 0, ?";
 		Object args[] ={
 				MessageTypeEnum.PRODUCER_MESSAGE.messageType(),
-				jobTaskParameter.getString("shardingTotalCount"),
-				jobTaskParameter.getString("shardingItem"),
-				jobTaskParameter.getString("fetchNum")};
+				MessageSendStatusEnum.SENDING.sendStatus(),
+				scanTime,
+				jobTaskParameter.getIntValue("fetchNum")};
 
 
 		return jdbcTemplate.queryForList(sql,args,String.class);
 	}
 
+
+	@Override
+	public Map<String, Object> getRequestMessageById(String id) {
+
+		String getSql = "SELECT id,version,producer_group AS producerGroup,producer_message_id AS producerMessageId," +
+				"message_key AS messageKey,message_topic AS messageTopic,message_type AS messageType," +
+				"message_body AS messageBody,message_version AS messageVersion,delay_level AS delayLevel," +
+				"status,send_time AS sendTime  FROM client_message_data WHERE id = ?";
+		Object getArgs[] ={id};
+		return jdbcTemplate.queryForMap(getSql,getArgs);
+	}
+
+//	@Override
+//	public void updateSendTimeByMessageId(String id) {
+//		String getSql = "SELECT send_time FROM client_message_data WHERE id = ?";
+//		Object getArgs[] ={id};
+//		int sendTime = jdbcTemplate.queryForObject(getSql,getArgs,Integer.class);
+//
+//		String updateSql = "UPDATE client_message_data SET send_time = ? where id = ?";
+//		Object updateArgs[] ={sendTime+1,id};
+//
+//		jdbcTemplate.update(updateSql,updateArgs);
+//	}
+
 	@Override
 	public void saveMessage(RequestMessage requestMessage) {
 
 		checkMessage(requestMessage);
+		requestMessage.executeSql(jdbcTemplate);
+	}
+
+	@Override
+	public void updateMessage(RequestMessage requestMessage) {
 		requestMessage.executeSql(jdbcTemplate);
 	}
 

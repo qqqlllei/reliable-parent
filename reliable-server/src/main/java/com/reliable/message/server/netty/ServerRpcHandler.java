@@ -3,6 +3,7 @@ package com.reliable.message.server.netty;
 import com.reliable.message.common.netty.RoundRobinLoadBalance;
 import com.reliable.message.common.netty.message.*;
 import com.reliable.message.common.netty.rpc.AbstractRpcHandler;
+import com.reliable.message.common.wrapper.Wrapper;
 import com.reliable.message.server.datasource.DataBaseManager;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -97,7 +98,27 @@ public class ServerRpcHandler extends AbstractRpcHandler {
                     if(msg instanceof SaveAndSendRequest){
                         SaveAndSendRequest saveAndSendRequest = (SaveAndSendRequest) msg;
                         dataBaseManager.saveAndSendMessage(saveAndSendRequest);
+
+                        ReceiveSaveAndSendRequest receiveSaveAndSendRequest = new ReceiveSaveAndSendRequest();
+                        receiveSaveAndSendRequest.setProducerMessageId(saveAndSendRequest.getProducerMessageId());
+                        ctx.writeAndFlush(receiveSaveAndSendRequest);
                         return;
+                    }
+
+                    if(msg instanceof CheckServerMessageRequest){
+                        CheckServerMessageRequest checkServerMessageRequest = (CheckServerMessageRequest) msg;
+                        boolean isExist = dataBaseManager.checkMessageIsExist(checkServerMessageRequest.getId());
+
+                        ResponseMessage responseMessage = new ResponseMessage();
+                        responseMessage.setId(checkServerMessageRequest.getId());
+                        if(isExist){
+                            responseMessage.setResultCode(Wrapper.SUCCESS_CODE);
+                        }else{
+                            responseMessage.setResultCode(Wrapper.WITHOUT_MESSAGE);
+                        }
+                        ctx.writeAndFlush(responseMessage);
+                        return;
+
                     }
 
                     if(msg instanceof ConfirmFinishRequest){

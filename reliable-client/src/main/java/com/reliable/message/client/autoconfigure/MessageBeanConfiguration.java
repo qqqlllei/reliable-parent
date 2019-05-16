@@ -4,7 +4,7 @@ import com.reliable.message.client.aspect.MessageConsumerAspect;
 import com.reliable.message.client.aspect.MessageProducerAspect;
 import com.reliable.message.client.delay.DelayMessageRegictedExecutionHandler;
 import com.reliable.message.client.delay.DelayMessageTask;
-import com.reliable.message.client.job.ClientMessageDataflow;
+//import com.reliable.message.client.job.ClientMessageDataflow;
 import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.client.service.impl.ReliableMessageServiceImpl;
@@ -71,11 +71,11 @@ public class MessageBeanConfiguration {
 	}
 
 
-	@Bean
-	@ConditionalOnExpression("${reliable.message.producerMessageDelteFlag:false}")
-	public ClientMessageDataflow clientMessageDataflow(){
-		return new ClientMessageDataflow();
-	}
+//	@Bean
+//	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
+//	public ClientMessageDataflow clientMessageDataflow(){
+//		return new ClientMessageDataflow();
+//	}
 
 
 

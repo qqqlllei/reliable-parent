@@ -1,6 +1,7 @@
 package com.reliable.message.server.datasource;
 
 import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
 import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.common.netty.message.SaveAndSendRequest;
@@ -30,7 +31,6 @@ public class DataBaseManager {
 
     public void confirmFinishRequest(String confirmId) {
         messageService.confirmFinishMessage(confirmId);
-
     }
 
     public void saveAndSendMessage(SaveAndSendRequest saveAndSendRequest){
@@ -40,5 +40,14 @@ public class DataBaseManager {
 
     public void directSendMessage(DirectSendRequest directSendRequest){
         messageService.directSendMessage(directSendRequest);
+    }
+
+    public boolean checkMessageIsExist(String producerMessageId){
+        ServerMessageData serverMessageData =  messageService.getServerMessageDataByProducerMessageId(producerMessageId);
+        if(serverMessageData !=null){
+            return true;
+        }
+        return  false;
+
     }
 }

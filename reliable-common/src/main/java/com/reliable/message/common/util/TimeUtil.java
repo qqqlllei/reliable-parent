@@ -31,5 +31,9 @@ public class TimeUtil {
         return calendar.getTime();
     }
 
+    public static void main(String[] args) {
+       System.out.println(getBeforeByMinuteTime(1));
+    }
+
 
 }

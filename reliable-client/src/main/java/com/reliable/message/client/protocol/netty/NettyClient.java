@@ -1,11 +1,12 @@
 package com.reliable.message.client.protocol.netty;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.discovery.RegistryFactory;
-import com.reliable.message.common.domain.ClientMessageData;
 import com.reliable.message.common.netty.NamedThreadFactory;
 import com.reliable.message.common.netty.message.*;
+import com.reliable.message.common.wrapper.Wrapper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -13,13 +14,17 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -34,11 +39,16 @@ public class NettyClient {
     private static final int MIN_SERVER_POOL_SIZE = 10;
     private static final int MAX_SERVER_POOL_SIZE = 50;
     private static final int MAX_TASK_QUEUE_SIZE = 2000;
+    private static final int TIMEOUT_CHECK_INTERNAL = 10000;
+    private static final int MESSAGE_CHECK_PERIOD = 5000;
     private static final int KEEP_ALIVE_TIME = 500;
     private static final ThreadPoolExecutor WORKING_THREADS = new ThreadPoolExecutor(MIN_SERVER_POOL_SIZE,
             MAX_SERVER_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
             new LinkedBlockingQueue(MAX_TASK_QUEUE_SIZE),
             new NamedThreadFactory("ClientHandlerThread", MAX_SERVER_POOL_SIZE), new ThreadPoolExecutor.CallerRunsPolicy());
+
+    protected final ScheduledExecutorService saveAndSendMessageCheck = new ScheduledThreadPoolExecutor(1,
+            new NamedThreadFactory("messageCheck", 1, true));
     private final ConcurrentMap<String, Object> channelLocks = new ConcurrentHashMap<>();
 
     @Value("${spring.application.name}")
@@ -66,6 +76,16 @@ public class NettyClient {
             bootstrap.handler(new ClientChannelInitializer(clientRpcHandler));
         }
         connect();
+
+        saveAndSendMessageCheck.scheduleWithFixedDelay(() -> {
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("fetchNum",50);
+            List<String> clientMessageIds = reliableMessageService.getProducerMessage(jsonObject);
+            for (String id : clientMessageIds) {
+                WORKING_THREADS.execute(() -> checkServerMessageIsExist(id));
+            }
+        }, TIMEOUT_CHECK_INTERNAL, MESSAGE_CHECK_PERIOD, TimeUnit.MILLISECONDS);
     }
 
     public void connect(){
@@ -173,6 +193,26 @@ public class NettyClient {
         }
     }
 
+    public void checkServerMessageIsExist(String id) {
+        CheckServerMessageRequest checkServerMessageRequest = new CheckServerMessageRequest();
+        checkServerMessageRequest.setId(id);
+        try {
+            ResponseMessage responseMessage = (ResponseMessage) this.clientRpcHandler.sendMessage(checkServerMessageRequest,getExistAliveChannel());
+            if(Wrapper.SUCCESS_CODE == responseMessage.getResultCode()){
+                reliableMessageService.updateMessage(checkServerMessageRequest);
+            }else if(Wrapper.WITHOUT_MESSAGE == responseMessage.getResultCode()){
+
+                Map<String, Object> requestMessage = reliableMessageService.getRequestMessageById(id);
+                SaveAndSendRequest saveAndSendRequest = new ModelMapper().map(requestMessage, SaveAndSendRequest.class);
+                saveAndSendRequest.setSyncFlag(false);
+                clientRpcHandler.sendMessage(saveAndSendRequest,getExistAliveChannel());
+            }
+        } catch (TimeoutException e) {
+            logger.warn("checkServerMessageIsExist error - 生产者 消息id={}", id);
+        }
+
+    }
+
 
     public void directSendMessage(DirectSendRequest directSendRequest) throws TimeoutException {
         directSendRequest.setSyncFlag(false);
@@ -207,4 +247,6 @@ public class NettyClient {
         }
         return channel;
     }
+
+
 }

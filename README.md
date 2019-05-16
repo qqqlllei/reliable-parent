@@ -2,6 +2,11 @@
 可靠消息服务
 
 
+bug
+saveAndSendMessage 客户端不能保证保存后的消息一定被消费 客户端定时执行任务，查看服务端时候存有message 且已经消费，如果不存在，重发消息，如果存在标记状态
+
+
+
 # TODO
 1:  client 端 DB 消息清除处理逻辑
 2:  saveAndSendMessage 消息处理

@@ -4,6 +4,7 @@ import com.reliable.message.common.discovery.RegistryFactory;
 import com.reliable.message.common.enums.MessageSendTypeEnum;
 import com.reliable.message.common.netty.RoundRobinLoadBalance;
 import com.reliable.message.common.netty.message.Message;
+import com.reliable.message.common.netty.message.ReceiveSaveAndSendRequest;
 import com.reliable.message.common.netty.message.ResponseMessage;
 import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
 import com.reliable.message.common.netty.rpc.AbstractRpcHandler;
@@ -91,6 +92,13 @@ public class ClientRpcHandler extends AbstractRpcHandler {
                 return;
 
             }
+
+            if(msg instanceof ReceiveSaveAndSendRequest){
+                ReceiveSaveAndSendRequest receiveSaveAndSendRequest = (ReceiveSaveAndSendRequest) msg;
+                nettyClient.getReliableMessageService().updateMessage(receiveSaveAndSendRequest);
+                return;
+            }
+
             super.channelRead(ctx,msg);
 
 

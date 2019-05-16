@@ -14,7 +14,7 @@ public class SaveAndSendRequest extends RequestMessage{
 
         Object args[] = {
                 getId(),
-                getVersion(),
+                0,
                 getProducerMessageId(),
                 getProducerGroup(),
                 getMessageKey(),

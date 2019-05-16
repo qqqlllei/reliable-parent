@@ -6,6 +6,8 @@ import com.reliable.message.common.dto.MessageData;
 import com.reliable.message.common.netty.message.RequestMessage;
 
 import java.util.List;
+import java.util.Map;
+
 /**
  * Created by 李雷
  */
@@ -15,6 +17,8 @@ public interface ReliableMessageService {
     boolean hasProducedMessage(String producerMessageId);
 	void deleteMessageByProducerMessageId(String producerMessageId);
 	List<String> getProducerMessage(JSONObject jobTaskParameter);
-    void saveMessage(RequestMessage waitingConfirmRequest);
-
+    void saveMessage(RequestMessage requestMessage);
+    void updateMessage(RequestMessage requestMessage);
+//    void updateSendTimeByMessageId(String id);
+    Map<String,Object> getRequestMessageById(String id);
 }
