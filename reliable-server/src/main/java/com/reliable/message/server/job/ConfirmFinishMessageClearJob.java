@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
 
-import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageService;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 @ElasticJobConfig(cron = "elastic.job.cron.confirmFinishMessageClearCron",
         jobParameter = "{'fetchNum':200,'taskType':'SENDING_MESSAGE'}",description="消息服务成功消费记录清除")
-public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<ServerMessageData> {
+public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<ReliableMessage> {
     private Logger logger = LoggerFactory.getLogger(ConfirmFinishMessageClearJob.class);
 
     @Autowired
@@ -30,18 +30,18 @@ public class ConfirmFinishMessageClearJob extends AbstractBaseDataflowJob<Server
     private MessageConfirmService messageConfirmService;
 
     @Override
-    protected List<ServerMessageData> fetchJobData(JSONObject jobTaskParameter) {
+    protected List<ReliableMessage> fetchJobData(JSONObject jobTaskParameter) {
         logger.info("fetchJobData - jobTaskParameter={}", jobTaskParameter);
-        List<ServerMessageData> serverMessageDataList =  messageService.getServerMessageDataByParams(jobTaskParameter);
-        return serverMessageDataList;
+        List<ReliableMessage> reliableMessageList =  messageService.getServerMessageDataByParams(jobTaskParameter);
+        return reliableMessageList;
     }
 
     @Override
-    protected void processJobData(List<ServerMessageData> serverMessageDataList) {
-        for (ServerMessageData serverMessageData : serverMessageDataList) {
-            int count = messageConfirmService.getMessageConfirmCountByProducerMessageId(serverMessageData.getProducerMessageId());
+    protected void processJobData(List<ReliableMessage> reliableMessageList) {
+        for (ReliableMessage reliableMessage : reliableMessageList) {
+            int count = messageConfirmService.getMessageConfirmCountByProducerMessageId(reliableMessage.getProducerMessageId());
             if(count == 0){
-                messageService.clearFinishMessage(serverMessageData.getId());
+                messageService.clearFinishMessage(reliableMessage.getId());
             }
         }
     }

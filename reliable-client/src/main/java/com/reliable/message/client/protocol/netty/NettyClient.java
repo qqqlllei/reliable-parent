@@ -170,14 +170,14 @@ public class NettyClient {
     }
 
 
-    public void confirmAndSendMessage(String producerMessageId)  {
+    public void confirmAndSendMessage(String id)  {
         ConfirmAndSendRequest confirmAndSendRequest = new ConfirmAndSendRequest();
-        confirmAndSendRequest.setProducerMessageId(producerMessageId);
+        confirmAndSendRequest.setId(id);
         confirmAndSendRequest.setSyncFlag(false);
         try {
             this.clientRpcHandler.sendMessage(confirmAndSendRequest, getExistAliveChannel());
         } catch (TimeoutException e) {
-            logger.warn("confirmAndSendMessage error - 生产者 消息id={}", producerMessageId);
+            logger.warn("confirmAndSendMessage error - 生产者 消息id={}", id);
         }
     }
 
@@ -197,7 +197,7 @@ public class NettyClient {
         try {
             ResponseMessage responseMessage = (ResponseMessage) this.clientRpcHandler.sendMessage(checkServerMessageRequest,getExistAliveChannel());
             if(Wrapper.SUCCESS_CODE == responseMessage.getResultCode()){
-                reliableMessageService.updateMessage(checkServerMessageRequest);
+                reliableMessageService.updateMessageStatusToFinish(checkServerMessageRequest.getId());
             }else if(Wrapper.WITHOUT_MESSAGE == responseMessage.getResultCode()){
 
                 Map<String, Object> requestMessage = reliableMessageService.getRequestMessageById(id);

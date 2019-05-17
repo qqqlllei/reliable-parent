@@ -3,7 +3,7 @@ package com.reliable.message.server.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
-import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.common.netty.message.ResponseMessage;
 import com.reliable.message.common.netty.message.WaitConfirmCheckRequest;
 import com.reliable.message.common.wrapper.Wrapper;
@@ -25,7 +25,7 @@ import java.util.List;
 @Component
 @ElasticJobConfig(cron = "elastic.job.cron.waitConfirmMessageJobCron",
         jobParameter = "{'fetchNum':50,'taskType':'SENDING_MESSAGE'}",description="待确认消息异常处理")
-public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessageData> {
+public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessage> {
 
 
     private Logger logger = LoggerFactory.getLogger(WaitConfirmMessageJob.class);
@@ -38,32 +38,32 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
 
 
     @Override
-    protected List<ServerMessageData> fetchJobData(JSONObject jobTaskParameter) {
+    protected List<ReliableMessage> fetchJobData(JSONObject jobTaskParameter) {
 
         logger.info("WaitConfirmMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
 
-        List<ServerMessageData> serverMessageDataList =  messageService.getWaitConfirmServerMessageData(jobTaskParameter);
+        List<ReliableMessage> reliableMessageList =  messageService.getWaitConfirmServerMessageData(jobTaskParameter);
 
-        List<ServerMessageData> fetchServerMessageList = new ArrayList<>();
-        for (ServerMessageData serverMessageData : serverMessageDataList) {
+        List<ReliableMessage> fetchServerMessageList = new ArrayList<>();
+        for (ReliableMessage reliableMessage : reliableMessageList) {
             try {
                 WaitConfirmCheckRequest waitConfirmCheckRequest = new WaitConfirmCheckRequest();
-                waitConfirmCheckRequest.setProducerGroup(serverMessageData.getProducerGroup());
-                waitConfirmCheckRequest.setId(serverMessageData.getProducerMessageId());
+                waitConfirmCheckRequest.setProducerGroup(reliableMessage.getProducerGroup());
+                waitConfirmCheckRequest.setId(reliableMessage.getProducerMessageId());
                 ServerRpcHandler serverRpcHandler = nettyServer.getServerRpcHandler();
-                Channel channel = serverRpcHandler.getClientChannel(serverMessageData.getProducerGroup());
+                Channel channel = serverRpcHandler.getClientChannel(reliableMessage.getProducerGroup());
                 if(channel == null){
-                    logger.warn("服务{}未启动",serverMessageData.getProducerGroup());
+                    logger.warn("服务{}未启动", reliableMessage.getProducerGroup());
                     continue;
                 }
 
                 ResponseMessage object = (ResponseMessage) serverRpcHandler.sendMessage(waitConfirmCheckRequest,channel);
 
                 if(Wrapper.SUCCESS_CODE == object.getResultCode()){
-                    fetchServerMessageList.add(serverMessageData);
+                    fetchServerMessageList.add(reliableMessage);
                 }else if(Wrapper.WITHOUT_MESSAGE == object.getResultCode()){
-                    logger.info("=======================WITHOUT_MESSAGE =========================="+serverMessageData.getProducerMessageId());
-                    messageService.deleteServerMessageDataById(serverMessageData.getId());
+                    logger.info("=======================WITHOUT_MESSAGE =========================="+ reliableMessage.getProducerMessageId());
+                    messageService.deleteServerMessageDataById(reliableMessage.getId());
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage());
@@ -75,12 +75,12 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ServerMessage
     }
 
     @Override
-    protected void processJobData(List<ServerMessageData> serverMessageDataList) {
-        logger.info("WaitConfirmMessageJob.processJobData - serverMessageDataList={}", serverMessageDataList);
+    protected void processJobData(List<ReliableMessage> reliableMessageList) {
+        logger.info("WaitConfirmMessageJob.processJobData - serverMessageDataList={}", reliableMessageList);
 
-        for (ServerMessageData serverMessageData : serverMessageDataList) {
+        for (ReliableMessage reliableMessage : reliableMessageList) {
 
-            messageService.confirmAndSendMessage(serverMessageData.getProducerMessageId());
+            messageService.confirmAndSendMessage(reliableMessage.getProducerMessageId());
         }
     }
 }

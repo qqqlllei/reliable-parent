@@ -3,7 +3,7 @@ package com.reliable.message.server.job;
 import com.alibaba.fastjson.JSONObject;
 import com.job.lite.annotation.ElasticJobConfig;
 import com.job.lite.job.AbstractBaseDataflowJob;
-import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageService;
@@ -59,19 +59,19 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<MessageConfirm> {
             }
             messageConfirm.setSendTimes(sendTimes+1);
             messageConfirm.setUpdateTime(new Date());
-            ServerMessageData serverMessageData = messageService.getServerMessageDataByProducerMessageId(messageConfirm.getProducerMessageId());
+            ReliableMessage reliableMessage = messageService.getServerMessageDataByProducerMessageId(messageConfirm.getProducerMessageId());
 
             messageConfirmService.updateById(messageConfirm);
 
-            String topic= serverMessageData.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase();
+            String topic= reliableMessage.getMessageTopic()+"_"+messageConfirm.getConsumerGroup().toUpperCase();
 
-            String messageVersion = serverMessageData.getMessageVersion();
+            String messageVersion = reliableMessage.getMessageVersion();
             if(StringUtils.isNotBlank(messageVersion)){
-                topic = serverMessageData.getMessageTopic()+"_"+messageVersion+"_"+messageConfirm.getConsumerGroup().toUpperCase();
+                topic = reliableMessage.getMessageTopic()+"_"+messageVersion+"_"+messageConfirm.getConsumerGroup().toUpperCase();
             }
-            JSONObject messageBody =JSONObject.parseObject(JSONObject.toJSON(serverMessageData).toString());
+            JSONObject messageBody =JSONObject.parseObject(JSONObject.toJSON(reliableMessage).toString());
             messageBody.put("confirmId",messageConfirm.getId());
-            messageService.directSendMessage(messageBody.toJSONString(),topic,serverMessageData.getMessageKey());
+            messageService.directSendMessage(messageBody.toJSONString(),topic, reliableMessage.getMessageKey());
         }
     }
 }

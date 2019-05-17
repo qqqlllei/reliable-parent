@@ -1,8 +1,8 @@
 package com.reliable.message.common.netty.message;
 
-import com.reliable.message.common.netty.rpc.AbstractRpcHandler;
+import com.reliable.message.common.domain.ReliableMessage;
 import lombok.Data;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.modelmapper.ModelMapper;
 
 import java.util.Date;
 
@@ -28,5 +28,8 @@ public abstract class RequestMessage extends Message {
     private Date createTime;
     private Date updateTime;
 
-    public abstract void executeSql(JdbcTemplate jdbcTemplate);
+
+    public ReliableMessage requestToReliableMessage(){
+        return new ModelMapper().map(this, ReliableMessage.class);
+    }
 }

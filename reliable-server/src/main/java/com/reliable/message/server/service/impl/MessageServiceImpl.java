@@ -1,22 +1,22 @@
 package com.reliable.message.server.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
+import com.reliable.message.common.enums.MessageSendStatusEnum;
 import com.reliable.message.common.exception.BusinessException;
 import com.reliable.message.common.netty.message.DirectSendRequest;
+import com.reliable.message.common.netty.message.SaveAndSendRequest;
+import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import com.reliable.message.common.util.TimeUtil;
 import com.reliable.message.common.util.UUIDUtil;
 import com.reliable.message.server.dao.ServerMessageMapper;
-import com.reliable.message.common.domain.ServerMessageData;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.enums.MessageConfirmEnum;
-import com.reliable.message.common.enums.MessageSendStatusEnum;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageConsumerService;
 import com.reliable.message.server.service.MessageService;
 import org.apache.commons.lang3.StringUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -48,27 +48,22 @@ public class MessageServiceImpl implements MessageService {
     private static final Integer DEFAULT_DEAD_STATUS =0;
 
     @Override
-    public void saveMessageWaitingConfirm(ClientMessageData clientMessageData) {
+    public void saveMessageWaitingConfirm(WaitingConfirmRequest waitingConfirmRequest) {
 
-        if (StringUtils.isEmpty(clientMessageData.getMessageTopic())) {
+        if (StringUtils.isEmpty(waitingConfirmRequest.getMessageTopic())) {
             throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_OF_MESSAGE_TOPIC_IS_NULL);
         }
 
         Date now = new Date();
-        ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        message.setProducerMessageId(clientMessageData.getId());
-        message.setId(UUIDUtil.getId());
-        message.setUpdateTime(now);
-        message.setDelayLevel(clientMessageData.getDelayLevel());
-        message.setSendTime(clientMessageData.getSendTime());
-        message.setCreateTime(now);
-        serverMessageMapper.insert(message);
+        waitingConfirmRequest.setUpdateTime(now);
+        waitingConfirmRequest.setCreateTime(now);
+        serverMessageMapper.insert(waitingConfirmRequest);
     }
 
     @Override
     @Transactional
     public void confirmAndSendMessage(String clientMessageId) {
-        ServerMessageData message = serverMessageMapper.getByProducerMessageId(clientMessageId);
+        ReliableMessage message = serverMessageMapper.getByMessageId(clientMessageId);
         if (message == null) {
             throw new BusinessException(ExceptionCodeEnum.GET_SERVER_MSG_IS_NULL_BY_CLIENT_ID);
         }
@@ -100,12 +95,12 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId) {
+    public ReliableMessage getServerMessageDataByProducerMessageId(String producerMessageId) {
         return serverMessageMapper.getByProducerMessageId(producerMessageId);
     }
 
     @Override
-    public List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject) {
+    public List<ReliableMessage> getServerMessageDataByParams(JSONObject jsonObject) {
         jsonObject.put("status", MessageSendStatusEnum.SENDING.sendStatus());
         jsonObject.put("clearTime", TimeUtil.getBeforeByMinuteTime(10));
         return serverMessageMapper.getServerMessageDataByParams(jsonObject);
@@ -117,20 +112,20 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter) {
+    public List<ReliableMessage> getWaitConfirmServerMessageData(JSONObject jobTaskParameter) {
 
         jobTaskParameter.put("scanTime",TimeUtil.getBeforeByMinuteTime(1));
         return serverMessageMapper.getWaitConfirmServerMessageData(jobTaskParameter);
     }
 
     @Override
-    public List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter) {
+    public List<ReliableMessage> getSendingMessageData(JSONObject jobTaskParameter) {
         jobTaskParameter.put("scanTime",TimeUtil.getBeforeByMinuteTime(1));
         return serverMessageMapper.getSendingMessageData(jobTaskParameter);
     }
 
 
-    private List<MessageConfirm>  confirmAndSendMessage(ServerMessageData message){
+    private List<MessageConfirm>  confirmAndSendMessage(ReliableMessage message){
 
 
         // 创建消费待确认列表
@@ -165,7 +160,8 @@ public class MessageServiceImpl implements MessageService {
         return list;
     }
 
-    public void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ServerMessageData message ){
+
+    public void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ReliableMessage message ){
 
         for (MessageConfirm confirm: confirmList) {
 
@@ -201,17 +197,14 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public void saveAndSendMessage(ClientMessageData clientMessageData) {
-        ServerMessageData message = new ModelMapper().map(clientMessageData, ServerMessageData.class);
-        message.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
+    public void saveAndSendMessage(SaveAndSendRequest saveAndSendRequest) {
+
         Date now = new Date();
-        message.setProducerMessageId(clientMessageData.getId());
-        message.setId(UUIDUtil.getId());
-        message.setUpdateTime(now);
-        message.setCreateTime(now);
-        serverMessageMapper.insert(message);
-        List<MessageConfirm> confirmList = createMqConfirmListByTopic(message.getMessageTopic(),message.getId(),message.getProducerGroup(),message.getProducerMessageId());
-        sendMessageToMessageQueue(confirmList,message);
+        saveAndSendRequest.setUpdateTime(now);
+        saveAndSendRequest.setCreateTime(now);
+        serverMessageMapper.insert(saveAndSendRequest);
+        List<MessageConfirm> confirmList = createMqConfirmListByTopic(saveAndSendRequest.getMessageTopic(),saveAndSendRequest.getId(),saveAndSendRequest.getProducerGroup(),saveAndSendRequest.getProducerMessageId());
+        sendMessageToMessageQueue(confirmList,saveAndSendRequest.requestToReliableMessage());
     }
 
     @Override
@@ -224,13 +217,13 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public void updateSendingMessage(ServerMessageData serverMessageData, MessageConfirm messageConfirm) {
-        serverMessageData.setUpdateTime(new Date());
-        updateById(serverMessageData);
+    public void updateSendingMessage(ReliableMessage reliableMessage, MessageConfirm messageConfirm) {
+        reliableMessage.setUpdateTime(new Date());
+        updateById(reliableMessage);
         messageConfirmService.updateById(messageConfirm);
     }
 
-    public void updateById(ServerMessageData serverMessageData) {
-        this.serverMessageMapper.updateById(serverMessageData);
+    public void updateById(ReliableMessage reliableMessage) {
+        this.serverMessageMapper.updateById(reliableMessage);
     }
 }

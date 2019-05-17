@@ -97,7 +97,7 @@ public class ServerRpcHandler extends AbstractRpcHandler {
                         dataBaseManager.saveAndSendMessage(saveAndSendRequest);
 
                         ReceiveSaveAndSendRequest receiveSaveAndSendRequest = new ReceiveSaveAndSendRequest();
-                        receiveSaveAndSendRequest.setProducerMessageId(saveAndSendRequest.getProducerMessageId());
+                        receiveSaveAndSendRequest.setId(saveAndSendRequest.getId());
                         ctx.writeAndFlush(receiveSaveAndSendRequest);
                         return;
                     }

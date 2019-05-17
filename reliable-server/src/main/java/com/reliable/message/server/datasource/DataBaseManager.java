@@ -1,13 +1,11 @@
 package com.reliable.message.server.datasource;
 
-import com.reliable.message.common.domain.ClientMessageData;
-import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
 import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.common.netty.message.SaveAndSendRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import com.reliable.message.server.service.MessageService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,12 +19,11 @@ public class DataBaseManager {
     private MessageService messageService;
 
     public void waitingConfirmRequest(WaitingConfirmRequest waitingConfirmRequest){
-        ClientMessageData clientMessageData = new ModelMapper().map(waitingConfirmRequest, ClientMessageData.class);
-        messageService.saveMessageWaitingConfirm(clientMessageData);
+        messageService.saveMessageWaitingConfirm(waitingConfirmRequest);
     }
 
     public void confirmAndSendRequest(ConfirmAndSendRequest confirmAndSendRequest) {
-        messageService.confirmAndSendMessage(confirmAndSendRequest.getProducerMessageId());
+        messageService.confirmAndSendMessage(confirmAndSendRequest.getId());
     }
 
     public void confirmFinishRequest(String confirmId) {
@@ -34,8 +31,7 @@ public class DataBaseManager {
     }
 
     public void saveAndSendMessage(SaveAndSendRequest saveAndSendRequest){
-        ClientMessageData clientMessageData = new ModelMapper().map(saveAndSendRequest, ClientMessageData.class);
-        messageService.saveAndSendMessage(clientMessageData);
+        messageService.saveAndSendMessage(saveAndSendRequest);
     }
 
     public void directSendMessage(DirectSendRequest directSendRequest){
@@ -43,8 +39,8 @@ public class DataBaseManager {
     }
 
     public boolean checkMessageIsExist(String producerMessageId){
-        ServerMessageData serverMessageData =  messageService.getServerMessageDataByProducerMessageId(producerMessageId);
-        if(serverMessageData !=null){
+        ReliableMessage reliableMessage =  messageService.getServerMessageDataByProducerMessageId(producerMessageId);
+        if(reliableMessage !=null){
             return true;
         }
         return  false;

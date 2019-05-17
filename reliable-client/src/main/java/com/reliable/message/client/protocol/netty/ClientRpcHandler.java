@@ -95,7 +95,7 @@ public class ClientRpcHandler extends AbstractRpcHandler {
 
             if(msg instanceof ReceiveSaveAndSendRequest){
                 ReceiveSaveAndSendRequest receiveSaveAndSendRequest = (ReceiveSaveAndSendRequest) msg;
-                nettyClient.getReliableMessageService().updateMessage(receiveSaveAndSendRequest);
+                nettyClient.getReliableMessageService().updateMessageStatusToFinish(receiveSaveAndSendRequest.getId());
                 return;
             }
 

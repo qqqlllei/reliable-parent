@@ -1,9 +1,10 @@
 package com.reliable.message.server.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.common.domain.ClientMessageData;
-import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.common.netty.message.DirectSendRequest;
+import com.reliable.message.common.netty.message.SaveAndSendRequest;
+import com.reliable.message.common.netty.message.WaitingConfirmRequest;
 import com.reliable.message.server.domain.MessageConfirm;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * Created by 李雷 on 2018/5/11.
  */
 public interface MessageService {
-    void saveMessageWaitingConfirm(ClientMessageData tpcMqMessageDto);
+    void saveMessageWaitingConfirm(WaitingConfirmRequest waitingConfirmRequest);
 
     void confirmAndSendMessage(String producerMessageId);
 
@@ -22,25 +23,25 @@ public interface MessageService {
 
     void confirmFinishMessage(String confirmId);
 
-    ServerMessageData getServerMessageDataByProducerMessageId(String producerMessageId);
+    ReliableMessage getServerMessageDataByProducerMessageId(String producerMessageId);
 
-    List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject);
+    List<ReliableMessage> getServerMessageDataByParams(JSONObject jsonObject);
 
     void deleteServerMessageDataById(String id);
 
-    List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
+    List<ReliableMessage> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
 
-    List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter);
+    List<ReliableMessage> getSendingMessageData(JSONObject jobTaskParameter);
 
-    void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ServerMessageData message );
+    void sendMessageToMessageQueue(List<MessageConfirm> confirmList, final ReliableMessage message );
 
     void directSendMessage(DirectSendRequest directSendRequest);
 
-    void saveAndSendMessage(ClientMessageData clientMessageData);
+    void saveAndSendMessage(SaveAndSendRequest saveAndSendRequest);
 
     void clearFinishMessage(String messageId);
 
-    void updateSendingMessage(ServerMessageData serverMessageData, MessageConfirm messageConfirm);
+    void updateSendingMessage(ReliableMessage reliableMessage, MessageConfirm messageConfirm);
 
-    void updateById(ServerMessageData serverMessageData);
+    void updateById(ReliableMessage reliableMessage);
 }

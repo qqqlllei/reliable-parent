@@ -1,7 +1,8 @@
 package com.reliable.message.server.dao;
 
 import com.alibaba.fastjson.JSONObject;
-import com.reliable.message.common.domain.ServerMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
+import com.reliable.message.common.netty.message.RequestMessage;
 
 import java.util.List;
 
@@ -10,21 +11,27 @@ import java.util.List;
  */
 public interface ServerMessageMapper {
 
-    int insert(ServerMessageData message);
+    int insert(ReliableMessage message);
 
-    ServerMessageData getByProducerMessageId(String clientMessageId);
+    int insert(RequestMessage requestMessage);
 
-    int updateById(ServerMessageData update);
+    ReliableMessage getByProducerMessageId(String clientMessageId);
+
+    ReliableMessage getByMessageId(String id);
+
+    int updateById(ReliableMessage update);
 
     String getConfirmIdByGroupAndKey(String consumerGroup, String messageKey);
 
     void confirmReceiveMessage(String confirmId);
 
-    List<ServerMessageData> getServerMessageDataByParams(JSONObject jsonObject);
+    List<ReliableMessage> getServerMessageDataByParams(JSONObject jsonObject);
 
     void deleteServerMessageDataById(String id);
 
-    List<ServerMessageData> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
+    List<ReliableMessage> getWaitConfirmServerMessageData(JSONObject jobTaskParameter);
 
-    List<ServerMessageData> getSendingMessageData(JSONObject jobTaskParameter);
+    List<ReliableMessage> getSendingMessageData(JSONObject jobTaskParameter);
+
+
 }

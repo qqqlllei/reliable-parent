@@ -17,6 +17,6 @@ ok - saveAndSendMessage 客户端不能保证保存后的消息一定被消费 �
 7:  serverConsole
 8:  最大努力通知方式的加入
 9:  服务注册/发现多方式接入
-10: 服务端客户端，消息id 方式统一
+10: 服务端客户端，消息id 方式统一 ok 
 11：futures 中，超时message 清理
 12：tcp客户端池化 --GenericKeyedObjectPool 管理 空闲 channel 的释放操作

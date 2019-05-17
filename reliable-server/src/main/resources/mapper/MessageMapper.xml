@@ -4,7 +4,7 @@
 
 
 
-    <resultMap id="RM_ServerMessageData" type="com.reliable.message.common.domain.ServerMessageData">
+    <resultMap id="RM_ServerMessageData" type="com.reliable.message.common.domain.ReliableMessage">
         <result property="id" column="id"/>
         <result property="version" column="version"/>
         <result property="messageKey" column="message_key"/>
@@ -59,7 +59,7 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         <![CDATA[
-	        INSERT INTO message (
+	        INSERT INTO reliable_message (
 	        	id ,
 	        	version ,
 	        	message_topic ,
@@ -92,12 +92,19 @@
     </insert>
 
 
+
+
     <select id="getByProducerMessageId" parameterType="java.lang.String" resultMap="RM_ServerMessageData" >
-            SELECT * FROM message WHERE producer_message_id = #{producerMessageId}
+            SELECT * FROM reliable_message WHERE producer_message_id = #{producerMessageId}
+    </select>
+
+
+    <select id="getByMessageId" parameterType="java.lang.String" resultMap="RM_ServerMessageData">
+           SELECT * FROM reliable_message WHERE id = #{id}
     </select>
     
-    <update id="updateById" parameterType="com.reliable.message.common.domain.ServerMessageData"  >
-        UPDATE message
+    <update id="updateById" parameterType="com.reliable.message.common.domain.ReliableMessage"  >
+        UPDATE reliable_message
         <include refid="update_sql" />
         WHERE
         id = #{id}
@@ -106,24 +113,24 @@
 
 
     <select id="getServerMessageDataByParams" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData" >
-        SELECT * FROM message WHERE status = #{status} AND send_time &lt; #{clearTime}
+        SELECT * FROM reliable_message WHERE status = #{status} AND send_time &lt; #{clearTime}
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 
 
     <delete id="deleteServerMessageDataById" parameterType="java.lang.String" >
-        DELETE FROM message where id = #{id}
+        DELETE FROM reliable_message where id = #{id}
     </delete>
 
 
     <select id="getWaitConfirmServerMessageData" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData" >
-        SELECT * FROM message WHERE status = 10 AND send_time &lt; #{scanTime}
+        SELECT * FROM reliable_message WHERE status = 10 AND send_time &lt; #{scanTime}
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 
 
     <select id="getSendingMessageData" parameterType="com.alibaba.fastjson.JSONObject" resultMap="RM_ServerMessageData">
-        SELECT * FROM message WHERE status = 20 AND send_time &lt; #{scanTime}
+        SELECT * FROM reliable_message WHERE status = 20 AND send_time &lt; #{scanTime}
         AND MOD(id, #{shardingTotalCount}) = #{shardingItem} ORDER BY update_time ASC Limit 0, #{fetchNum}
     </select>
 

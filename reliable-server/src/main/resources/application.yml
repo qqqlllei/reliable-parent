@@ -54,18 +54,18 @@ sharding:
 
     config:
       sharding:
-        bindingTables: message,message_confirm
+        bindingTables: reliable_message,message_confirm
         tables:
-          message:
-            actualDataNodes: ds${0..1}.message${0..1}
+          reliable_message:
+            actualDataNodes: ds${0..1}.reliable_message${0..1}
             databaseStrategy:
               inline:
                 shardingColumn: id
                 algorithmExpression: ds${Math.abs(id.hashCode() % 2)}
             tableStrategy:
               inline:
-                shardingColumn: producer_message_id
-                algorithmExpression: message${Math.abs(producer_message_id.hashCode() % 2)}
+                shardingColumn: create_time
+                algorithmExpression: reliable_message${Math.abs(create_time.hashCode() % 2)}
             keyGenerator:
               column: id
           message_confirm:
@@ -76,8 +76,8 @@ sharding:
                 algorithmExpression: ds${Math.abs(message_id.hashCode() % 2)}
             tableStrategy:
               inline:
-                shardingColumn: producer_message_id
-                algorithmExpression: message_confirm${Math.abs(producer_message_id.hashCode() % 2)}
+                shardingColumn: create_time
+                algorithmExpression: message_confirm${Math.abs(create_time.hashCode() % 2)}
             keyGenerator:
               column: id
 #      props:

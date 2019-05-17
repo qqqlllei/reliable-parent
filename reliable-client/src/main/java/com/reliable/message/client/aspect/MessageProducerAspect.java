@@ -4,11 +4,8 @@ import com.reliable.message.client.annotation.MessageProducer;
 import com.reliable.message.client.delay.DelayMessageTask;
 import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
-import com.reliable.message.common.domain.ClientMessageData;
-import com.reliable.message.common.enums.DelayLevelEnum;
-import com.reliable.message.common.enums.ExceptionCodeEnum;
-import com.reliable.message.common.enums.MessageSendTypeEnum;
-import com.reliable.message.common.enums.MessageTypeEnum;
+import com.reliable.message.common.domain.ReliableMessage;
+import com.reliable.message.common.enums.*;
 import com.reliable.message.common.exception.BusinessException;
 import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.common.netty.message.SaveAndSendRequest;
@@ -82,10 +79,10 @@ public class MessageProducerAspect {
 			throw new BusinessException(ExceptionCodeEnum.MSG_PRODUCER_ARGS_IS_NULL);
 		}
 
-		ClientMessageData domain = null;
+		ReliableMessage domain = null;
 		for (Object object : args) {
-			if (object instanceof ClientMessageData) {
-				domain = (ClientMessageData) object;
+			if (object instanceof ReliableMessage) {
+				domain = (ReliableMessage) object;
 				break;
 			}
 		}
@@ -106,9 +103,10 @@ public class MessageProducerAspect {
 
 		if (type == MessageSendTypeEnum.WAIT_CONFIRM) {
 
-            WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(domain, WaitingConfirmRequest.class);
-			reliableMessageService.saveMessage(waitingConfirmRequest);
+			domain.setStatus(MessageSendStatusEnum.WAIT_CONFIRM.sendStatus());
+			reliableMessageService.saveMessage(domain);
 			try {
+				WaitingConfirmRequest waitingConfirmRequest = new ModelMapper().map(domain, WaitingConfirmRequest.class);
                 nettyClient.saveMessageWaitingConfirm(waitingConfirmRequest);
             }catch (TimeoutException e){
 			    throw new RuntimeException(e.getCause());
@@ -119,8 +117,11 @@ public class MessageProducerAspect {
 		result = joinPoint.proceed();
 
 		if (type == MessageSendTypeEnum.SAVE_AND_SEND) {
+
+			domain.setStatus(MessageSendStatusEnum.SENDING.sendStatus());
+			reliableMessageService.saveMessage(domain);
+
 			SaveAndSendRequest saveAndSendRequest = new ModelMapper().map(domain, SaveAndSendRequest.class);
-			reliableMessageService.saveMessage(saveAndSendRequest);
 			nettyClient.saveAndSendMessage(saveAndSendRequest);
 		} else if (type == MessageSendTypeEnum.DIRECT_SEND) {
 			DirectSendRequest directSendRequest = new ModelMapper().map(domain, DirectSendRequest.class);

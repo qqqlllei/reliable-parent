@@ -4,10 +4,8 @@ import com.reliable.message.client.aspect.MessageConsumerAspect;
 import com.reliable.message.client.aspect.MessageProducerAspect;
 import com.reliable.message.client.delay.DelayMessageRegictedExecutionHandler;
 import com.reliable.message.client.delay.DelayMessageTask;
-//import com.reliable.message.client.job.ClientMessageDataflow;
 import com.reliable.message.client.protocol.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
-import com.reliable.message.client.service.impl.ReliableMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -67,15 +65,9 @@ public class MessageBeanConfiguration {
 	@Bean
 	@ConditionalOnExpression("${reliable.message.reliableMessageConsumer:false} || ${reliable.message.reliableMessageProducer:false}")
 	public ReliableMessageService reliableMessageService(){
-		return new ReliableMessageServiceImpl();
+		return new ReliableMessageService();
 	}
 
-
-//	@Bean
-//	@ConditionalOnExpression("${reliable.message.reliableMessageProducer:false}")
-//	public ClientMessageDataflow clientMessageDataflow(){
-//		return new ClientMessageDataflow();
-//	}
 
 
 

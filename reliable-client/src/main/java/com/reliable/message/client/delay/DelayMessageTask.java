@@ -1,7 +1,7 @@
 package com.reliable.message.client.delay;
 
 import com.reliable.message.client.protocol.netty.NettyClient;
-import com.reliable.message.common.domain.ClientMessageData;
+import com.reliable.message.common.domain.ReliableMessage;
 import lombok.Data;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by 李雷 on 2019/3/26.
@@ -19,13 +18,13 @@ public class DelayMessageTask implements Runnable, Delayed{
 
     private static final Log LOGER = LogFactory.getLog(DelayMessageTask.class);
     private long executeTime;
-    private ClientMessageData clientMessageData;
+    private ReliableMessage reliableMessage;
     private DelayQueue<DelayMessageTask> delayMessageQueue;
     private NettyClient nettyClient;
 
-    public DelayMessageTask(ClientMessageData clientMessageData,DelayQueue delayMessageQueue,NettyClient nettyClient){
-        this.clientMessageData = clientMessageData;
-        this.executeTime = clientMessageData.getSendTime().getTime();
+    public DelayMessageTask(ReliableMessage reliableMessage, DelayQueue delayMessageQueue, NettyClient nettyClient){
+        this.reliableMessage = reliableMessage;
+        this.executeTime = reliableMessage.getSendTime().getTime();
         this.delayMessageQueue = delayMessageQueue;
         this.nettyClient = nettyClient;
         this.delayMessageQueue.add(this);
@@ -47,7 +46,7 @@ public class DelayMessageTask implements Runnable, Delayed{
         try {
             DelayMessageTask delayMessageTask = delayMessageQueue.take();
 
-            nettyClient.confirmAndSendMessage(delayMessageTask.getClientMessageData().getProducerMessageId());
+            nettyClient.confirmAndSendMessage(delayMessageTask.getReliableMessage().getProducerMessageId());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -55,7 +54,7 @@ public class DelayMessageTask implements Runnable, Delayed{
 
     @Override
     public String toString(){
-        return "DelayMessageTask(executeTime=" + this.getExecuteTime() + ", clientMessageData=" + this.getClientMessageData()+ ")";
+        return "DelayMessageTask(executeTime=" + this.getExecuteTime() + ", message=" + this.getReliableMessage()+ ")";
     }
 
 }
