@@ -67,9 +67,7 @@ public class ServerRpcHandler extends AbstractRpcHandler {
             }
 
             if(msg instanceof RequestMessage){
-                // 耗时操作放在业务线程处理
                 messageExecutor.execute(() -> {
-
                     if(msg instanceof WaitingConfirmRequest){
                         WaitingConfirmRequest waitingConfirmRequest = (WaitingConfirmRequest) msg;
                         dataBaseManager.waitingConfirmRequest(waitingConfirmRequest);
