@@ -7,6 +7,12 @@ spring:
     name: reliable-server
   kafka:
     bootstrap-servers: 10.33.80.101:9092
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.33.80.101:3306/reliable_message0?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&failOverReadOnly=false&useSSL=false
+    username: root
+    password: 123456
 
 info:
   version: "@project.version@"
@@ -34,52 +40,52 @@ elastic:
 
 
 
-sharding:
-  jdbc:
-    dataSource:
-      names: ds0,ds1
-      ds0:
-        type: com.alibaba.druid.pool.DruidDataSource
-        driver-class-name: com.mysql.jdbc.Driver
-        url: jdbc:mysql://10.33.80.101:3306/reliable_message0?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
-        username: root
-        password: 123456
-      ds1:
-        type: com.alibaba.druid.pool.DruidDataSource
-        driver-class-name: com.mysql.jdbc.Driver
-        url: jdbc:mysql://10.33.80.101:3306/reliable_message1?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
-        username: root
-        password: 123456
-
-
-    config:
-      sharding:
-        bindingTables: reliable_message,message_confirm
-        tables:
-          reliable_message:
-            actualDataNodes: ds${0..1}.reliable_message${0..1}
-            databaseStrategy:
-              inline:
-                shardingColumn: id
-                algorithmExpression: ds${Math.abs(id.hashCode() % 2)}
-            tableStrategy:
-              inline:
-                shardingColumn: create_time
-                algorithmExpression: reliable_message${Math.abs(create_time.hashCode() % 2)}
-            keyGenerator:
-              column: id
-          message_confirm:
-            actualDataNodes: ds${0..1}.message_confirm${0..1}
-            databaseStrategy:
-              inline:
-                shardingColumn: message_id
-                algorithmExpression: ds${Math.abs(message_id.hashCode() % 2)}
-            tableStrategy:
-              inline:
-                shardingColumn: create_time
-                algorithmExpression: message_confirm${Math.abs(create_time.hashCode() % 2)}
-            keyGenerator:
-              column: id
+#sharding:
+#  jdbc:
+#    dataSource:
+#      names: message0,message1
+#      message0:
+#        type: com.alibaba.druid.pool.DruidDataSource
+#        driver-class-name: com.mysql.jdbc.Driver
+#        url: jdbc:mysql://10.33.80.101:3306/message0?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
+#        username: root
+#        password: 123456
+#      message1:
+#        type: com.alibaba.druid.pool.DruidDataSource
+#        driver-class-name: com.mysql.jdbc.Driver
+#        url: jdbc:mysql://10.33.80.101:3306/message1?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
+#        username: root
+#        password: 123456
+#
+#    config:
+#      sharding:
+#        bindingTables: reliable_message,message_confirm
+#        tables:
+#          message_confirm:
+#            actualDataNodes: message${0..1}.message_confirm${0..1}
+#            databaseStrategy:
+#              inline:
+#                shardingColumn: message_id
+#                algorithmExpression: message${Math.abs(message_id.hashCode() % 2)}
+#            tableStrategy:
+#              inline:
+#                shardingColumn: create_time
+#                algorithmExpression: message_confirm${Math.abs(create_time.hashCode() % 2)}
+#            keyGenerator:
+#              column: id
+#          reliable_message:
+#            actualDataNodes: message${0..1}.reliable_message${0..1}
+#            databaseStrategy:
+#              inline:
+#                shardingColumn: id
+#                algorithmExpression: message${Math.abs(id.hashCode() % 2)}
+#            tableStrategy:
+#              inline:
+#                shardingColumn: create_time
+#                algorithmExpression: reliable_message${Math.abs(create_time.hashCode() % 2)}
+#            keyGenerator:
+#              column: id
+#
 #      props:
 #        sql:
 #          show: true

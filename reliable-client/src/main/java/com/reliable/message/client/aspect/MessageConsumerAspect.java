@@ -2,7 +2,7 @@ package com.reliable.message.client.aspect;
 
 
 import com.reliable.message.client.annotation.MessageConsumer;
-import com.reliable.message.client.protocol.netty.NettyClient;
+import com.reliable.message.client.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.dto.MessageData;
 import com.reliable.message.common.enums.ExceptionCodeEnum;
@@ -18,6 +18,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
+import org.springframework.dao.DuplicateKeyException;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
@@ -85,7 +86,15 @@ public class MessageConsumerAspect {
 				log.info("processMessageConsumerJoinPoint - 线程id={} 已经消费producerId为{} 的消息", Thread.currentThread().getId(),messageData.getProducerMessageId());
 				return ;
 			}
-			reliableMessageService.confirmReceiveMessage(consumerGroup, messageData);
+
+			try{
+				reliableMessageService.confirmReceiveMessage(consumerGroup, messageData);
+			}catch(DuplicateKeyException e){
+				log.warn("confirmReceiveMessage 已存在 producerMessageId 为 :" + messageData.getProducerMessageId() +" 的消息！");
+				nettyClient.confirmFinishMessage( messageData.getConfirmId());
+				return;
+			}
+
 		}
 		String methodName = joinPoint.getSignature().getName();
 		try {

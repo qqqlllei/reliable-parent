@@ -12,6 +12,7 @@ import com.reliable.message.common.util.UUIDUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Date;
@@ -23,6 +24,7 @@ import java.util.Map;
  */
 @Slf4j
 public class ReliableMessageService {
+
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -52,16 +54,12 @@ public class ReliableMessageService {
 				currentDate,
 				currentDate
 		};
-
-		jdbcTemplate.update(sql,args);
-
-
-
+			jdbcTemplate.update(sql,args);
 	}
 
 
 	public boolean hasConsumedMessage(String producerMessageId,int type) {
-		String sql = " SELECT COUNT(*) FROM client_message_data WHERE  producer_message_id= ? and message_type = ?";
+		String sql = " SELECT COUNT(*) FROM reliable_message WHERE  producer_message_id= ? and message_type = ?";
 		Object args[] ={producerMessageId,type};
 		int count = jdbcTemplate.queryForObject(sql,args,Integer.class);
 		if(count != 0) return true;
@@ -71,7 +69,7 @@ public class ReliableMessageService {
 
 	public boolean hasProducedMessage(String producerMessageId) {
 
-		String sql = " SELECT COUNT(*) FROM client_message_data WHERE  id= ?";
+		String sql = " SELECT COUNT(*) FROM reliable_message WHERE  id= ?";
 		Object args[] ={producerMessageId};
 		int count = jdbcTemplate.queryForObject(sql,args,Integer.class);
 		if(count != 0) return true;

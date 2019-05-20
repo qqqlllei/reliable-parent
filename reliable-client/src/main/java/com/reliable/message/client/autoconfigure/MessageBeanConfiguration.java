@@ -4,7 +4,7 @@ import com.reliable.message.client.aspect.MessageConsumerAspect;
 import com.reliable.message.client.aspect.MessageProducerAspect;
 import com.reliable.message.client.delay.DelayMessageRegictedExecutionHandler;
 import com.reliable.message.client.delay.DelayMessageTask;
-import com.reliable.message.client.protocol.netty.NettyClient;
+import com.reliable.message.client.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

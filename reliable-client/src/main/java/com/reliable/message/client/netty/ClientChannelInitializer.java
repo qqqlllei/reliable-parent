@@ -1,4 +1,4 @@
-package com.reliable.message.client.protocol.netty;
+package com.reliable.message.client.netty;
 
 import com.reliable.message.common.netty.MessageCodecHandler;
 import io.netty.channel.ChannelInitializer;

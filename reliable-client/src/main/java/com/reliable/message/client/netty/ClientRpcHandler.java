@@ -1,7 +1,6 @@
-package com.reliable.message.client.protocol.netty;
+package com.reliable.message.client.netty;
 
 import com.reliable.message.common.discovery.RegistryFactory;
-import com.reliable.message.common.enums.MessageSendTypeEnum;
 import com.reliable.message.common.netty.RoundRobinLoadBalance;
 import com.reliable.message.common.netty.message.Message;
 import com.reliable.message.common.netty.message.ReceiveSaveAndSendRequest;

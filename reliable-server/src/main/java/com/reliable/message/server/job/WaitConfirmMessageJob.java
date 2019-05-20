@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Component
 @ElasticJobConfig(cron = "elastic.job.cron.waitConfirmMessageJobCron",
-        jobParameter = "{'fetchNum':50,'taskType':'SENDING_MESSAGE'}",description="待确认消息异常处理")
+        jobParameter = "{'fetchNum':300,'taskType':'SENDING_MESSAGE'}",description="待确认消息异常处理")
 public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessage> {
 
 
@@ -41,6 +41,8 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessa
     protected List<ReliableMessage> fetchJobData(JSONObject jobTaskParameter) {
 
         logger.info("WaitConfirmMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
+
+        messageService.getSendingMessageData(jobTaskParameter);
 
         List<ReliableMessage> reliableMessageList =  messageService.getWaitConfirmServerMessageData(jobTaskParameter);
 

@@ -1,4 +1,4 @@
-package com.reliable.message.client.protocol.netty;
+package com.reliable.message.client.netty;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
@@ -39,6 +39,10 @@ public class NettyClient {
     private static final int MAX_TASK_QUEUE_SIZE = 2000;
     private static final int TIMEOUT_CHECK_INTERNAL = 10000;
     private static final int MESSAGE_CHECK_PERIOD = 5000;
+
+    private static final int RECONNECTION_INTERNAL = 10000;
+    private static final int RECONNECTION_PERIOD = 30000;
+
     private static final int KEEP_ALIVE_TIME = 500;
     private static final ThreadPoolExecutor WORKING_THREADS = new ThreadPoolExecutor(MIN_SERVER_POOL_SIZE,
             MAX_SERVER_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
@@ -47,6 +51,10 @@ public class NettyClient {
 
     protected final ScheduledExecutorService saveAndSendMessageCheck = new ScheduledThreadPoolExecutor(1,
             new NamedThreadFactory("messageCheck", 1, true));
+
+
+    protected final ScheduledExecutorService reConnectionTask = new ScheduledThreadPoolExecutor(1,
+            new NamedThreadFactory("reConnectionTask", 1, true));
     private final ConcurrentMap<String, Object> channelLocks = new ConcurrentHashMap<>();
 
     @Value("${spring.application.name}")
@@ -84,6 +92,11 @@ public class NettyClient {
                 WORKING_THREADS.execute(() -> checkServerMessageIsExist(id));
             }
         }, TIMEOUT_CHECK_INTERNAL, MESSAGE_CHECK_PERIOD, TimeUnit.MILLISECONDS);
+
+
+        reConnectionTask.scheduleWithFixedDelay(
+                () -> WORKING_THREADS.execute(() -> connect()),
+                RECONNECTION_INTERNAL, RECONNECTION_PERIOD, TimeUnit.MILLISECONDS);
     }
 
     public void connect(){
@@ -134,7 +147,7 @@ public class NettyClient {
                     clientRpcHandler.getChannels().put(channel.remoteAddress().toString(),channel);
                     ClientRegisterRequest clientRegisterRequest = new ClientRegisterRequest();
                     clientRegisterRequest.setApplicationId(applicationId);
-                    clientRegisterRequest.setSyncFlag(true);
+                    clientRegisterRequest.setSyncFlag(false);
                     channel.writeAndFlush(clientRegisterRequest);
                     return channel;
                 }

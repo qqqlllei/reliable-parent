@@ -2,7 +2,7 @@ package com.reliable.message.client.aspect;
 
 import com.reliable.message.client.annotation.MessageProducer;
 import com.reliable.message.client.delay.DelayMessageTask;
-import com.reliable.message.client.protocol.netty.NettyClient;
+import com.reliable.message.client.netty.NettyClient;
 import com.reliable.message.client.service.ReliableMessageService;
 import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.common.enums.*;

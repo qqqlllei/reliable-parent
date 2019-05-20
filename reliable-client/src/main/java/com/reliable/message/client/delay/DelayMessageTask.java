@@ -1,6 +1,6 @@
 package com.reliable.message.client.delay;
 
-import com.reliable.message.client.protocol.netty.NettyClient;
+import com.reliable.message.client.netty.NettyClient;
 import com.reliable.message.common.domain.ReliableMessage;
 import lombok.Data;
 import org.apache.commons.logging.Log;

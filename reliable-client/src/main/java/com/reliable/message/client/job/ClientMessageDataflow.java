@@ -3,7 +3,7 @@
 //import com.alibaba.fastjson.JSONObject;
 //import com.job.lite.annotation.ElasticJobConfig;
 //import com.job.lite.job.AbstractBaseDataflowJob;
-//import com.reliable.message.client.protocol.netty.NettyClient;
+//import NettyClient;
 //import com.reliable.message.client.service.ReliableMessageService;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
