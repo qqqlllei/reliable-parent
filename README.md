@@ -14,9 +14,9 @@ ok - saveAndSendMessage 客户端不能保证保存后的消息一定被消费 �
 
 3:  directSendMessage 消息处理 ok 
 
-4:  consumer 端消息中间件jar的依赖
+4:  consumer 端消息中间件 jar 的依赖
 
-5:  对多消息中间件的支持 RocketMQ kafka ActiveMQ RabbitMQ
+5:  对多消息中间件的支持 RocketMQ Kafka ActiveMQ RabbitMQ
 
 6:  server 端对 mybatis 的依赖 
 

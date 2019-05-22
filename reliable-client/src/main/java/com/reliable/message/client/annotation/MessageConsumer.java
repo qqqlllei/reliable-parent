@@ -11,4 +11,6 @@ import java.lang.annotation.*;
 public @interface MessageConsumer {
 
 	boolean storageStatus() default true;
+
+	String topics () default "default";
 }
