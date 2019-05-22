@@ -39,14 +39,19 @@ public abstract class AbstractRpcHandler extends ChannelInboundHandlerAdapter {
                 }
             });
             try {
-                logger.info("======================同步 sendMessage===================="+requestMessage.getId());
+
                 return messageFuture.get(3 * 1000L, TimeUnit.MILLISECONDS);
             } catch (Exception exx) {
+                futures.remove(requestMessage.getId());
                 logger.error("wait response error:" + exx.getMessage() + ",ip:" + "127" + ",request:" + requestMessage);
                 if (exx instanceof TimeoutException) {
                     throw (TimeoutException) exx;
                 } else {
                     throw new RuntimeException(exx);
+                }
+            }finally {
+                if(logger.isDebugEnabled()){
+                    logger.info("==================== futures ================"+futures);
                 }
             }
         }else {
