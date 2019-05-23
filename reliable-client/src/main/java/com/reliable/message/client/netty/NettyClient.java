@@ -128,7 +128,10 @@ public class NettyClient {
 
         synchronized (connectLock) {
             Channel channel;
-            logger.info("================channels=============="+clientRpcHandler.getChannels());
+
+            if(logger.isDebugEnabled()){
+                logger.info("================channels=============="+clientRpcHandler.getChannels());
+            }
             channel = clientRpcHandler.getChannels().get(serverAddress.toString());
             if(channel !=null && channel.isActive()){
                 return channel;
