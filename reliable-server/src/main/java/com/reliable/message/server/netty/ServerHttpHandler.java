@@ -6,7 +6,7 @@ import com.reliable.message.server.datasource.DataBaseManager;
 import com.reliable.message.server.domain.MessageConsumer;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
@@ -14,18 +14,22 @@ import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by 李雷 on 2019/5/24.
  */
-@ChannelHandler.Sharable
+@Sharable
 @Slf4j
 public class ServerHttpHandler extends ChannelInboundHandlerAdapter{
 
     private DataBaseManager dataBaseManager;
 
-    public ServerHttpHandler(DataBaseManager dataBaseManager){
+    private ThreadPoolExecutor executor;
+
+    public ServerHttpHandler(DataBaseManager dataBaseManager,ThreadPoolExecutor executor){
         this.dataBaseManager = dataBaseManager;
+        this.executor = executor ;
     }
 
     @Override
@@ -49,8 +53,10 @@ public class ServerHttpHandler extends ChannelInboundHandlerAdapter{
 
                 if(requestInfo.length >1){
                     String topic = requestInfo[2];
-                   List<MessageConsumer>  messageConsumers = dataBaseManager.getConsumersByTopic(topic);
-                   sendMessage(ctx,JSONObject.toJSONString(messageConsumers));
+                    executor.execute(() -> {
+                        List<MessageConsumer>  messageConsumers = dataBaseManager.getConsumersByTopic(topic);
+                        sendMessage(ctx,JSONObject.toJSONString(messageConsumers));
+                    });
                 }
 
                 break;

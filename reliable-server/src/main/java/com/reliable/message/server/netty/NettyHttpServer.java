@@ -20,6 +20,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by 李雷 on 2019/5/24.
@@ -44,6 +47,11 @@ public class NettyHttpServer {
 
     private Integer httpPort = 8080 ;
 
+    private static final ThreadPoolExecutor WORKING_THREADS = new ThreadPoolExecutor(5,
+            10, 500, TimeUnit.SECONDS,
+            new LinkedBlockingQueue(15),
+            new NamedThreadFactory("ServerHttpHandlerThread", 15), new ThreadPoolExecutor.CallerRunsPolicy());
+
     @PostConstruct
     public void start() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap();
@@ -59,7 +67,7 @@ public class NettyHttpServer {
                         pipeline.addLast(new HttpObjectAggregator(10 * 1024 * 1024));
                         pipeline.addLast(new HttpContentCompressor());
                         //添加自定义处理器
-                        pipeline.addLast(new ServerHttpHandler(dataBaseManager));
+                        pipeline.addLast(new ServerHttpHandler(dataBaseManager,WORKING_THREADS));
                     }
                 });
         ChannelFuture future = bootstrap.bind().sync();
