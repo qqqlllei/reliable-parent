@@ -141,7 +141,7 @@ public class MessageServiceImpl implements MessageService {
         List<MessageConfirm> list = new ArrayList<>();
         MessageConfirm messageConfirm;
 
-        List<String> consumerGroupList = messageConsumerService.listConsumerGroupByTopic(messageTopic);
+        List<String> consumerGroupList = messageConsumerService.getConsumerGroupNameByTopic(messageTopic);
 
         if (consumerGroupList ==null || consumerGroupList.size() == 0) {
             return new ArrayList<>();
@@ -180,7 +180,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void directSendMessage(DirectSendRequest directSendRequest) {
         String messageTopic = directSendRequest.getMessageTopic();
-        List<String> consumerGroupList= messageConsumerService.listConsumerGroupByTopic(messageTopic);
+        List<String> consumerGroupList= messageConsumerService.getConsumerGroupNameByTopic(messageTopic);
 
         for (String consumer : consumerGroupList) {
 

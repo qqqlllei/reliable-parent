@@ -1,6 +1,7 @@
 package com.reliable.message.server.service.impl;
 
 import com.reliable.message.server.dao.MessageConsumerMapper;
+import com.reliable.message.server.domain.MessageConsumer;
 import com.reliable.message.server.service.MessageConsumerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,12 @@ public class MessageConsumerServiceImpl implements MessageConsumerService {
 
 
     @Override
-    public List<String> listConsumerGroupByTopic(String messageTopic) {
-        return messageConsumerMapper.listConsumerGroupByTopic(messageTopic);
+    public List<String> getConsumerGroupNameByTopic(String messageTopic) {
+        return messageConsumerMapper.getConsumerGroupNameByTopic(messageTopic);
+    }
+
+    @Override
+    public List<MessageConsumer> getConsumersByTopic(String topic) {
+        return messageConsumerMapper.getConsumersByTopic(topic);
     }
 }

@@ -5,9 +5,13 @@ import com.reliable.message.common.netty.message.ConfirmAndSendRequest;
 import com.reliable.message.common.netty.message.DirectSendRequest;
 import com.reliable.message.common.netty.message.SaveAndSendRequest;
 import com.reliable.message.common.netty.message.WaitingConfirmRequest;
+import com.reliable.message.server.domain.MessageConsumer;
+import com.reliable.message.server.service.MessageConsumerService;
 import com.reliable.message.server.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Created by 李雷 on 2019/5/5.
@@ -17,6 +21,10 @@ public class DataBaseManager {
 
     @Autowired
     private MessageService messageService;
+
+
+    @Autowired
+    private MessageConsumerService messageConsumerService;
 
     public void waitingConfirmRequest(WaitingConfirmRequest waitingConfirmRequest){
         messageService.saveMessageWaitingConfirm(waitingConfirmRequest);
@@ -45,5 +53,9 @@ public class DataBaseManager {
         }
         return  false;
 
+    }
+
+    public List<MessageConsumer> getConsumersByTopic(String topic) {
+        return messageConsumerService.getConsumersByTopic(topic);
     }
 }

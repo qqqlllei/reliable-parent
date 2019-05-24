@@ -11,6 +11,7 @@ import com.reliable.message.server.netty.NettyServer;
 import com.reliable.message.server.netty.ServerRpcHandler;
 import com.reliable.message.server.service.MessageService;
 import io.netty.channel.Channel;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,10 @@ import java.util.List;
 /**
  * Created by 李雷 on 2018/10/11.
  */
-@Component
+@Slf4j
 @ElasticJobConfig(cron = "elastic.job.cron.waitConfirmMessageJobCron",
         jobParameter = "{'fetchNum':300,'taskType':'SENDING_MESSAGE'}",description="待确认消息异常处理")
 public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessage> {
-
-
-    private Logger logger = LoggerFactory.getLogger(WaitConfirmMessageJob.class);
 
     @Autowired
     private MessageService messageService;
@@ -40,7 +38,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessa
     @Override
     protected List<ReliableMessage> fetchJobData(JSONObject jobTaskParameter) {
 
-        logger.info("WaitConfirmMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
+        log.info("WaitConfirmMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
 
         messageService.getSendingMessageData(jobTaskParameter);
 
@@ -55,7 +53,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessa
                 ServerRpcHandler serverRpcHandler = nettyServer.getServerRpcHandler();
                 Channel channel = serverRpcHandler.getClientChannel(reliableMessage.getProducerGroup());
                 if(channel == null){
-                    logger.warn("服务{}未启动", reliableMessage.getProducerGroup());
+                    log.warn("服务{}未启动", reliableMessage.getProducerGroup());
                     continue;
                 }
 
@@ -64,11 +62,11 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessa
                 if(Wrapper.SUCCESS_CODE == object.getResultCode()){
                     fetchServerMessageList.add(reliableMessage);
                 }else if(Wrapper.WITHOUT_MESSAGE == object.getResultCode()){
-                    logger.info("=======================WITHOUT_MESSAGE =========================="+ reliableMessage.getProducerMessageId());
+                    log.info("=======================WITHOUT_MESSAGE =========================="+ reliableMessage.getProducerMessageId());
                     messageService.deleteServerMessageDataById(reliableMessage.getId());
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                log.error(e.getMessage());
             }
         }
 
@@ -78,7 +76,7 @@ public class WaitConfirmMessageJob extends AbstractBaseDataflowJob<ReliableMessa
 
     @Override
     protected void processJobData(List<ReliableMessage> reliableMessageList) {
-        logger.info("WaitConfirmMessageJob.processJobData - serverMessageDataList={}", reliableMessageList);
+        log.info("WaitConfirmMessageJob.processJobData - serverMessageDataList={}", reliableMessageList);
 
         for (ReliableMessage reliableMessage : reliableMessageList) {
 

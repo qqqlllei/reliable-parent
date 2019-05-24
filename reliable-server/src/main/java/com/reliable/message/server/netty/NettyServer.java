@@ -9,8 +9,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,9 +25,9 @@ import java.util.concurrent.TimeUnit;
  * Created by 李雷 on 2019/4/29.
  */
 @Component
+@Slf4j
 public class NettyServer {
 
-    private static Logger logger = LoggerFactory.getLogger(NettyServer.class);
     @Autowired
     private DataBaseManager dataBaseManager;
     private ServerRpcHandler serverRpcHandler;
@@ -91,7 +90,7 @@ public class NettyServer {
         try {
             ChannelFuture future = bootstrap.bind().sync();
             if (future.isSuccess()) {
-                logger.info("启动 Netty Server");
+                log.info("启动 Netty Server");
             }
             RegistryFactory.getInstance(RegistryFactory.DEFAULT_REGISTER).register(ip,port);
         } catch (Exception e) {
@@ -103,7 +102,7 @@ public class NettyServer {
     public void destory() throws InterruptedException {
         boss.shutdownGracefully().sync();
         work.shutdownGracefully().sync();
-        logger.info("关闭Netty");
+        log.info("关闭Netty");
     }
 
     public DataBaseManager getDataBaseManager() {

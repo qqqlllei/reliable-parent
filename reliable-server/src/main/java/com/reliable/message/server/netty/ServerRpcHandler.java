@@ -11,8 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,9 +20,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Sharable
+@Slf4j
 public class ServerRpcHandler extends AbstractRpcHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(ServerRpcHandler.class);
     private final ConcurrentMap<String, ConcurrentMap<String,Channel>> channels = new ConcurrentHashMap<>();
 
     private DataBaseManager dataBaseManager;
@@ -153,7 +152,7 @@ public class ServerRpcHandler extends AbstractRpcHandler {
         if (obj instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) obj;
             if (IdleState.READER_IDLE.equals(event.state())) {
-                logger.warn("已经5秒没有接收到客户端的信息了");
+                log.warn("已经5秒没有接收到客户端的信息了");
                 ctx.disconnect();
                 ctx.close();
             }
@@ -164,7 +163,7 @@ public class ServerRpcHandler extends AbstractRpcHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.info(cause.getMessage()+"--"+ctx.channel().toString());
+        log.info(cause.getMessage()+"--"+ctx.channel().toString());
         ctx.disconnect();
         ctx.close();
     }

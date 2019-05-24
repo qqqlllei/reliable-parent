@@ -12,4 +12,5 @@ public class MessageConstant {
 
     public static final String DELETE_CLIENT_MESSAGE_URL="/deleteMessage/";
     public static final String GET_CLIENT_MESSAGE_URL="/getClientMessage/";
+    public static final String GET_CONSUMERS_BY_TOPIC="getConsumersByTopic";
 }

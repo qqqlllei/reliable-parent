@@ -2,8 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.reliable.message.server.dao.MessageConsumerMapper">
 
+    <resultMap id="RM_MessageConsumer" type="com.reliable.message.server.domain.MessageConsumer" >
+
+        <result property="id" column="id"  />
+        <result property="consumerGroup" column="consumer_group" />
+        <result property="topic" column="topic" />
+
+
+    </resultMap>
+
     <select id="listConsumerGroupByTopic" resultType="java.lang.String">
-        SELECT consumer_group from message_consumer WHERE topic_code = #{topic}
+        SELECT consumer_group from message_consumer WHERE topic = #{topic}
+    </select>
+
+
+    <select id="getConsumersByTopic" parameterType="java.lang.String" resultMap="RM_MessageConsumer" >
+
+        SELECT * FROM message_consumer WHERE topic = #{topic}
+
     </select>
 
 </mapper>

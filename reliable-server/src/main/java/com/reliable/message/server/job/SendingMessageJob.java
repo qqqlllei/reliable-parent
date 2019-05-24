@@ -7,6 +7,7 @@ import com.reliable.message.common.domain.ReliableMessage;
 import com.reliable.message.server.domain.MessageConfirm;
 import com.reliable.message.server.service.MessageConfirmService;
 import com.reliable.message.server.service.MessageService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +19,12 @@ import java.util.List;
 /**
  * Created by 李雷 on 2018/10/11.
  */
+@Slf4j
 @ElasticJobConfig(cron = "elastic.job.cron.sendingMessageCron",
         jobParameter = "{'fetchNum':300,'taskType':'SENDING_MESSAGE'}",description="待发送消息异常处理")
 public class SendingMessageJob extends AbstractBaseDataflowJob<MessageConfirm> {
 
 
-    private Logger logger = LoggerFactory.getLogger(SendingMessageJob.class);
 
     private Integer MAX_RESEND_COUNT = 4;
 
@@ -38,7 +39,7 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<MessageConfirm> {
     @Override
     protected List<MessageConfirm> fetchJobData(JSONObject jobTaskParameter) {
 
-        logger.info("SendingMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
+        log.info("SendingMessageJob.fetchJobData - jobTaskParameter={}", jobTaskParameter);
 
         List<MessageConfirm> unConfirmMessages =  messageConfirmService.getUnConfirmMessage(jobTaskParameter);
 
@@ -48,7 +49,7 @@ public class SendingMessageJob extends AbstractBaseDataflowJob<MessageConfirm> {
     @Override
     protected void processJobData(List<MessageConfirm> messageConfirms) {
 
-        logger.info("SendingMessageJob.processJobData - messageConfirms={}", messageConfirms);
+        log.info("SendingMessageJob.processJobData - messageConfirms={}", messageConfirms);
 
 
 
